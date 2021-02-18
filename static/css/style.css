@@ -13,5 +13,14 @@ body {
 }
 
 .posts-wall div {
-    margin-top: 10px;
+    margin-top: 15px;
+}
+
+.post-title {
+    text-align: center;
+}
+
+.post-btn:hover {
+    background-color: #505050;
+    color: #ffffff;
 }

@@ -25,15 +25,23 @@
             </div>
          </div>
       </nav>
-      <div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
-         {% for post in posts %}
-            <div class="card" href="# {{ post.id }}">
-               <div class="card-body">
-                  <p class="card-text"><small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small></p>
-                  <h5 class="card-title">{{ post.title }}</h5>
+      <div class="container">
+         <div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
+            {% for post in posts %}
+               <div class="card" href="# {{ post.id }}">
+                  <div class="card-body">
+                     <span class="post-title">
+                     <h4 class="card-title">{{ post.title }}</h4>
+                     </span>
+                     <p class="card-text"><small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small></p>
+                     <p class="card-text">{{ post.content}}</p>
+                     <button type="button" class="btn btn-light post-btn">{{ post.likes }} likes</button>
+                     <button type="button" class="btn btn-light post-btn">Comment</button>
+                     <button type="button" class="btn btn-light post-btn">Share</button>
+                  </div>
                </div>
-            </div>
-         {% endfor %}
+            {% endfor %}
+         </div>
       </div>
    </body>
 </html>

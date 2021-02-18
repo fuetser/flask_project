@@ -3,6 +3,7 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
+
 @app.route("/")
 def hello():
     return "Hello, World!"
@@ -10,19 +11,25 @@ def hello():
 
 @app.route("/template")
 def template():
-    return render_template(
-        "index.html",
-        posts=[
+    return render_template("index.html", posts=[
         {
             "id": 123,
             "author": {"nickname": "cool_user", "id": 1234},
             "title": "Dogs are so cute!",
             "elapsed": "2 hours ago",
+            "content": "a" * 200,
+            "likes": 100
         },
         {
             "id": 456,
             "author": {"nickname": "bad_user", "id": 5678},
             "title": "Dogs aren't so cute!",
             "elapsed": "1 hour ago",
+            "content": "b" * 200,
+            "likes": 1000
         }
-        ])
+    ])
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
