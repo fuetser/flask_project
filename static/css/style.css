@@ -1,3 +1,17 @@
 .navbar-nav a {
     font-family: 'Inter', sans-serif;
 }
+
+body {
+    background-color: #f5f5f5;
+}
+
+.posts-wall {
+    margin: auto;
+    width: 50vw;
+    backgroud: #ffffff;
+}
+
+.posts-wall div {
+    margin-top: 10px;
+}
