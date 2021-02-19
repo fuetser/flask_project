@@ -11,9 +11,9 @@ body {
 }
 
 .underline {
-   text-decoration: none; 
-   position: relative;
-}   
+    text-decoration: none; 
+    position: relative;
+}
 
 .underline:before {
     content: "";
@@ -39,18 +39,29 @@ body {
     backgroud: #ffffff;
 }
 
-.posts-wall a {
-    text-decoration: none;
-    color: inherit;
-}
-
 .card {
     margin-top: 15px;
 }
 
-.post-btn:hover {
-    background-color: #f55d3e;
-    color: #ffffff;
+.post-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.post-info {
+    margin-top: 15px;
+}
+
+.post-info div {
+    margin-right: 15px;
+}
+
+.post-info-category span {
+    margin-right: 5px;
+}
+
+.post-info-button {
+    padding: 0px;
 }
 
 .post-body {
@@ -65,47 +76,55 @@ body {
     padding: 10px;
 }
 
-.like-icon:hover {
+.icon-like:hover {
+    color: #2288ff;
+}
+
+.icon-comments:hover {
+    color: #2288ff;
+}
+
+.icon-share:hover {
     color: #2288ff;
 }
 
 .material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;  /* Preferred icon size */
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 22px;  /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
 
-  /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility;
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
 
-  /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale;
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
 
-  /* Support for IE. */
-  font-feature-settings: 'liga';
+    /* Support for IE. */
+    font-feature-settings: 'liga';
 }
 
 
 /* for hiding navbar on scroll */
-.smart-scroll{
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: 1030;
+.smart-scroll {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1030;
 }
-.scrolled-down{
+.scrolled-down {
    transform:translateY(-100%); transition: all 0.5s ease-in-out;
 }
-.scrolled-up{
+.scrolled-up {
    transform:translateY(0); transition: all 0.25s ease-in-out;
 }

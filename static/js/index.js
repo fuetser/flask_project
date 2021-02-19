@@ -18,3 +18,7 @@ window.addEventListener("scroll", (event) => {
     }
     lastScroll = window.pageYOffset
 })
+
+window.addEventListener("optimizedResize", (event) => {
+    body.style.cssText = `padding-top: ${navbar.clientHeight}px;`
+})
