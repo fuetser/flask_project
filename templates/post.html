@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+
+{% block extrahead %}
+<link href="{{ url_for('static', filename='css/post.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 <div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
    <div class="post-body">
