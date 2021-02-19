@@ -10,18 +10,19 @@
             integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
             crossorigin="anonymous">
       <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
       <title>Лучшее</title>
    </head>
    <body>
-      <nav class="navbar navbar-expand-lg navbar-dark", style="background-color: #f55d3e">
+      <nav class="navbar navbar-expand-lg navbar-dark smart-scroll", style="background-color: #f55d3e">
          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
          </button>
          <div class="collapse navbar-collapse d-flex justify-content-center" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-               <a class="nav-item nav-link active" href="#">Лучшее</a>
-               <a class="nav-item nav-link" href="#">Горячее</a>
-               <a class="nav-item nav-link" href="#">Поиск по фильтру</a>
+               <a class="nav-item nav-link active underline" href="#">Лучшее</a>
+               <a class="nav-item nav-link underline" href="#">Горячее</a>
+               <a class="nav-item nav-link underline" href="#">Поиск по фильтру</a>
             </div>
          </div>
       </nav>
@@ -36,14 +37,16 @@
                      </span>
                      <p class="card-text"><small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small></p>
                      <p class="card-text">{{ post.body }}</p>
-                     <button type="button" class="btn btn-light post-btn">{{ post.likes }} likes</button>
-                     <button type="button" class="btn btn-light post-btn">{{ post.comments }} comments</button>
-                     <button type="button" class="btn btn-light post-btn">Share</button>
+                     <button type="button" class="btn btn-light post-btn smooth-transtion">{{ post.likes }} likes</button>
+                     <button type="button" class="btn btn-light post-btn smooth-transtion">{{ post.comments }} comments</button>
+                     <button type="button" class="btn btn-light post-btn smooth-transtion">Share</button>
                   </div>
                </div>
             </a>
             {% endfor %}
          </div>
       </div>
+
+      <script type="text/javascript" src="{{ url_for('static', filename='js/index.js')}}"></script>
    </body>
 </html>
