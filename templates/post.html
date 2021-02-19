@@ -31,11 +31,18 @@
             <h4>{{ post.title }}</h4>
             <p class="card-text"><small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small></p>
             <p>{{ post.body }}</p>
-            <div class="post-likes d-flex flex-row align-items-center">
-               <button type="button" class="btn btn-default" aria-label="like">
-                  <span class="material-icons like-icon smooth-transtion">thumb_up_alt</span>
-               </button>
-               <h5>{{ post.likes }}</h5>
+            <div class="post-info d-flex flex-row align-items-center">
+               <div class="post-info-category d-flex flex-row align-items-center">
+                  <button type="button" class="btn btn-default post-info-button" aria-label="like">
+                     <span class="material-icons icon-like smooth-transtion">favorite_border</span>
+                  </button>
+                  <h5>{{ post.likes }}</h5>
+               </div>
+               <div>
+                  <button type="button" class="btn btn-default post-info-button" aria-label="share">
+                     <span class="material-icons icon-share smooth-transtion">share</span>
+                  </button>
+               </div>
             </div>
          </div>
          <div class="post-comments" id="comments">
