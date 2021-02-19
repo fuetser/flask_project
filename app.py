@@ -12,34 +12,33 @@ LOREM_IPSUM = (
     "eu felis. Proin vel turpis ante. Suspendisse in odio nec nisi pulvinar "
     "aliquam.".split())
 
+lorem_ipsum = (lambda n: " ".join(LOREM_IPSUM[:n]))
+
 
 @app.route("/")
 def hello():
     return "Hello, World!"
 
 
+POST_EXAMPLE = {
+    "id": 456,
+    "author": {"nickname": "bad_user", "id": 5678},
+    "title": "Dogs aren't so cute!",
+    "elapsed": "1 hour ago",
+    "body": lorem_ipsum(20),
+    "likes": 1000,
+    "comments": 12,
+}
+
+
 @app.route("/template")
 def template():
-    return render_template("index.html", posts=[
-        {
-            "id": 123,
-            "author": {"nickname": "cool_user", "id": 1234},
-            "title": "Dogs are so cute!",
-            "elapsed": "2 hours ago",
-            "content": " ".join(LOREM_IPSUM[:25]),
-            "likes": 100,
-            "comments": 12,
-        },
-        {
-            "id": 456,
-            "author": {"nickname": "bad_user", "id": 5678},
-            "title": "Dogs aren't so cute!",
-            "elapsed": "1 hour ago",
-            "content": " ".join(LOREM_IPSUM[:20]),
-            "likes": 1000,
-            "comments": 12,
-        }
-    ])
+    return render_template("index.html", posts=[POST_EXAMPLE] * 5)
+
+
+@app.route("/posts/<int:post_id>")
+def post(post_id):
+    return render_template("post.html", post=POST_EXAMPLE)
 
 
 if __name__ == '__main__':
