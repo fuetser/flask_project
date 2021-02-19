@@ -1,13 +1,20 @@
-$('body').css('padding-top', $('.navbar').outerHeight() + 'px')
+const navbar = document.querySelector(".navbar")
+const body = document.querySelector("body")
 
-var last_scroll_top = 0;
-$(window).scroll(function(e) {
-    scroll_top = $(window).scrollTop();
-    if(scroll_top < last_scroll_top) {
-        $('.smart-scroll').removeClass('scrolled-down').addClass('scrolled-up');
+body.style.cssText = `padding-top: ${navbar.clientHeight}px;`
+var lastScroll = 0
+
+window.addEventListener("scroll", (event) => {
+    if (window.pageYOffset < lastScroll) {
+        if (navbar.classList.contains("scrolled-down")) {
+            navbar.classList.remove("scrolled-down")
+        }
+        navbar.classList.add("scrolled-up")
+    } else {
+        if (navbar.classList.contains("scrolled-up")) {
+            navbar.classList.remove("scrolled-up")
+        }
+        navbar.classList.add("scrolled-down")
     }
-    else {
-        $('.smart-scroll').removeClass('scrolled-up').addClass('scrolled-down');
-    }
-    last_scroll_top = scroll_top;
-});
+    lastScroll = window.pageYOffset
+})
