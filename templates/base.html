@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <link rel="preconnect" href="https://fonts.gstatic.com">
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+            integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+            crossorigin="anonymous">
+      <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+      <script type="text/javascript" src="{{ url_for('static', filename='js/index.js')}}" defer></script>
+      <title>Лучшее</title>
+   </head>
+   <body>
+      <nav class="navbar navbar-expand-lg navbar-dark smart-scroll" style="background-color: #f55d3e">
+         <div class="collapse navbar-collapse d-flex justify-content-center" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+               <a class="nav-item nav-link active underline" href="#">Лучшее</a>
+               <a class="nav-item nav-link underline" href="#">Горячее</a>
+               <a class="nav-item nav-link underline" href="#">Поиск по фильтру</a>
+            </div>
+         </div>
+      </nav>
+      {% block content %}{% endblock %}
+   </body>
+</html>

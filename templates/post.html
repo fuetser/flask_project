@@ -1,53 +1,26 @@
-<!doctype html>
-<html lang="en">
-   <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <link rel="preconnect" href="https://fonts.gstatic.com">
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
-      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-      <link rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
-            integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
-            crossorigin="anonymous">
-      <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-      <title>{{ post.title }}</title>
-   </head>
-   <body>
-      <nav class="navbar navbar-expand-lg navbar-dark smart-scroll", style="background-color: #f55d3e">
-         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-         </button>
-         <div class="collapse navbar-collapse d-flex justify-content-center" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-               <a class="nav-item nav-link active" href="#">Лучшее</a>
-               <a class="nav-item nav-link" href="#">Горячее</a>
-               <a class="nav-item nav-link" href="#">Поиск по фильтру</a>
-            </div>
+{% extends "base.html" %}
+{% block content %}
+<div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
+   <div class="post-body">
+      <h4>{{ post.title }}</h4>
+      <p class="card-text"><small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small></p>
+      <p>{{ post.body }}</p>
+      <div class="post-info d-flex flex-row align-items-center">
+         <div class="post-info-category d-flex flex-row align-items-center">
+            <button type="button" class="btn btn-default post-info-button" aria-label="like">
+               <span class="material-icons icon-like smooth-transtion">favorite_border</span>
+            </button>
+            <h5>{{ post.likes }}</h5>
          </div>
-      </nav>
-      <div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
-         <div class="post-body">
-            <h4>{{ post.title }}</h4>
-            <p class="card-text"><small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small></p>
-            <p>{{ post.body }}</p>
-            <div class="post-info d-flex flex-row align-items-center">
-               <div class="post-info-category d-flex flex-row align-items-center">
-                  <button type="button" class="btn btn-default post-info-button" aria-label="like">
-                     <span class="material-icons icon-like smooth-transtion">favorite_border</span>
-                  </button>
-                  <h5>{{ post.likes }}</h5>
-               </div>
-               <div>
-                  <button type="button" class="btn btn-default post-info-button" aria-label="share">
-                     <span class="material-icons icon-share smooth-transtion">share</span>
-                  </button>
-               </div>
-            </div>
-         </div>
-         <div class="post-comments" id="comments">
-            <h4>{{ post.comments }} Comments</h4>
+         <div>
+            <button type="button" class="btn btn-default post-info-button" aria-label="share">
+               <span class="material-icons icon-share smooth-transtion">share</span>
+            </button>
          </div>
       </div>
-   </body>
-</html>
+   </div>
+   <div class="post-comments" id="comments">
+      <h4>{{ post.comments }} Comments</h4>
+   </div>
+</div>
+{% endblock %}
