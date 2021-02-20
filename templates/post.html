@@ -4,23 +4,27 @@
 <link href="{{ url_for('static', filename='css/post.css') }}" rel="stylesheet">
 {% endblock %}
 
+{% block title %}{{ post.title }}{% endblock %}
+
 {% block content %}
 <div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
    <div class="post-body">
       <h4>{{ post.title }}</h4>
-      <p class="card-text"><small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small></p>
+      <p class="card-text">
+         <small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small>
+      </p>
       <p>{{ post.body }}</p>
       <div class="post-info d-flex flex-row align-items-center">
          <div class="post-info-category d-flex flex-row align-items-center">
             <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
-                  <object class="post-info-icon" type="image/svg+xml" data="{{ url_for('static', filename='icons/like_default.svg') }}"></object>
+               <object class="post-info-icon" type="image/svg+xml" data="{{ url_for('static', filename='icons/like_default.svg') }}"></object>
             </button>
             <h5>{{ post.likes }}</h5>
          </div>
          <div>
             <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="share">
-                  <object class="post-info-icon" type="image/svg+xml" data="{{ url_for('static', filename='icons/share.svg') }}"></object>
-               </button>
+               <object class="post-info-icon" type="image/svg+xml" data="{{ url_for('static', filename='icons/share.svg') }}"></object>
+            </button>
          </div>
       </div>
    </div>

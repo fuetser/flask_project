@@ -14,12 +14,6 @@ LOREM_IPSUM = (
 
 lorem_ipsum = (lambda n: " ".join(LOREM_IPSUM[:n]))
 
-
-@app.route("/")
-def hello():
-    return "Hello, World!"
-
-
 POST_EXAMPLE = {
     "id": 456,
     "author": {"nickname": "bad_user", "id": 5678},
@@ -31,9 +25,10 @@ POST_EXAMPLE = {
 }
 
 
-@app.route("/template")
-def template():
-    return render_template("index.html", posts=[POST_EXAMPLE] * 5)
+@app.route("/best")
+@app.route("/hot")
+def wall():
+    return render_template("feed.html", posts=[POST_EXAMPLE] * 5)
 
 
 @app.route("/posts/<int:post_id>")

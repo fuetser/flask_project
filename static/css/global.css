@@ -6,29 +6,6 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-.underline {
-    text-decoration: none; 
-    position: relative;
-}
-
-.underline:before {
-    content: "";
-    margin: 0;
-    left: 0;
-    bottom: 2px;
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background-color: #f55d3e;
-    transform: scale(0);
-    transition: .5s;
-}
-
-.underline:hover:before {
-    transform: scaleX(1);
-    background-color: #ffffff;
-}
-
 /* for hiding navbar on scroll */
 .smart-scroll {
     position: fixed;
