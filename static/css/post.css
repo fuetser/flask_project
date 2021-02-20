@@ -1,0 +1,45 @@
+.posts-wall {
+    margin: auto;
+    width: 50vw;
+    backgroud: #ffffff;
+}
+
+.post-info {
+    margin-top: 15px;
+}
+
+.post-info div {
+    margin-right: 15px;
+}
+
+.post-info-category span {
+    margin-right: 5px;
+}
+
+.post-info-button {
+    padding: 0px;
+}
+
+.post-body {
+    background-color: #ffffff;
+    margin-top: 15px;
+    padding: 10px;
+}
+
+.post-comments {
+    background-color: #ffffff;
+    margin-top: 15px;
+    padding: 10px;
+}
+
+.icon-like:hover {
+    color: #2288ff;
+}
+
+.icon-comments:hover {
+    color: #2288ff;
+}
+
+.icon-share:hover {
+    color: #2288ff;
+}
