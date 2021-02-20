@@ -21,7 +21,7 @@
     margin-right: 15px;
 }
 
-.post-info-category span {
+.post-info-category div {
     margin-right: 5px;
 }
 
@@ -29,14 +29,17 @@
     padding: 0px;
 }
 
-.icon-like:hover {
-    color: #2288ff;
+.post-info-icon {
+    padding: 0px;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
 }
 
-.icon-comments:hover {
-    color: #2288ff;
+.post-info-button:hover .post-info-icon {
+    filter: invert(.5) sepia(1) saturate(5) hue-rotate(175deg);
 }
 
-.icon-share:hover {
-    color: #2288ff;
+.post-info-button:hover .post-link-icon .post-info-icon {
+    filter: invert(.5) sepia(1) saturate(5) hue-rotate(175deg);
 }

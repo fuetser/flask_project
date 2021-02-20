@@ -4,6 +4,12 @@
     backgroud: #ffffff;
 }
 
+.post-body {
+    background-color: #ffffff;
+    margin-top: 15px;
+    padding: 10px;
+}
+
 .post-info {
     margin-top: 15px;
 }
@@ -12,7 +18,7 @@
     margin-right: 15px;
 }
 
-.post-info-category span {
+.post-info-category div {
     margin-right: 5px;
 }
 
@@ -20,26 +26,19 @@
     padding: 0px;
 }
 
-.post-body {
-    background-color: #ffffff;
-    margin-top: 15px;
-    padding: 10px;
+.post-info-icon {
+    padding: 0px;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
+.post-info-button:hover .post-info-icon {
+    filter: invert(.5) sepia(1) saturate(5) hue-rotate(175deg);
 }
 
 .post-comments {
     background-color: #ffffff;
     margin-top: 15px;
     padding: 10px;
-}
-
-.icon-like:hover {
-    color: #2288ff;
-}
-
-.icon-comments:hover {
-    color: #2288ff;
-}
-
-.icon-share:hover {
-    color: #2288ff;
 }
