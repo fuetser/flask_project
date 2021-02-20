@@ -5,7 +5,7 @@ body.style.cssText = `padding-top: ${navbar.clientHeight}px;`
 var lastScroll = 0
 
 window.addEventListener("scroll", (event) => {
-    if (window.pageYOffset < lastScroll) {
+    if (window.scrollY < lastScroll) {
         if (navbar.classList.contains("scrolled-down")) {
             navbar.classList.remove("scrolled-down")
         }
@@ -16,7 +16,7 @@ window.addEventListener("scroll", (event) => {
         }
         navbar.classList.add("scrolled-down")
     }
-    lastScroll = window.pageYOffset
+    lastScroll = window.scrollY
 })
 
 window.addEventListener("optimizedResize", (event) => {
