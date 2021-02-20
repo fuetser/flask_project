@@ -21,21 +21,21 @@
          <div class="post-info d-flex flex-row align-items-center">
             <div class="post-info-category d-flex flex-row align-items-center">
                <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
-                  <span class="material-icons icon-like">favorite_border</span>
+                  <object class="post-info-icon" type="image/svg+xml" data="{{ url_for('static', filename='icons/like_default.svg') }}"></object>
                </button>
                <h5>{{ post.likes }}</h5>
             </div>
             <div class="post-info-category d-flex flex-row align-items-center">
-               <a href="posts/{{ post.id }}#comments">
-               <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="comments">
-                  <span class="material-icons icon-comments">mode_comment</span>
+               <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
+                  <a href="posts/{{ post.id }}#comments" class="post-link-icon">
+                     <object class="post-info-icon" type="image/svg+xml" data="{{ url_for('static', filename='icons/comments.svg') }}"></object>
+                  </a>
                </button>
-               </a>
                <h5>{{ post.comments }}</h5>
             </div>
             <div>
                <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="share">
-                  <span class="material-icons icon-share">share</span>
+                  <object class="post-info-icon" type="image/svg+xml" data="{{ url_for('static', filename='icons/share.svg') }}"></object>
                </button>
             </div>
          </div>

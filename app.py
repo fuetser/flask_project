@@ -1,8 +1,9 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+from forms import *
 
 
 app = Flask(__name__)
-
+app.config["SECRET_KEY"] = "some_key_for_now"
 
 LOREM_IPSUM = (
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
@@ -39,6 +40,14 @@ def template():
 @app.route("/posts/<int:post_id>")
 def post(post_id):
     return render_template("post.html", post=POST_EXAMPLE)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "GET":
+        return render_template("register.html", form=RegisterForm())
+    elif request.method == "POST":
+        return "Success"
 
 
 if __name__ == '__main__':
