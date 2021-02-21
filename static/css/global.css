@@ -12,6 +12,25 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
+.navbar-main {
+    display: flex;
+    /*flex-direction: row;
+    justify-content: space-between;*/
+    text-align: center;
+    align-items: center;
+}
+
+.brand {
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.navbar-block {
+    width: 33.33vw;
+    display: flex;
+    justify-content: center;
+}
+
 /* for hiding navbar on scroll */
 .smart-scroll {
     position: fixed;
