@@ -1,5 +1,5 @@
 .form {
-    margin: 20px auto;
+    margin: 10px auto;
     width: 50vw;
 }
 
@@ -29,16 +29,15 @@
 }
 
 .submit {
-    display: inline-block;
     margin: 10px 0;
-    transition: all .3s;
+    transition: all .1s;
 }
 
 .submit:hover {
     background-color: #f55d3e;
     border-color: #f55d3e;
     color: #ffffff;
-    transition: all .5s;
+    transition: all .3s;
 }
 
 .have-account {
@@ -50,4 +49,16 @@
     text-decoration: none;
     color: black;
     margin: 0 5px;
+}
+
+.check {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 30px
+} 
+
+.checkbox {
+    margin: 10px 20px;
+    transform: scale(1.5);
 }

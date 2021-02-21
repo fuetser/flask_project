@@ -1,18 +1,20 @@
 const navbar = document.querySelector(".navbar")
 const body = document.querySelector("body")
 
-body.style.cssText = `padding-top: ${navbar.clientHeight}px;`
-var lastScroll = window.pageYOffset * 2
+// body.style.cssText = `padding-top: ${navbar.clientHeight}px;`
+var lastScroll = window.scrollY * 2
 
-document.addEventListener("scroll", (event) => {
-    if (window.pageYOffset <= lastScroll) {
-        navbar.classList.remove("scrolled-down")
+window.addEventListener("scroll", (event) => {
+    if (window.scrollY < lastScroll) {
+        if (navbar.classList.contains("scrolled-down")) {
+            navbar.classList.remove("scrolled-down")
+        }
         navbar.classList.add("scrolled-up")
     } else {
         navbar.classList.remove("scrolled-up")
         navbar.classList.add("scrolled-down")
     }
-    lastScroll = window.pageYOffset
+    lastScroll = window.scrollY
 })
 
 document.addEventListener("optimizedResize", (event) => {
