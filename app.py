@@ -53,7 +53,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         flash("Аккаунт успешно создан!", "success")
-        return redirect(url_for("wall"))
+        return redirect(url_for("best"))
     return render_template("register.html", form=form, active_link="register")
 
 
@@ -61,7 +61,7 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        return redirect(url_for("wall"))
+        return redirect(url_for("best"))
         # flash("Ошибка авторизации!", "danger")
     return render_template("login.html", form=form, active_link="login")
 
