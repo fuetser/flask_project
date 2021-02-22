@@ -22,16 +22,33 @@
                <a class="navbar-brand brand" href="/best">SYB</a>
             </div>
             <div class="navbar-nav navbar-block">
-               <a class="nav-item nav-link active" href="/best">Лучшее</a>
-               <a class="nav-item nav-link" href="/hot">Горячее</a>
-               <a class="nav-item nav-link" href="#">Поиск по фильтру</a>
+               <a class="nav-item nav-link item" href="/best" id="best">Лучшее</a>
+               <a class="nav-item nav-link item" href="/hot" id="hot">Горячее</a>
+               <a class="nav-item nav-link item" href="/sort" id="sort">Поиск по фильтру</a>
             </div>
             <div class="navbar-nav navbar-block">
-               <a class="nav-item nav-link" href="/login">Войти</a>
-               <a class="nav-item nav-link" href="/register">Зарегистрироваться</a>
+               <a class="nav-item nav-link item" href="/login" id="login">Войти</a>
+               <a class="nav-item nav-link item" href="/register" id="register">Зарегистрироваться</a>
             </div>
          </div>
       </nav>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+         {% if messages %}
+            {% for category, message in messages %}
+               <div class="alert alert-{{ category }} flash-alert">
+                  {{  message }}
+               </div>
+            {% endfor %}
+         {% endif %}
+      {% endwith %}
+
       {% block content %}{% endblock %}
+
+      <script type="text/javascript">
+         for(const el of document.getElementsByClassName("nav-item")){
+               el.classList.remove("active")
+            }
+         document.getElementById("{{ active_link }}").classList.add("active")
+      </script>
    </body>
 </html>

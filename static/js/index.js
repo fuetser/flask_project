@@ -1,7 +1,6 @@
 const navbar = document.querySelector(".navbar")
 const body = document.querySelector("body")
 
-// body.style.cssText = `padding-top: ${navbar.clientHeight}px;`
 var lastScroll = window.scrollY * 2
 
 window.addEventListener("scroll", (event) => {

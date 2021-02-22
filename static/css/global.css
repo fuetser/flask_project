@@ -14,8 +14,6 @@ body {
 
 .navbar-main {
     display: flex;
-    /*flex-direction: row;
-    justify-content: space-between;*/
     text-align: center;
     align-items: center;
 }
@@ -49,15 +47,32 @@ body {
 }
 /*end*/
 
-.smooth-transtion {
+.item {
+    border-radius: 100px;
+    background-color: #f55d3e;
     transition: all .3s;
+}
+
+.item:hover {
+    background-color: #ff7354;
+    transition: all .3s;
+}
+
+.flash-alert {
+    display: flex;
+    padding: 1vh;
+    width: 50vw;
+    margin: 0 auto;
+    margin-top: 10px;
+    justify-content: center;
+    font-size: 1.2em;
 }
 
 .material-icons {
     font-family: 'Material Icons';
     font-weight: normal;
     font-style: normal;
-    font-size: 22px;  /* Preferred icon size */
+    font-size: 22px;
     display: inline-block;
     line-height: 1;
     text-transform: none;

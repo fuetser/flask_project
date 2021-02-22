@@ -26,13 +26,14 @@
 }
 
 .post-info-button {
-    padding: 0px;
+    padding: 5px;
+    padding-left: 0;
 }
 
 .post-info-icon {
     padding: 0px;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     pointer-events: none;
 }
 
