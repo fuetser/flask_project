@@ -1,7 +1,6 @@
 .posts-wall {
     margin: auto;
     width: 50vw;
-    backgroud: #ffffff;
 }
 
 .post-body {
@@ -18,18 +17,14 @@
     margin-right: 15px;
 }
 
-.post-info-category div {
-    margin-right: 5px;
-}
-
 .post-info-button {
     padding: 0px;
+    margin-right: 0.25em;
+    border: 0px !important;
 }
 
 .post-info-icon {
     padding: 0px;
-    width: 20px;
-    height: 20px;
     pointer-events: none;
 }
 

@@ -20,7 +20,7 @@ body {
 
 .brand {
     font-weight: bold;
-    font-size: 24px;
+    font-size: 1.5em;
 }
 
 .navbar-block {
@@ -68,28 +68,17 @@ body {
     font-size: 1.2em;
 }
 
-.material-icons {
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 22px;
-    display: inline-block;
-    line-height: 1;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-
-    /* Support for all WebKit browsers. */
-    -webkit-font-smoothing: antialiased;
-    /* Support for Safari and Chrome. */
-    text-rendering: optimizeLegibility;
-
-    /* Support for Firefox. */
-    -moz-osx-font-smoothing: grayscale;
-
-    /* Support for IE. */
-    font-feature-settings: 'liga';
+/*icons*/
+.bi::before {
+    font-size: 1.25em;
+    vertical-align: 0.030625em;
 }
 
+.bi:hover {
+    color: #2288ff;
+}
+
+.bi-heart-fill {
+    color: #2288ff;
+}
+/*icons end*/
