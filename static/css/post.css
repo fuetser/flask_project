@@ -23,15 +23,6 @@
     border: 0px !important;
 }
 
-.post-info-icon {
-    padding: 0px;
-    pointer-events: none;
-}
-
-.post-info-button:hover .post-info-icon {
-    filter: invert(.5) sepia(1) saturate(5) hue-rotate(175deg);
-}
-
 .post-comments {
     background-color: #ffffff;
     margin-top: 15px;

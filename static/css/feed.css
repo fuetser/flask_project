@@ -1,7 +1,7 @@
 .posts-wall {
+    backgroud: #ffffff;
     margin: auto;
     width: 50vw;
-    backgroud: #ffffff;
 }
 
 .card {
@@ -22,6 +22,6 @@
 }
 
 .post-info-button {
-    padding: 0px;
     margin-right: 0.25em;
+    padding: 0px;
 }

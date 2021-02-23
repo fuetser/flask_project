@@ -15,26 +15,24 @@
    </head>
    <body>
       <nav class="navbar navbar-expand-lg navbar-dark smart-scroll scrolled-up">
-         <div class="collapse navbar-collapse d-flex navbar-main" id="navbarNavAltMarkup">
-            <div class="navbar-block">
-               <a class="navbar-brand brand" href="/best">SYB</a>
-            </div>
-            <div class="navbar-nav navbar-block">
-               <a class="nav-item nav-link item" href="/best" id="best">Лучшее</a>
-               <a class="nav-item nav-link item" href="/hot" id="hot">Горячее</a>
-               <a class="nav-item nav-link item" href="/sort" id="sort">Поиск по фильтру</a>
-            </div>
-            <div class="navbar-nav navbar-block">
-               <a class="nav-item nav-link item" href="/login" id="login">Войти</a>
-               <a class="nav-item nav-link item" href="/register" id="register">Зарегистрироваться</a>
-            </div>
+         <div class="navbar-block d-flex align-items-center justify-content-center">
+            <a class="navbar-brand brand" href="/best">SYB</a>
+         </div>
+         <div class="navbar-nav navbar-block d-flex align-items-center justify-content-center">
+            <a class="nav-item nav-link" href="/best" id="best">Лучшее</a>
+            <a class="nav-item nav-link" href="/hot" id="hot">Горячее</a>
+            <a class="nav-item nav-link" href="/sort" id="sort">Поиск по фильтру</a>
+         </div>
+         <div class="navbar-nav navbar-block d-flex align-items-center justify-content-center">
+            <a class="nav-item nav-link" href="/login" id="login">Войти</a>
+            <a class="nav-item nav-link" href="/register" id="register">Зарегистрироваться</a>
          </div>
       </nav>
       {% with messages = get_flashed_messages(with_categories=true) %}
          {% if messages %}
             {% for category, message in messages %}
                <div class="alert alert-{{ category }} flash-alert">
-                  {{  message }}
+                  {{ message }}
                </div>
             {% endfor %}
          {% endif %}
@@ -43,9 +41,6 @@
       {% block content %}{% endblock %}
 
       <script type="text/javascript">
-         for(const el of document.getElementsByClassName("nav-item")){
-               el.classList.remove("active")
-            }
          document.getElementById("{{ active_link }}").classList.add("active")
       </script>
    </body>

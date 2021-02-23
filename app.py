@@ -28,14 +28,14 @@ POST_EXAMPLE = {
 
 @app.route("/best")
 def best():
-    return render_template("feed.html", posts=[POST_EXAMPLE] * 5,
-                           active_link="best")
+    return render_template("feed.html",
+        posts=[POST_EXAMPLE] * 5, active_link="best")
 
 
 @app.route("/hot")
 def hot():
-    return render_template("feed.html", posts=[POST_EXAMPLE] * 10,
-                           active_link="hot")
+    return render_template("feed.html",
+        posts=[POST_EXAMPLE] * 10, active_link="hot")
 
 
 @app.route("/sort")
@@ -45,7 +45,7 @@ def sort():
 
 @app.route("/posts/<int:post_id>")
 def post(post_id):
-    return render_template("post.html", post=POST_EXAMPLE, active_link="hot")
+    return render_template("post.html", post=POST_EXAMPLE)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -62,7 +62,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         return redirect(url_for("best"))
-        # flash("Ошибка авторизации!", "danger")
+    # flash("Ошибка авторизации!", "danger")
     return render_template("login.html", form=form, active_link="login")
 
 

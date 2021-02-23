@@ -8,39 +8,39 @@
 
 {% block content %}
 <div class="container-fluid card form">
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
+   <form method="POST" action="">
+      {{ form.hidden_tag() }}
       <div class="form-group form-field">
-        {{ form.email.label(class="form-label label") }}
-        {% if form.email.errors %}
+         {{ form.email.label(class="form-label label") }}
+         {% if form.email.errors %}
             {{ form.email(class="form-control form-control-md form-input is-invalid") }}
             <div class="invalid-feedback">
-                {% for error in form.email.errors %}
-                    <span>{{ error }}</span>
-                {% endfor %}
+            {% for error in form.email.errors %}
+               <span>{{ error }}</span>
+            {% endfor %}
             </div>
-        {% else %}
+         {% else %}
             {{ form.email(class="form-control form-control-md form-input") }}
-        {% endif %}
+         {% endif %}
       </div>
       <div class="form-group form-field">
-        {{ form.password.label(class="form-label label") }}
-        {% if form.password.errors %}
+         {{ form.password.label(class="form-label label") }}
+         {% if form.password.errors %}
             {{ form.password(class="form-control form-control-md form-input is-invalid") }}
             <div class="invalid-feedback">
-                {% for error in form.password.errors %}
-                    <span>{{ error }}</span>
-                {% endfor %}
+            {% for error in form.password.errors %}
+               <span>{{ error }}</span>
+            {% endfor %}
             </div>
-        {% else %}
+         {% else %}
             {{ form.password(class="form-control form-control-md form-input") }}
-        {% endif %}
+         {% endif %}
       </div>
       <div class="form-check form check">
-        {{ form.remember(class="form-check-input checkbox") }}
-        {{ form.remember.label(class="form-check-label label") }}
+         {{ form.remember(class="form-check-input checkbox") }}
+         {{ form.remember.label(class="form-check-label label") }}
       </div>
       {{ form.submit(class="btn btn-outline-dark submit") }}
-    </form>
+   </form>
 </div>
 {% endblock %}
