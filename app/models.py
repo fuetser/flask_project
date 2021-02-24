@@ -64,7 +64,7 @@ class Comment(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     timestamp = db.Column(db.DateTime, default=dt.datetime.utcnow)
     body = db.Column(db.Text())
-    is_reply = db.Column(db.Bool, default=False)
+    is_reply = db.Column(db.Boolean, default=False)
     reply_to = db.Column(db.Integer, nullable=True) # db.ForeignKey("comment.id")
     # replies = db.relationship("Comment", lazy="dinamic")
 
@@ -72,6 +72,7 @@ class Comment(db.Model):
 class GroupsSubscribers(db.Model):
     __tablename__ = "groups_subscribers"
 
+    primary_key = db.Column(db.Integer, primary_key=True)
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
 
@@ -97,6 +98,7 @@ class GroupsSubscribers(db.Model):
 class PostsLikes(db.Model):
     __tablename__ = "posts_likes"
 
+    primary_key = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
 
@@ -122,6 +124,7 @@ class PostsLikes(db.Model):
 class CommentsLikes(db.Model):
     __tablename__ = "comments_likes"
 
+    primary_key = db.Column(db.Integer, primary_key=True)
     comment_id = db.Column(db.Integer, db.ForeignKey("comment.id"), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
 
