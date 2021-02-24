@@ -1,0 +1,27 @@
+.posts-wall {
+    backgroud: #ffffff;
+    margin: auto;
+    width: 50vw;
+}
+
+.card {
+    margin-top: 15px;
+}
+
+.post-link, .post-link-icon {
+    color: inherit;
+    text-decoration: none;
+}
+
+.post-info {
+    margin-top: 15px;
+}
+
+.post-info div {
+    margin-right: 15px;
+}
+
+.post-info-button {
+    margin-right: 0.25em;
+    padding: 0px;
+}

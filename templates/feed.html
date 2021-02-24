@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}Лента{% endblock %}
+
+{% block content %}
+<div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
+   {% for post in posts %}
+   <div class="card">
+      <div class="card-body">
+         <a class="post-link" href="posts/{{ post.id }}">
+            <span class="post-title">
+               <h4 class="card-title">{{ post.title }}</h4>
+            </span>
+         </a>
+         <p class="card-text">
+            <small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small>
+         </p>
+         <a class="post-link" href="posts/{{ post.id }}">
+            <p class="card-text">{{ post.body }}</p>
+         </a>
+         <div class="post-info d-flex flex-row align-items-center">
+            <div class="post-info-category d-flex flex-row align-items-center">
+               <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
+                  <i class="bi bi-heart"></i>
+               </button>
+               <h5>{{ post.likes }}</h5>
+            </div>
+            <div class="post-info-category d-flex flex-row align-items-center">
+               <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
+                  <a href="posts/{{ post.id }}#comments" class="post-link-icon">
+                     <i class="bi bi-chat-right"></i>
+                  </a>
+               </button>
+               <h5>{{ post.comments }}</h5>
+            </div>
+            <div>
+               <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="share">
+                  <i class="bi bi-share"></i>
+               </button>
+            </div>
+         </div>
+      </div>
+   </div>
+   {% endfor %}
+</div>
+{% endblock %}
