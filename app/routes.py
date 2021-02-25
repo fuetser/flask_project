@@ -25,6 +25,12 @@ POST_EXAMPLE = {
     "comments": 12,
 }
 
+USER_EXAMPLE = {
+    "id": 123,
+    "nickname": "bad_user",
+    "posts": [POST_EXAMPLE] * 5,
+}
+
 
 @app.route("/")
 @app.route("/best")
@@ -47,6 +53,11 @@ def sort():
 @app.route("/posts/<int:post_id>")
 def post(post_id):
     return render_template("post.html", post=POST_EXAMPLE)
+
+
+@app.route("/users/<int:user_id>")
+def user(user_id):
+    return render_template("user.html", user=USER_EXAMPLE)
 
 
 @app.route("/register", methods=["GET", "POST"])

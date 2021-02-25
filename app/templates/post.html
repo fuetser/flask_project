@@ -11,7 +11,7 @@
    <div class="post-body">
       <h3>{{ post.title }}</h3>
       <p class="card-text">
-         <small class="text-muted">{{ post.elapsed }} by {{ post.author.nickname }}</small>
+         <small class="text-muted">{{ post.elapsed }} by <a href="/users/{{ post.author.id }}" class="user-link">{{ post.author.nickname }}</a></small>
       </p>
       <p>{{ post.body }}</p>
       <div class="post-info d-flex flex-row align-items-center">

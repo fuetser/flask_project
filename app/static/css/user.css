@@ -4,6 +4,14 @@
     width: 50vw;
 }
 
+.user-nickname {
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 0px;
+    position: relative;
+}
+
 .card {
     margin-top: 15px;
 }

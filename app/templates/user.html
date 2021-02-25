@@ -1,25 +1,26 @@
 {% extends "base.html" %}
 
 {% block extrahead %}
-<link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/user.css') }}" rel="stylesheet">
 {% endblock %}
 
-{% block title %}Лента{% endblock %}
+{% block title %}{{ user.nickname }}{% endblock %}
 
 {% block content %}
 <div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
-   {% for post in posts %}
+   <h1 class="user-nickname">{{ user.nickname }}</h1>
+   {% for post in user.posts %}
    <div class="card">
       <div class="card-body">
-         <a class="post-link" href="posts/{{ post.id }}">
+         <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
             <span class="post-title">
                <h4 class="card-title">{{ post.title }}</h4>
             </span>
          </a>
          <p class="card-text">
-            <small class="text-muted">{{ post.elapsed }} by <a href="/users/{{ post.author.id }}" class="user-link">{{ post.author.nickname }}</a></small>
+            <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', user_id=post.author.id) }}" class="user-link">{{ post.author.nickname }}</a></small>
          </p>
-         <a class="post-link" href="posts/{{ post.id }}">
+         <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
             <p class="card-text">{{ post.body }}</p>
          </a>
          <div class="post-info d-flex flex-row align-items-center">
@@ -31,7 +32,7 @@
             </div>
             <div class="post-info-category d-flex flex-row align-items-center">
                <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
-                  <a href="posts/{{ post.id }}#comments" class="post-link-icon">
+                  <a href="{{ url_for('post', post_id=post.id, _anchor='comments') }}" class="post-link-icon">
                      <i class="bi bi-chat-right"></i>
                   </a>
                </button>

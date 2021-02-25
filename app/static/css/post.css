@@ -13,6 +13,11 @@ h4 {
     padding: 10px;
 }
 
+.user-link {
+    color: inherit;
+    text-decoration: none;
+}
+
 .post-info {
     margin-top: 15px;
 }
