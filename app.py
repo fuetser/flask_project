@@ -26,16 +26,17 @@ POST_EXAMPLE = {
 }
 
 
+@app.route("/")
 @app.route("/best")
 def best():
-    return render_template("feed.html",
-        posts=[POST_EXAMPLE] * 5, active_link="best")
+    return render_template(
+        "feed.html", posts=[POST_EXAMPLE] * 5, active_link="best")
 
 
 @app.route("/hot")
 def hot():
-    return render_template("feed.html",
-        posts=[POST_EXAMPLE] * 10, active_link="hot")
+    return render_template(
+        "feed.html", posts=[POST_EXAMPLE] * 10, active_link="hot")
 
 
 @app.route("/sort")

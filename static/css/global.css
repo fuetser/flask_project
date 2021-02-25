@@ -3,6 +3,11 @@ body {
     padding-top: 3.2em;
 }
 
+.btn:focus {
+    box-shadow: none;
+    outline: none !important;
+}
+
 .navbar {
     background-color: #f55d3e;
     height: 3.2em;
