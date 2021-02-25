@@ -1,9 +1,9 @@
 from flask import Flask, render_template, flash, redirect, url_for
-from forms import *
 
+from app import app
+from app.forms import LoginForm, RegisterForm
+from app.models import *
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "some_key_for_now"
 
 LOREM_IPSUM = (
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
@@ -65,7 +65,3 @@ def login():
         return redirect(url_for("best"))
     # flash("Ошибка авторизации!", "danger")
     return render_template("login.html", form=form, active_link="login")
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
