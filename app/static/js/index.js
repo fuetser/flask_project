@@ -21,8 +21,10 @@ document.addEventListener("optimizedResize", (event) => {
     body.style.cssText = `padding-top: ${navbar.clientHeight}px;`
 })
 
-for (const btn of likeButtons){
-    if(btn != null){
+// like icon filling/unfilling on click
+Array.from(likeButtons)
+    .filter(btn => btn !== null)
+    .forEach((btn) =>
         btn.addEventListener("click", event => {
             if (btn.classList.contains("bi-heart")){
                 btn.classList.remove("bi-heart")
@@ -32,5 +34,4 @@ for (const btn of likeButtons){
                 btn.classList.add("bi-heart")
             }
         })
-    }
-}
+    )
