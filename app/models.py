@@ -11,7 +11,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(256))
     email = db.Column(db.String(64), unique=True)
     registered = db.Column(db.DateTime, default=dt.datetime.utcnow)
-    posts = db.relationship("Post", backref="author", lazy="dynamic")
+    posts = db.relationship("Post", backref="author")
 
     @staticmethod
     def get_by_email(email):
@@ -38,7 +38,7 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime, default=dt.datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
-    comments = db.relationship("Comment", backref="post", lazy="dinamic")
+    comments = db.relationship("Comment", backref="post")
 
     @staticmethod
     def get_by_id(post_id):
@@ -55,12 +55,12 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), unique=True)
     description = db.Column(db.String(128))
-    posts = db.relationship("Post", backref="group", lazy="dynamic")
-    subscribers = db.Column()
+    posts = db.relationship("Post", backref="group")
 
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     timestamp = db.Column(db.DateTime, default=dt.datetime.utcnow)
     body = db.Column(db.Text())
