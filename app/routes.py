@@ -1,4 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for
+from flask_login import current_user, login_user, logout_user, login_required
 
 from app import app
 from app.forms import LoginForm, RegisterForm
@@ -64,15 +65,46 @@ def user(user_id):
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        flash("Аккаунт успешно создан!", "success")
-        return redirect(url_for("best"))
+        username = form.username.data
+        email = form.email.data
+        user = User.get_by_username(username)
+        is_free_email = User.is_free_email(email)
+
+        if user is None and is_free_email:
+            user = User(email=email, nickname=username)
+            password = form.password.data
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+            flash("Аккаунт успешно создан!", "success")
+            return redirect(url_for("best"))
+
+        else:
+            flash("Аккаунт с такой почтой или именем уже существует!", "danger")
+            return redirect(url_for("register"))
+
     return render_template("register.html", form=form, active_link="register")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
     form = LoginForm()
     if form.validate_on_submit():
-        return redirect(url_for("best"))
-    # flash("Ошибка авторизации!", "danger")
+        username = form.username.data
+        password = form.password.data
+        user = User.get_by_username(username)
+        if user is not None and user.check_password(password):
+            login_user(user, remember=form.remember.data)
+            return redirect(url_for("best"))
+        else:
+            flash("Ошибка авторизации!", "danger")
+            return redirect(url_for("login"))
     return render_template("login.html", form=form, active_link="login")
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for("best"))

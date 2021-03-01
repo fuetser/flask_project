@@ -1,11 +1,13 @@
 import datetime as dt
 
+from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db
+from app import login
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, index=True)
     nickname = db.Column(db.String(25), unique=True)
     password_hash = db.Column(db.String(256))
@@ -14,8 +16,13 @@ class User(db.Model):
     posts = db.relationship("Post", backref="author")
 
     @staticmethod
-    def get_by_email(email):
-        return User.query.filter(User.email == email).first()
+    def get_by_username(username):
+        return User.query.filter(User.nickname == username).first()
+
+    @staticmethod
+    def is_free_email(email):
+        return not db.session.query(
+            db.exists().where(User.email == email)).scalar()
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -28,6 +35,11 @@ class User(db.Model):
         GroupsSubscribers.on_user_delete(user_id)
         PostsLikes.on_user_delete(user_id)
         CommentsLikes.on_user_delete(user_id)
+
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
 
 class Post(db.Model):
@@ -49,7 +61,6 @@ class Post(db.Model):
         beginning = " ".join(self.body.split()[:50])
         return f"{beginning}..."
     
-
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
