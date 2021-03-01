@@ -36,7 +36,9 @@
       </div>
       {{ form.files(class="form-control file-upload") }}
       <div class="check-wrapper">
-          {{ form.submit(class="btn btn-outline-dark submit") }}
+        <div class="button-wrapper">
+            {{ form.submit(class="btn btn-outline-dark submit") }}
+        </div>
           <div class="form-check form check-group">
             {{ form.use_markdown(class="form-check-input checkbox-small") }}
             {{ form.use_markdown.label(class="form-check-label text-muted") }}

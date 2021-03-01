@@ -77,9 +77,14 @@
 .check-group {
     display: flex;
     align-items: center;
-    width: 30%;
-    margin: 0;
+    justify-content: flex-end;
     margin-left: auto;
+    margin-right: 10px;
+}
+
+.button-wrapper {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .text-area {
