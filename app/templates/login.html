@@ -11,16 +11,16 @@
    <form method="POST" action="">
       {{ form.hidden_tag() }}
       <div class="form-group form-field">
-         {{ form.email.label(class="form-label label") }}
-         {% if form.email.errors %}
-            {{ form.email(class="form-control form-control-md form-input is-invalid") }}
+         {{ form.username.label(class="form-label label") }}
+         {% if form.username.errors %}
+            {{ form.username(class="form-control form-control-md form-input is-invalid") }}
             <div class="invalid-feedback">
-            {% for error in form.email.errors %}
+            {% for error in form.username.errors %}
                <span>{{ error }}</span>
             {% endfor %}
             </div>
          {% else %}
-            {{ form.email(class="form-control form-control-md form-input") }}
+            {{ form.username(class="form-control form-control-md form-input") }}
          {% endif %}
       </div>
       <div class="form-group form-field">
