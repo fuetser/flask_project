@@ -71,7 +71,7 @@ def register():
         is_free_email = User.is_free_email(email)
 
         if user is None and is_free_email:
-            user = User(email=email, nickname=username)
+            user = User(email=email, username=username)
             password = form.password.data
             user.set_password(password)
             db.session.add(user)

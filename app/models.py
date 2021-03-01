@@ -9,15 +9,16 @@ from app import login
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, index=True)
-    nickname = db.Column(db.String(25), unique=True)
+    username = db.Column(db.String(25), unique=True)
     password_hash = db.Column(db.String(256))
     email = db.Column(db.String(64), unique=True)
     registered = db.Column(db.DateTime, default=dt.datetime.utcnow)
     posts = db.relationship("Post", backref="author")
+    comments = db.relationship("Comment", backref="author")
 
     @staticmethod
     def get_by_username(username):
-        return User.query.filter(User.nickname == username).first()
+        return User.query.filter(User.username == username).first()
 
     @staticmethod
     def is_free_email(email):
@@ -30,16 +31,20 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    @staticmethod
-    def on_delete(user_id):
-        GroupsSubscribers.on_user_delete(user_id)
-        PostsLikes.on_user_delete(user_id)
-        CommentsLikes.on_user_delete(user_id)
+    def on_delete(self):
+        for group in self.groups:
+            group.subscribers.remove(self)
 
 
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+
+posts_likes = db.Table("posts_likes",
+    db.Column("post_id", db.Integer, db.ForeignKey("post.id")),
+    db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+)
 
 
 class Post(db.Model):
@@ -51,6 +56,8 @@ class Post(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
     comments = db.relationship("Comment", backref="post")
+    likes = db.relationship(
+        "User", secondary=posts_likes, backref="post_likes")
 
     @staticmethod
     def get_by_id(post_id):
@@ -62,11 +69,25 @@ class Post(db.Model):
         return f"{beginning}..."
 
 
+groups_subscribers = db.Table("groups_subscribers",
+    db.Column("group_id", db.Integer, db.ForeignKey("group.id")),
+    db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+)
+
+
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), unique=True)
     description = db.Column(db.String(128))
     posts = db.relationship("Post", backref="group")
+    subscribers = db.relationship(
+        "User", secondary=groups_subscribers, backref="groups")
+
+
+comments_likes = db.Table("comments_likes",
+    db.Column("comment_id", db.Integer, db.ForeignKey("comment.id")),
+    db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+)
 
 
 class Comment(db.Model):
@@ -78,83 +99,5 @@ class Comment(db.Model):
     is_reply = db.Column(db.Boolean, default=False)
     reply_to = db.Column(db.Integer, nullable=True)  # db.ForeignKey("comment.id")
     # replies = db.relationship("Comment", lazy="dinamic")
-
-
-class GroupsSubscribers(db.Model):
-    __tablename__ = "groups_subscribers"
-
-    primary_key = db.Column(db.Integer, primary_key=True)
-    group_id = db.Column(db.Integer, db.ForeignKey("group.id"), index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-
-    @classmethod
-    def subscribe(cls, group_id, user_id):
-        subscriber = cls(group_id, user_id)
-        db.session.add(subscriber)
-        db.session.commit()
-
-    @classmethod
-    def unsubscribe(cls, group_id, user_id):
-        cls.query.filter(
-            cls.group_id == group_id, cls.user_id == user_id).delete()
-        db.session.commit()
-
-    @classmethod
-    def on_user_delete(cls, user_id):
-        cls.query.filter(cls.user_id == user_id).delete()
-        db.session.commit()
-
-
-class PostsLikes(db.Model):
-    __tablename__ = "posts_likes"
-
-    primary_key = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey("post.id"), index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-
-    @classmethod
-    def add_like(cls, comment_id, user_id):
-        like = cls(comment_id, user_id)
-        db.session.add(like)
-        db.session.commit()
-
-    @classmethod
-    def remove_like(cls, comment_id, user_id):
-        cls.query.filter(
-            cls.comment_id == comment_id, cls.user_id == user_id).delete()
-        db.session.commit()
-
-    @classmethod
-    def on_user_delete(cls, user_id):
-        cls.query.filter(cls.user_id == user_id).delete()
-        db.session.commit()
-
-
-class CommentsLikes(db.Model):
-    __tablename__ = "comments_likes"
-
-    primary_key = db.Column(db.Integer, primary_key=True)
-    comment_id = db.Column(db.Integer, db.ForeignKey("comment.id"), index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), index=True)
-
-    @classmethod
-    def is_liked_by(cls, comment_id, user_id):
-        return db.session.query(db.exists().where(
-            cls.comment_id == comment_id, cls.user_id == user_id)).scalar()
-
-    @classmethod
-    def add_like(cls, comment_id, user_id):
-        like = cls(comment_id, user_id)
-        db.session.add(like)
-        db.session.commit()
-
-    @classmethod
-    def remove_like(cls, comment_id, user_id):
-        cls.query.filter(
-            cls.comment_id == comment_id, cls.user_id == user_id).delete()
-        db.session.commit()
-
-    @classmethod
-    def on_user_delete(cls, user_id):
-        cls.query.filter(cls.user_id == user_id).delete()
-        db.session.commit()
+    likes = db.relationship(
+        "User", secondary=comments_likes, backref="comment_likes")
