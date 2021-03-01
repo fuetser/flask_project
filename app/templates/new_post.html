@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<link href="{{ url_for('static', filename='css/forms.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}Новая запись{% endblock %}
+
+{% block content %}
+<div class="container-fluid card form">
+   <form method="POST" action="" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      <div class="form-group form-field">
+         {% if form.title.errors %}
+            {{ form.title(class="form-control form-control-md form-input is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.title.errors %}
+                   <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+         {% else %}
+            {{ form.title(class="form-control form-control-md form-input", placeholder="Заголовок") }}
+         {% endif %}
+      </div>
+      <div class="form-group form-field">
+         {% if form.content.errors %}
+            {{ form.content(class="form-control form-control-md form-input text-area is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.content.errors %}
+                   <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+         {% else %}
+            {{ form.content(class="form-control form-control-md form-input text-area", placeholder="Содержание") }}
+         {% endif %}
+      </div>
+      {{ form.files(class="form-control file-upload") }}
+      <div class="check-wrapper">
+        <div class="button-wrapper">
+            {{ form.submit(class="btn btn-outline-dark submit") }}
+        </div>
+          <div class="form-check form check-group">
+            {{ form.use_markdown(class="form-check-input checkbox-small") }}
+            {{ form.use_markdown.label(class="form-check-label text-muted") }}
+           </div>
+      </div>
+   </form>
+</div>
+{% endblock %}

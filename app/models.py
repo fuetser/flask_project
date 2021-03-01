@@ -60,7 +60,7 @@ class Post(db.Model):
     def beginning(self):
         beginning = " ".join(self.body.split()[:50])
         return f"{beginning}..."
-    
+
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -76,7 +76,7 @@ class Comment(db.Model):
     timestamp = db.Column(db.DateTime, default=dt.datetime.utcnow)
     body = db.Column(db.Text())
     is_reply = db.Column(db.Boolean, default=False)
-    reply_to = db.Column(db.Integer, nullable=True) # db.ForeignKey("comment.id")
+    reply_to = db.Column(db.Integer, nullable=True)  # db.ForeignKey("comment.id")
     # replies = db.relationship("Comment", lazy="dinamic")
 
 
@@ -95,9 +95,8 @@ class GroupsSubscribers(db.Model):
 
     @classmethod
     def unsubscribe(cls, group_id, user_id):
-        cls.query \
-            .filter(cls.group_id == group_id, cls.user_id == user_id) \
-            .delete()
+        cls.query.filter(
+            cls.group_id == group_id, cls.user_id == user_id).delete()
         db.session.commit()
 
     @classmethod
@@ -121,9 +120,8 @@ class PostsLikes(db.Model):
 
     @classmethod
     def remove_like(cls, comment_id, user_id):
-        cls.query \
-            .filter(cls.comment_id == comment_id, cls.user_id == user_id) \
-            .delete()
+        cls.query.filter(
+            cls.comment_id == comment_id, cls.user_id == user_id).delete()
         db.session.commit()
 
     @classmethod
@@ -141,9 +139,8 @@ class CommentsLikes(db.Model):
 
     @classmethod
     def is_liked_by(cls, comment_id, user_id):
-        return db.session.query(db.exists()
-            .where(cls.comment_id == comment_id, cls.user_id == user_id)
-        ).scalar()
+        return db.session.query(db.exists().where(
+            cls.comment_id == comment_id, cls.user_id == user_id)).scalar()
 
     @classmethod
     def add_like(cls, comment_id, user_id):
@@ -153,9 +150,8 @@ class CommentsLikes(db.Model):
 
     @classmethod
     def remove_like(cls, comment_id, user_id):
-        cls.query \
-            .filter(cls.comment_id == comment_id, cls.user_id == user_id) \
-            .delete()
+        cls.query.filter(
+            cls.comment_id == comment_id, cls.user_id == user_id).delete()
         db.session.commit()
 
     @classmethod

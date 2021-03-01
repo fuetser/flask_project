@@ -41,7 +41,9 @@
       {% block content %}{% endblock %}
 
       <script type="text/javascript">
-         document.getElementById("{{ active_link }}").classList.add("active")
+         const activeLink = document.getElementById("{{ active_link }}")
+         if(activeLink !== null)
+            activeLink.classList.add("active")
       </script>
    </body>
 </html>

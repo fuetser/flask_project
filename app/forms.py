@@ -1,5 +1,7 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
 
@@ -20,3 +22,13 @@ class LoginForm(FlaskForm):
     password = PasswordField("Пароль", validators=[DataRequired()])
     remember = BooleanField("Запомнить данные")
     submit = SubmitField("Войти")
+
+
+class NewPostForm(FlaskForm):
+    title = StringField(
+        "Заголовок", validators=[DataRequired(), Length(min=2, max=64)])
+    content = StringField("Содержание записи", validators=[DataRequired()],
+                          widget=TextArea())
+    use_markdown = BooleanField("Использовать Markdown")
+    files = FileField(validators=[FileRequired()])
+    submit = SubmitField("Опубликовать")
