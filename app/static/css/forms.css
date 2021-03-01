@@ -63,3 +63,29 @@
     transform: scale(1.5);
 }
 
+.checkbox-small {
+    margin: 10px;
+    transform: scale(1.2);
+}
+
+.check-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.check-group {
+    display: flex;
+    align-items: center;
+    width: 30%;
+    margin: 0;
+    margin-left: auto;
+}
+
+.text-area {
+    height: 20vw;
+}
+
+.file-upload {
+    margin: 10px 0 5px;
+}

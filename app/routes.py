@@ -1,8 +1,8 @@
-from flask import Flask, render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 
 from app import app
-from app.forms import LoginForm, RegisterForm
+from app.forms import LoginForm, RegisterForm, NewPostForm
 from app.models import *
 
 
@@ -108,3 +108,13 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("best"))
+
+
+@login_required
+@app.route("/new_post", methods=["GET", "POST"])
+def create_new_post():
+    form = NewPostForm()
+    if form.validate_on_submit():
+        flash("Запись успешно создана", "success")
+        return redirect(url_for("best"))
+    return render_template("new_post.html", form=form)
