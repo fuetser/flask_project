@@ -27,8 +27,15 @@ class LoginForm(FlaskForm):
 class NewPostForm(FlaskForm):
     title = StringField(
         "Заголовок", validators=[DataRequired(), Length(min=2, max=64)])
-    content = StringField("Содержание записи", validators=[DataRequired()],
-                          widget=TextArea())
+    content = StringField(
+        "Содержание записи", validators=[DataRequired()], widget=TextArea())
     use_markdown = BooleanField("Использовать Markdown")
     files = FileField(validators=[FileRequired()])
     submit = SubmitField("Опубликовать")
+
+
+class NewGroupForm(FlaskForm):
+    name = StringField("Имя группы", validators=[DataRequired(), Length(max=32)])
+    description = StringField("Описание группы",
+        validators=[DataRequired(), Length(max=128)], widget=TextArea())
+    submit = SubmitField("Создать")

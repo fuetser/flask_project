@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 
 from app import app
-from app.forms import LoginForm, RegisterForm, NewPostForm
+from app.forms import *
 from app.models import *
 
 
@@ -98,7 +98,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("index"))
+        return redirect(url_for("best"))
     form = LoginForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -132,3 +132,24 @@ def create_new_post():
 @app.route("/group/<int:group_id>")
 def group(group_id):
     return render_template("group.html", group=GROUP_EXAMPLE)
+
+
+@login_required
+@app.route("/new_group", methods=["GET", "POST"])
+def new_group():
+    form = NewGroupForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        description = form.description.data
+        if Group.is_unique_name(name):
+            group = Group(name=name, description=description)
+            group.subscribers.append(current_user)
+            db.session.add(group)
+            db.session.commit()
+            flash("Группа успешно создана", "success")
+            return redirect(url_for("best"))
+        else:
+            flash("Данное имя уже занято")
+            return redirect(url_for("new_group"))
+
+    return render_template("new_group.html", form=form)

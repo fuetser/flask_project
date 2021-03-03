@@ -54,7 +54,22 @@ body {
     margin-top: 15px;
 }
 
+.add-button {
+    font-family: 'Inter', sans-serif;
+    margin-right: 5px;
+}
+
+.dropdown-menu {
+    top: 3em;
+}
+
 /*icons*/
+.icon-button {
+    padding: 0px;
+    margin-right: 0.25em;
+    border: 0px !important;
+}
+
 .bi::before {
     font-size: 1.25em;
     vertical-align: 0.030625em;

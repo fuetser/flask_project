@@ -83,6 +83,11 @@ class Group(db.Model):
     subscribers = db.relationship(
         "User", secondary=groups_subscribers, backref="groups")
 
+    @staticmethod
+    def is_unique_name(name):
+        return not db.session.query(
+            db.exists().where(Group.name == name)).scalar()
+
 
 comments_likes = db.Table("comments_likes",
     db.Column("comment_id", db.Integer, db.ForeignKey("comment.id")),
