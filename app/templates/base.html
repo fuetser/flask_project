@@ -24,8 +24,12 @@
             <a class="nav-item nav-link" href="/sort" id="sort">Поиск по фильтру</a>
          </div>
          <div class="navbar-nav navbar-block d-flex align-items-center justify-content-center">
-            <a class="nav-item nav-link" href="/login" id="login">Войти</a>
-            <a class="nav-item nav-link" href="/register" id="register">Зарегистрироваться</a>
+            {% if current_user.is_authenticated %}
+               <a class="nav-item nav-link" href="{{ url_for('user', user_id=current_user.id) }}">{{ current_user.username }}</a>
+            {% else %}
+               <a class="nav-item nav-link" href="/login" id="login">Войти</a>
+               <a class="nav-item nav-link" href="/register" id="register">Зарегистрироваться</a>
+            {% endif %}
          </div>
       </nav>
       {% with messages = get_flashed_messages(with_categories=true) %}

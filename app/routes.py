@@ -84,6 +84,7 @@ def register():
             user.set_password(password)
             db.session.add(user)
             db.session.commit()
+            login_user(user, remember=True)
             flash("Аккаунт успешно создан!", "success")
             return redirect(url_for("best"))
 
