@@ -32,6 +32,14 @@ USER_EXAMPLE = {
     "posts": [POST_EXAMPLE] * 5,
 }
 
+GROUP_EXAMPLE = {
+    "id": 1,
+    "name": "Dogs Funclub",
+    "description": lorem_ipsum(25),
+    "posts": [POST_EXAMPLE for _ in range(15)],
+    "subscribers": 69420
+}
+
 
 @app.route("/")
 @app.route("/best")
@@ -118,3 +126,8 @@ def create_new_post():
         flash("Запись успешно создана", "success")
         return redirect(url_for("best"))
     return render_template("new_post.html", form=form)
+
+
+@app.route("/group/<int:group_id>")
+def group(group_id):
+    return render_template("group.html", group=GROUP_EXAMPLE)
