@@ -26,7 +26,7 @@
                </span>
             </a>
             <p class="card-text">
-               <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', user_id=post.author.id) }}" class="user-link">{{ post.author.nickname }}</a></small>
+               <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', user_id=post.author.id) }}" class="user-link">{{ post.author.username }}</a></small>
             </p>
             <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
                <p class="card-text">{{ post.body }}</p>
@@ -36,7 +36,7 @@
                   <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
                      <i class="bi bi-heart like"></i>
                   </button>
-                  <h5>{{ post.likes }}</h5>
+                  <h5>{{ post.likes|length }}</h5>
                </div>
                <div class="post-info-category d-flex flex-row align-items-center">
                   <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
@@ -44,7 +44,7 @@
                         <i class="bi bi-chat-right"></i>
                      </a>
                   </button>
-               <h5>{{ post.comments }}</h5>
+               <h5>{{ post.comments|length }}</h5>
                </div>
                <div>
                   <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="share">
@@ -58,7 +58,9 @@
    </div>
    <div class="card group-description">
       <p class="group-text-description">{{ group.description }}</p>
-      <p class="group-subscribers-count"><b>{{ group.subscribers }}</b> Участников</p>
+      <p class="group-subscribers-count">
+         <b>{{ group.subscribers|length }}</b> Участников
+      </p>
    </div>
 </main>
 {% endblock %}

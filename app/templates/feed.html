@@ -17,7 +17,7 @@
             </span>
          </a>
          <p class="card-text">
-            <small class="text-muted">{{ post.elapsed }} by <a href="/users/{{ post.author.id }}" class="user-link">{{ post.author.nickname }}</a></small>
+            <small class="text-muted">{{ post.elapsed }} by <a href="/users/{{ post.author.id }}" class="user-link">{{ post.author.username }}</a></small>
          </p>
          <a class="post-link" href="posts/{{ post.id }}">
             <p class="card-text">{{ post.body }}</p>
@@ -27,7 +27,7 @@
                <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
                   <i class="bi bi-heart like"></i>
                </button>
-               <h5>{{ post.likes }}</h5>
+               <h5>{{ post.likes|length }}</h5>
             </div>
             <div class="post-info-category d-flex flex-row align-items-center">
                <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
@@ -35,7 +35,7 @@
                      <i class="bi bi-chat-right"></i>
                   </a>
                </button>
-               <h5>{{ post.comments }}</h5>
+               <h5>{{ post.comments|length }}</h5>
             </div>
             <div>
                <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="share">

@@ -1,10 +1,12 @@
 import datetime as dt
 
 from flask_login import UserMixin
+from sqlalchemy.sql.expression import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db
 from app import login
+from app.utils import get_elapsed
 
 
 class User(UserMixin, db.Model):
@@ -68,6 +70,32 @@ class Post(db.Model):
         beginning = " ".join(self.body.split()[:50])
         return f"{beginning}..."
 
+    @property
+    def elapsed(self):
+        return get_elapsed(self.timestamp)
+
+    @staticmethod
+    def get_best():
+        sub = db.session.query(
+            posts_likes.c.post_id,
+            func.count(posts_likes.c.user_id).label("count")
+        ).group_by(posts_likes.c.post_id) \
+         .subquery()
+
+        posts = db.session.query(Post, sub.c.count) \
+            .outerjoin(sub, Post.id == sub.c.post_id) \
+            .order_by(db.desc("count")) \
+            .all()
+
+        # remove count attribute
+        posts = map(lambda pair: pair[0], posts)
+        return posts
+
+    @staticmethod
+    def get_hot():
+        # TODO
+        return Post.get_best()
+    
 
 groups_subscribers = db.Table("groups_subscribers",
     db.Column("group_id", db.Integer, db.ForeignKey("group.id")),

@@ -6,52 +6,17 @@ from app.forms import *
 from app.models import *
 
 
-LOREM_IPSUM = (
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-    "Cras venenatis vehicula libero et elementum. Sed imperdiet velit "
-    "tristique tempor sagittis. Donec sodales diam quam, in tempor dolor "
-    "faucibus tempus. Nulla dui erat, ultricies non facilisis non, eleifend "
-    "eu felis. Proin vel turpis ante. Suspendisse in odio nec nisi pulvinar "
-    "aliquam.".split())
-
-lorem_ipsum = (lambda n: " ".join(LOREM_IPSUM[:n]))
-
-POST_EXAMPLE = {
-    "id": 456,
-    "author": {"nickname": "bad_user", "id": 5678},
-    "title": "Dogs aren't so cute!",
-    "elapsed": "1 hour ago",
-    "body": lorem_ipsum(20),
-    "likes": 1000,
-    "comments": 12,
-}
-
-USER_EXAMPLE = {
-    "id": 123,
-    "nickname": "bad_user",
-    "posts": [POST_EXAMPLE] * 5,
-}
-
-GROUP_EXAMPLE = {
-    "id": 1,
-    "name": "Dogs Funclub",
-    "description": lorem_ipsum(25),
-    "posts": [POST_EXAMPLE for _ in range(15)],
-    "subscribers": 69420
-}
-
-
 @app.route("/")
 @app.route("/best")
 def best():
-    return render_template(
-        "feed.html", posts=[POST_EXAMPLE] * 5, active_link="best")
+    posts = Post.get_best()
+    return render_template("feed.html", posts=posts, active_link="best")
 
 
 @app.route("/hot")
 def hot():
-    return render_template(
-        "feed.html", posts=[POST_EXAMPLE] * 10, active_link="hot")
+    posts = Post.get_hot()
+    return render_template("feed.html", posts=posts, active_link="hot")
 
 
 @app.route("/sort")
@@ -61,12 +26,16 @@ def sort():
 
 @app.route("/posts/<int:post_id>")
 def post(post_id):
-    return render_template("post.html", post=POST_EXAMPLE)
+    post = Post.query.get(post_id)
+    if post is not None:
+        return render_template("post.html", post=post)
 
 
 @app.route("/users/<int:user_id>")
 def user(user_id):
-    return render_template("user.html", user=USER_EXAMPLE)
+    user = User.query.get(user_id)
+    if user is not None:
+        return render_template("user.html", user=user)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -131,7 +100,9 @@ def create_new_post():
 
 @app.route("/group/<int:group_id>")
 def group(group_id):
-    return render_template("group.html", group=GROUP_EXAMPLE)
+    group = Group.query.get(group_id)
+    if group is not None:
+        return render_template("group.html", group=group)
 
 
 @login_required

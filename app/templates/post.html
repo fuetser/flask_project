@@ -11,7 +11,7 @@
    <div class="post-body">
       <h3>{{ post.title }}</h3>
       <p class="card-text">
-         <small class="text-muted">{{ post.elapsed }} by <a href="/users/{{ post.author.id }}" class="user-link">{{ post.author.nickname }}</a></small>
+         <small class="text-muted">{{ post.elapsed }} by <a href="/users/{{ post.author.id }}" class="user-link">{{ post.author.username }}</a></small>
       </p>
       <p>{{ post.body }}</p>
       <div class="post-info d-flex flex-row align-items-center">
@@ -19,7 +19,7 @@
             <button type="button" class="btn btn-default post-info-button smooth-transtion">
                <i class="bi bi-heart like"></i>
             </button>
-            <h5>{{ post.likes }}</h5>
+            <h5>{{ post.likes|length }}</h5>
          </div>
          <div>
             <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="share">
@@ -29,7 +29,7 @@
       </div>
    </div>
    <div class="post-comments" id="comments">
-      <h4>{{ post.comments }} Comments</h4>
+      <h4>{{ post.comments|length }} Comments</h4>
    </div>
 </div>
 {% endblock %}

@@ -4,11 +4,11 @@
 <link href="{{ url_for('static', filename='css/user.css') }}" rel="stylesheet">
 {% endblock %}
 
-{% block title %}{{ user.nickname }}{% endblock %}
+{% block title %}{{ user.username }}{% endblock %}
 
 {% block content %}
 <div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
-   <h1 class="user-nickname">{{ user.nickname }}</h1>
+   <h1 class="user-username">{{ user.username }}</h1>
    {% for post in user.posts %}
    <div class="card">
       <div class="card-body">
@@ -18,7 +18,7 @@
             </span>
          </a>
          <p class="card-text">
-            <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', user_id=post.author.id) }}" class="user-link">{{ post.author.nickname }}</a></small>
+            <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', user_id=post.author.id) }}" class="user-link">{{ post.author.username }}</a></small>
          </p>
          <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
             <p class="card-text">{{ post.body }}</p>
@@ -28,7 +28,7 @@
                <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
                   <i class="bi bi-heart like"></i>
                </button>
-               <h5>{{ post.likes }}</h5>
+               <h5>{{ post.likes|length }}</h5>
             </div>
             <div class="post-info-category d-flex flex-row align-items-center">
                <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
@@ -36,7 +36,7 @@
                      <i class="bi bi-chat-right"></i>
                   </a>
                </button>
-               <h5>{{ post.comments }}</h5>
+               <h5>{{ post.comments|length }}</h5>
             </div>
             <div>
                <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="share">
