@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<link href="{{ url_for('static', filename='css/error.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}Ошибка сервера{% endblock %}
+{% block content %}
+<main class="main card">
+    <h1 class="error__title">Ошибка сервера (500)</h1>
+    <p class="error__description">В данный момент сервер не может обработать Ваш запрос</p>
+    <p class="error__description">Повторите попытку позже</p>
+</main>
+{% endblock %}

@@ -1,0 +1,18 @@
+.main {
+    width: 50%;
+    margin: 15px auto 0;
+    padding: 50px 0;
+    background-color: #fff;
+    text-align: center;
+}
+
+.error__title {
+   margin-bottom: 25px;
+   font-size: 44px;
+}
+
+.error__description {
+    margin: 0;
+    margin-bottom: 10px;
+    font-size: 20px;
+}

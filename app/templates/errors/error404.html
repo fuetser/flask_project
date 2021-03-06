@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<link href="{{ url_for('static', filename='css/error.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}Страница не найдена{% endblock %}
+
+{% block content %}
+<main class="main card">
+    <h1 class="error__title">Страница не найдена (404)</h1>
+    <p class="error__description">Похоже, запрашиваемая страница не существует</p>
+    <p class="error__description">Проверьте правильность запроса и повторите попытку позже</p>
+</main>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<link href="{{ url_for('static', filename='css/error.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}Доступ запрещён{% endblock %}
+
+{% block content %}
+<main class="main card">
+    <h1 class="error__title">Доступ запрещён (403)</h1>
+    <p class="error__description">У Вас недостаточно прав для доступа к данной странице</p>
+    <p class="error__description">Проверьте свой профиль и повторите попытку позже</p>
+</main>
+{% endblock %}
