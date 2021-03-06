@@ -25,3 +25,11 @@ def get_elapsed(timestamp):
     else:
         years = now.year - timestamp.year
         return f"{years} лет назад"
+
+
+def localize_comments(count):
+    if count % 10 == 1 and count % 100 != 11:
+        return f"{count} комментарий"
+    if count % 10 in (2, 3, 4) and count % 100 // 10 != 1:
+        return f"{count} комментария"
+    return f"{count} комментариев"
