@@ -35,10 +35,15 @@
 }
 
 .subscribe-button:hover {
-    background-color: #f55d3e;
-    border-color: #f55d3e;
-    color: #ffffff;
+    background-color: #f55d3e !important;
+    border-color: #f55d3e !important;
+    color: #ffffff !important;
     transition: all .3s;
+}
+
+.subscribe-button.active {
+    background-color: #ffffff;
+    color: #000000;
 }
 
 .main {

@@ -1,4 +1,5 @@
 from flask import render_template, flash, redirect, url_for
+from flask.json import jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 
 from app import app
@@ -103,6 +104,20 @@ def group(group_id):
     group = Group.query.get(group_id)
     if group is not None:
         return render_template("group.html", group=group)
+
+
+@app.route("/subscribe/<int:group_id>", methods=["POST"])
+@login_required
+def subscribe(group_id):
+    group = Group.query.get(group_id)
+    if group is not None:
+        if current_user in group.subscribers:
+            group.subscribers.remove(current_user)
+        else:
+            group.subscribers.append(current_user)
+        db.session.commit()
+        return jsonify({"success": "OK"})
+    return jsonify({"error": "Group doesn't exists"})
 
 
 @login_required

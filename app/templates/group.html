@@ -8,11 +8,42 @@
 {% block title %}{{ group.name }}{% endblock %}
 
 {% block content %}
+<script type="text/javascript">
+   function subscribe () {
+      $.ajax({
+         url: "/subscribe/{{ group.id }}",
+         type: "POST",
+         success: function(response) {
+            let count = +$("#subscribersCounter").text()
+
+            if ($("#subscribeButton").hasClass("active")) {
+               $("#subscribeButton").text("Отписаться");
+               $("#subscribeButton").removeClass("active");
+               $("#subscribersCounter").text(count + 1)
+            }
+            else {
+               $("#subscribeButton").text("Подписаться");
+               $("#subscribeButton").addClass("active");
+               $("#subscribersCounter").text(count - 1)
+            }
+         },
+         error: function (request, status, error) {
+            console.log("error"); // TODO
+         },
+      });
+   }
+</script>
 <header class="header">
    <div class="header-wrapper">
       <img class="header-inner group-logo" src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="{{ group.name }} logo">
       <h4 class="header-inner group-title">{{ group.name }}</h4>
-      <button class="header-inner btn btn-outline-dark subscribe-button">Подписаться</button>
+      {% if not current_user.is_authenticated %}
+         <a class="header-inner btn btn-outline-dark subscribe-button active" href="{{ url_for('login') }}">Подписаться</a>
+      {% elif current_user in group.subscribers %}
+         <button class="header-inner btn btn-outline-dark subscribe-button" id="subscribeButton" onclick="subscribe();">Отписаться</button>
+      {% else %}
+         <button class="header-inner btn btn-outline-dark subscribe-button active" id="subscribeButton" onclick="subscribe();">Подписаться</button>
+      {% endif %}
    </div>
 </header>
 <main class="main">
@@ -59,7 +90,7 @@
    <div class="card group-description">
       <p class="group-text-description">{{ group.description }}</p>
       <p class="group-subscribers-count">
-         <b>{{ group.subscribers|length }}</b> Участников
+         <b id="subscribersCounter">{{ group.subscribers|length }}</b> Участников
       </p>
    </div>
 </main>
