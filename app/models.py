@@ -19,18 +19,48 @@ class User(UserMixin, db.Model):
     comments = db.relationship("Comment", backref="author")
 
     @staticmethod
-    def get_by_username(username):
+    def get_by_username(username: str):
         return User.query.filter(User.username == username).first()
 
     @staticmethod
-    def is_free_email(email):
+    def get_all(offset: int, limit: int):
+        return User.query.offset(offset).limit(limit).all()
+
+    @staticmethod
+    def is_free_email(email: str) -> bool:
         return not db.session.query(
             db.exists().where(User.email == email)).scalar()
 
-    def set_password(self, password):
+    @staticmethod
+    def is_free_username(username: str) -> bool:
+        return not db.session.query(
+            db.exists().where(User.username == username)).scalar()
+
+    @staticmethod
+    def create(**kwargs):
+        user = User(**kwargs)
+        user.set_password(user.password_hash)
+        db.session.add(user)
+        db.session.commit()
+        db.session.refresh(user)
+
+    @staticmethod
+    def update(user, password_changed=False):
+        if password_changed:
+            user.set_password(user.password_hash)
+        db.session.add(user)
+        db.session.commit()
+        db.session.refresh(user)
+
+    @staticmethod
+    def delete(user):
+        db.session.delete(user)
+        db.session.commit()
+
+    def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)
 
-    def check_password(self, password):
+    def check_password(self, password: str):
         return check_password_hash(self.password_hash, password)
 
     def on_delete(self):
@@ -43,7 +73,8 @@ def load_user(id):
     return User.query.get(int(id))
 
 
-posts_likes = db.Table("posts_likes",
+posts_likes = db.Table(
+    "posts_likes",
     db.Column("post_id", db.Integer, db.ForeignKey("post.id")),
     db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
 )
@@ -62,7 +93,7 @@ class Post(db.Model):
         "User", secondary=posts_likes, backref="post_likes")
 
     @staticmethod
-    def get_by_id(post_id):
+    def get_by_id(post_id: int):
         return Post.query.filter(Post.id == post_id).first()
 
     @property
@@ -95,9 +126,32 @@ class Post(db.Model):
     def get_hot():
         # TODO
         return Post.get_best()
-    
 
-groups_subscribers = db.Table("groups_subscribers",
+    @staticmethod
+    def get_all(offset: int, limit: int):
+        return Post.query.offset(offset).limit(limit).all()
+
+    @staticmethod
+    def create(**kwargs):
+        post = Post(**kwargs)
+        db.session.add(post)
+        db.session.commit()
+        db.session.refresh(post)
+
+    @staticmethod
+    def update(post):
+        db.session.add(post)
+        db.session.commit()
+        db.session.refresh(post)
+
+    @staticmethod
+    def delete(post):
+        db.session.delete(post)
+        db.session.commit()
+
+
+groups_subscribers = db.Table(
+    "groups_subscribers",
     db.Column("group_id", db.Integer, db.ForeignKey("group.id")),
     db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
 )
@@ -112,12 +166,39 @@ class Group(db.Model):
         "User", secondary=groups_subscribers, backref="groups")
 
     @staticmethod
-    def is_unique_name(name):
+    def is_unique_name(name: str) -> bool:
         return not db.session.query(
             db.exists().where(Group.name == name)).scalar()
 
+    @staticmethod
+    def get_by_id(group_id: int):
+        return Group.query.filter(Group.id == group_id).first()
 
-comments_likes = db.Table("comments_likes",
+    @staticmethod
+    def get_all(offset: int, limit: int):
+        return Group.query.offset(offset).limit(limit).all()
+
+    @staticmethod
+    def create(**kwargs):
+        group = Group(**kwargs)
+        db.session.add(group)
+        db.session.commit()
+        db.session.refresh(group)
+
+    @staticmethod
+    def update(group):
+        db.session.add(group)
+        db.session.commit()
+        db.session.refresh(group)
+
+    @staticmethod
+    def delete(group):
+        db.session.delete(group)
+        db.session.commit()
+
+
+comments_likes = db.Table(
+    "comments_likes",
     db.Column("comment_id", db.Integer, db.ForeignKey("comment.id")),
     db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
 )
