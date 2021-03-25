@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<link href="{{ url_for('static', filename='css/tokens.css') }}" rel="stylesheet">
+{% endblock %}
+{% block title %}Api Токены{% endblock %}
+
+{% block content %}
+<main class="main card">
+    <h3>Ваш Api токен</h3>
+    <div class="token-wrapper"> 
+        <input type="text" id="token" class="form-control token text-muted">
+        <button class="btn btn-light" id="copyButton">Копировать</button>
+    </div>
+</main>
+<script defer>
+    const token = document.querySelector("#token")
+    const copyButton = document.querySelector("#copyButton")
+    token.value = "{{ token }}"
+    copyButton.addEventListener("click", e => {
+        token.focus();
+        token.select();
+        document.execCommand('copy')
+    })
+</script>
+{% endblock %}

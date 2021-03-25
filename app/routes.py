@@ -5,6 +5,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app import app
 from app.forms import *
 from app.models import *
+from app.utils import create_token
 
 
 @app.route("/")
@@ -139,3 +140,10 @@ def new_group():
             return redirect(url_for("new_group"))
 
     return render_template("new_group.html", form=form)
+
+
+@app.route("/token")
+@login_required
+def view_tokens():
+    return render_template(
+        "tokens.html", token=create_token({"sub": current_user.id}))

@@ -4,10 +4,12 @@ from pydantic import ValidationError
 
 from ..models import User
 from .schemas import UserModel, UserModelCreate, UserModelUpdate
+from ..utils import token_required
 
 
 class UsersResource(Resource):
-    def get(self, username: str):
+    @token_required
+    def get(self, username: str, payload):
         user = self.get_user_or_404(username)
         user_model = UserModel.from_orm(user)
         return jsonify({
@@ -15,8 +17,10 @@ class UsersResource(Resource):
             "status": 200, "ok": True
         })
 
-    def put(self, username: str):
+    @token_required
+    def put(self, username: str, payload):
         user = self.get_user_or_404(username)
+        self.validate_token(user.id, payload)
         try:
             user_model = UserModelUpdate(**request.json)
         except ValidationError as e:
@@ -29,13 +33,14 @@ class UsersResource(Resource):
             for key, value in user_model:
                 if value is not None:
                     setattr(user, key, value)
-            User.update(
-                user, password_changed=user_model.password_hash is not None)
+            user.update(password_changed=user_model.password_hash is not None)
             return jsonify({"ok": True, "status": 201})
 
-    def delete(self, username: str):
+    @token_required
+    def delete(self, username: str, payload):
         user = self.get_user_or_404(username)
-        User.delete(user)
+        self.validate_token(user.id, payload)
+        user.delete()
         return jsonify({"ok": True, "status": 204})
 
     def get_user_or_404(self, username: str) -> User:
@@ -45,9 +50,14 @@ class UsersResource(Resource):
                   detail=f"User with username {username} not found")
         return user
 
+    def validate_token(self, user_id: int, payload):
+        if user_id != payload.get("sub", -1):
+            abort(403, status=403, ok=False, detail="Invalid token supplied")
+
 
 class UsersListResource(Resource):
-    def get(self):
+    @token_required
+    def get(self, payload):
         # query параметры, передаваемые в запрос
         offset = request.args.get("offset", 0)
         limit = request.args.get("limit", 10)

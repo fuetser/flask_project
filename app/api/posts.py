@@ -4,10 +4,13 @@ from pydantic import ValidationError
 
 from .schemas import PostModel, PostModelUpdate, PostModelCreate
 from ..models import Post
+from ..utils import token_required
 
 
 class PostsResource(Resource):
-    def get(self, post_id: int):
+    @token_required
+    def get(self, post_id: int, payload):
+        # аргумент payload(именованный, type=dict) передается декоратором
         post = self.get_post_or_404(post_id)
         post_model = PostModel.from_orm(post)
         return jsonify({
@@ -15,8 +18,10 @@ class PostsResource(Resource):
             "status": 200, "ok": True
         })
 
-    def put(self, post_id: int):
+    @token_required
+    def put(self, post_id: int, payload):
         post = self.get_post_or_404(post_id)
+        self.validate_token(post, payload)
         try:
             post_model = PostModelUpdate(**request.json)
         except ValidationError as e:
@@ -29,12 +34,15 @@ class PostsResource(Resource):
             for key, value in post_model:
                 if value is not None:
                     setattr(post, key, value)
-            Post.update(post)
+            post.update()
             return jsonify({"ok": True, "status": 201})
 
-    def delete(self, post_id: int):
-        post = self.get_post_or_404(post_id)
-        Post.delete(post)
+    @token_required
+    def delete(self, post_id: int, payload):
+        self.validate_token(post, payload)
+        if post.author_id != payload.get("sub", -1):
+            abort(403, status=403, ok=False, detail="Invalid token supplied")
+        post.delete()
         return jsonify({"ok": True, "status": 204})
 
     def get_post_or_404(self, post_id: int) -> Post:
@@ -45,8 +53,14 @@ class PostsResource(Resource):
         return post
 
 
+    def validate_token(self, post, payload):
+        if post.author_id != payload.get("sub", -1):
+            abort(403, status=403, ok=False, detail="Invalid token supplied")
+
+
 class PostsListResource(Resource):
-    def get(self):
+    @token_required
+    def get(self, payload):
         # query параметры, передаваемые в запрос
         offset = request.args.get("offset", 0)
         limit = request.args.get("limit", 10)
@@ -59,7 +73,9 @@ class PostsListResource(Resource):
             "status": 200, "ok": True
         })
 
-    def post(self):
+    @token_required
+    def post(self, payload):
+        self.validate_token(request.json.get("author_id", -1), payload)
         try:
             post_model = PostModelCreate(**request.json)
         except ValidationError as e:
@@ -71,3 +87,7 @@ class PostsListResource(Resource):
         else:
             Post.create(**post_model.dict())
             return jsonify({"ok": True, "status": 201})
+
+    def validate_token(self, user_id: int, payload):
+        if user_id != payload.get("sub"):
+            abort(403, status=403, ok=False, detail="Invalid token supplied")

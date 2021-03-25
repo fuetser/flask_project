@@ -44,17 +44,15 @@ class User(UserMixin, db.Model):
         db.session.commit()
         db.session.refresh(user)
 
-    @staticmethod
-    def update(user, password_changed=False):
+    def update(self, password_changed=False):
         if password_changed:
-            user.set_password(user.password_hash)
-        db.session.add(user)
+            self.set_password(self.password_hash)
+        db.session.add(self)
         db.session.commit()
-        db.session.refresh(user)
+        db.session.refresh(self)
 
-    @staticmethod
-    def delete(user):
-        db.session.delete(user)
+    def delete(self):
+        db.session.delete(self)
         db.session.commit()
 
     def set_password(self, password: str):
@@ -138,15 +136,13 @@ class Post(db.Model):
         db.session.commit()
         db.session.refresh(post)
 
-    @staticmethod
-    def update(post):
-        db.session.add(post)
+    def update(self):
+        db.session.add(self)
         db.session.commit()
-        db.session.refresh(post)
+        db.session.refresh(self)
 
-    @staticmethod
-    def delete(post):
-        db.session.delete(post)
+    def delete(self):
+        db.session.delete(self)
         db.session.commit()
 
 
@@ -185,15 +181,13 @@ class Group(db.Model):
         db.session.commit()
         db.session.refresh(group)
 
-    @staticmethod
-    def update(group):
-        db.session.add(group)
+    def update(self):
+        db.session.add(self)
         db.session.commit()
-        db.session.refresh(group)
+        db.session.refresh(self)
 
-    @staticmethod
-    def delete(group):
-        db.session.delete(group)
+    def delete(self):
+        db.session.delete(self)
         db.session.commit()
 
 

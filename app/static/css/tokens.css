@@ -1,0 +1,16 @@
+.main {
+    width: 50%;
+    margin: 15px auto 0;
+    padding: 20px;
+}
+
+.token-wrapper {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.token {
+    margin-right: 10px;
+}

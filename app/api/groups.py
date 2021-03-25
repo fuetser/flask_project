@@ -4,12 +4,14 @@ from pydantic import ValidationError
 
 from ..models import Group
 from .schemas import GroupModel, GroupModelCreate, GroupModelUpdate
+from ..utils import token_required
 
 
 class GroupsResource(Resource):
     exclude_fields = {"subscribers": {"__all__": {"password_hash"}}}
 
-    def get(self, group_id: int):
+    @token_required
+    def get(self, group_id: int, payload):
         group = self.get_group_or_404(group_id)
         group_model = GroupModel.from_orm(group)
         return jsonify({
@@ -17,7 +19,8 @@ class GroupsResource(Resource):
             "status": 200, "ok": True
         })
 
-    def put(self, group_id: int):
+    @token_required
+    def put(self, group_id: int, payload):
         group = self.get_group_or_404(group_id)
         try:
             group_model = GroupModelUpdate(**request.json)
@@ -31,12 +34,13 @@ class GroupsResource(Resource):
             for key, value in group_model:
                 if value is not None:
                     setattr(group, key, value)
-            Group.update(group)
+            group.update()
             return jsonify({"ok": True, "status": 201})
 
-    def delete(self, group_id: int):
+    @token_required
+    def delete(self, group_id: int, payload):
         group = self.get_group_or_404(group_id)
-        Group.delete(group)
+        group.delete()
         return jsonify({"ok": True, "status": 204})
 
     def get_group_or_404(self, group_id: int) -> Group:
@@ -46,11 +50,15 @@ class GroupsResource(Resource):
                   detail=f"Group with id {group_id} not found")
         return group
 
+    def validate_token(self):
+        pass
+
 
 class GroupsListResource(Resource):
     exclude_fields = {"subscribers": {"__all__": {"password_hash"}}}
 
-    def get(self):
+    @token_required
+    def get(self, payload):
         # query параметры, передаваемые в запрос
         offset = request.args.get("offset", 0)
         limit = request.args.get("limit", 10)
@@ -64,7 +72,8 @@ class GroupsListResource(Resource):
             "status": 200, "ok": True
         })
 
-    def post(self):
+    @token_required
+    def post(self, payload):
         try:
             group_model = GroupModelCreate(**request.json)
         except ValidationError as e:
