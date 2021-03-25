@@ -95,6 +95,7 @@ class UserModelUpdate(BaseModel):
 class GroupModelBase(BaseModel):
     name: constr(max_length=32)
     description: constr(max_length=128)
+    admin_id: int
     posts: Optional[List[PostModel]] = []
     subscribers: Optional[List[UserModel]] = []
 
@@ -120,3 +121,4 @@ class GroupModelCreate(GroupModelBase):
 class GroupModelUpdate(GroupModelBase):
     name: Optional[constr(max_length=32)]
     description: Optional[constr(max_length=128)]
+    admin_id: Optional[int]

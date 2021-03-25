@@ -22,6 +22,7 @@ class GroupsResource(Resource):
     @token_required
     def put(self, group_id: int, payload):
         group = self.get_group_or_404(group_id)
+        self.validate_token(group, payload)
         try:
             group_model = GroupModelUpdate(**request.json)
         except ValidationError as e:
@@ -40,6 +41,7 @@ class GroupsResource(Resource):
     @token_required
     def delete(self, group_id: int, payload):
         group = self.get_group_or_404(group_id)
+        self.validate_token(group, payload)
         group.delete()
         return jsonify({"ok": True, "status": 204})
 
@@ -50,8 +52,9 @@ class GroupsResource(Resource):
                   detail=f"Group with id {group_id} not found")
         return group
 
-    def validate_token(self):
-        pass
+    def validate_token(self, group, payload):
+        if group.admin_id != payload.get("sub", -1):
+            abort(401, status=401, ok=False, detail="Invalid token supplied")
 
 
 class GroupsListResource(Resource):
@@ -85,3 +88,7 @@ class GroupsListResource(Resource):
         else:
             Group.create(**group_model.dict())
             return jsonify({"ok": True, "status": 201})
+
+    def validate_token(admin_id, payload):
+        if admin_id != payload.get("admin_id", -1):
+            abort(401, status=401, ok=False, detail="Invalid token supplied")
