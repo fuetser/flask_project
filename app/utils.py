@@ -2,9 +2,7 @@ import datetime as dt
 from functools import wraps
 from math import floor
 
-from flask import jsonify, request
-from flask_restful import abort
-
+from flask_restful import abort, request
 import jwt
 
 from config import Config

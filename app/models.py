@@ -90,6 +90,14 @@ class Post(db.Model):
     likes = db.relationship(
         "User", secondary=posts_likes, backref="post_likes")
 
+    def get_comments_by_likes(self, reverse: bool):
+        return sorted(
+            self.comments, key=lambda comm: len(comm.likes), reverse=reverse)
+
+    def get_comments_by_date(self, reverse: bool):
+        return sorted(
+            self.comments, key=lambda comm: comm.timestamp, reverse=reverse)
+
     @staticmethod
     def get_by_id(post_id: int):
         return Post.query.filter(Post.id == post_id).first()
@@ -210,3 +218,27 @@ class Comment(db.Model):
     # replies = db.relationship("Comment", lazy="dinamic")
     likes = db.relationship(
         "User", secondary=comments_likes, backref="comment_likes")
+
+    def update(self):
+        db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_by_id(comment_id: int):
+        return Comment.query.filter(Comment.id == comment_id).first()
+
+    @staticmethod
+    def create(**kwargs):
+        comment = Comment(**kwargs)
+        db.session.add(comment)
+        db.session.commit()
+        db.session.refresh(comment)
+
+    @property
+    def elapsed(self):
+        return get_elapsed(self.timestamp)

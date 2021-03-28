@@ -2,13 +2,14 @@
 
 {% block extrahead %}
 <link href="{{ url_for('static', filename='css/post.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/forms.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
 <div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
-   <div class="post-body">
+   <div class="post-body card">
       <h3>{{ post.title }}</h3>
       <p class="card-text">
          <small class="text-muted">{{ post.elapsed }} от <a href="/users/{{ post.author.id }}" class="user-link">{{ post.author.username }}</a></small>
@@ -16,10 +17,22 @@
       <p>{{ post.body }}</p>
       <div class="post-info d-flex flex-row align-items-center">
          <div class="post-info-category d-flex flex-row align-items-center">
-            <button type="button" class="btn btn-default post-info-button smooth-transtion">
-               <i class="bi bi-heart like"></i>
-            </button>
-            <h5>{{ post.likes|length }}</h5>
+            {% if not current_user.is_authenticated %}
+               <a class="btn btn-default post-info-button smooth-transtion" href="{{ url_for('login') }}">
+                  <i class="bi bi-heart"></i>
+               </a>
+               <h5 id="likesCounter">{{ post.likes|length }}</h5>
+            {% elif current_user in post.likes %}
+               <button type="button" class="btn btn-default post-info-button smooth-transtion" onclick="likePost({{ post.id }})">
+                  <i class="bi bi-heart-fill like"></i>
+               </button>
+               <h5 id="likesCounter" class="active">{{ post.likes|length }}</h5>
+            {% else %}
+               <button type="button" class="btn btn-default post-info-button smooth-transtion" onclick="likePost({{ post.id }})">
+                  <i class="bi bi-heart like"></i>
+               </button>
+               <h5 id="likesCounter">{{ post.likes|length }}</h5>
+            {% endif %}
          </div>
          <div>
             <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="share">
@@ -28,8 +41,86 @@
          </div>
       </div>
    </div>
-   <div class="post-comments" id="comments">
-      <h4>{{ localize_comments(post.comments|length) }}</h4>
+   <div class="comment-section card">
+      <div class="post-comments" id="comments">
+         <h4 id="commentsTitle">{{ localize_comments(post.comments|length) }}</h4>
+         <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+               Сортировка
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+               <li>
+                  <div class="dropdown-item d-flex align-items-center">
+                     <p class="mb-0">По дате</p>
+                     <a class="arrow-wrapper" href="{{ url_for('post', post_id=post.id, sort='date', reverse=True) }}">
+                        <i class="bi bi-arrow-down-short"></i>
+                     </a>
+                     <a class="arrow-wrapper" href="{{ url_for('post', post_id=post.id, sort='date') }}">
+                        <i class="bi bi-arrow-up-short"></i>
+                     </a>
+                  </div>
+               </li>
+              <li>
+                  <div class="dropdown-item d-flex align-items-center">
+                     <p class="mb-0">По популярности</p>
+                     <a class="arrow-wrapper" href="{{ url_for('post', post_id=post.id, sort='popular', reverse=True) }}">
+                        <i class="bi bi-arrow-down-short"></i>
+                     </a>
+                     <a class="arrow-wrapper" href="{{ url_for('post', post_id=post.id, sort='popular') }}">
+                        <i class="bi bi-arrow-up-short"></i>
+                     </a>
+                  </div>
+               </li>
+            </ul>
+         </div>
+      </div>
+     <div class="comment-create">
+         <input type="text" class="comment-input form-control form-input" placeholder="Оставьте комментарий" id="commentInput">
+         {% if current_user.is_authenticated %}
+            <button class="btn btn-outline-dark submit smooth-transtion" id="commentButton" onclick="commentPost({{ post.id }})">Отправить</button>
+         {% else %}
+            <a class="btn btn-outline-dark submit smooth-transtion" id="commentButton" href="{{ url_for('login') }}">Отправить</a>
+         {% endif %}
+      </div>
+      <div class="comments-list">
+         {% for comment in comments %}
+            <div class="comment-element" id="comment{{ comment.id }}">
+               <div class="comment-header">
+                  <h5 class="comment__author">{{ comment.author.username }}</h5>
+                  <p class="text-muted comment__elapsed">{{ post.elapsed }}</p>
+               </div>
+               <div class="comment-body">
+                  <p class="comment-body-text">{{ comment.body }}</p>
+               </div>
+               <div class="comment-footer">
+                  {% if not current_user.is_authenticated %}
+                     <a class="btn btn-default post-info-button smooth-transtion mt-1" href="{{ url_for('login') }}">
+                        <i class="bi bi-heart like comment-like"></i>
+                     </a>
+                     <p id="likesCounter" class="text-muted mb-2">{{ comment.likes|length }}</p>
+                  {% elif current_user in comment.likes %}
+                     <button type="button" class="btn btn-default post-info-button smooth-transtion" onclick="likeComment({{ comment.id }})">
+                        <i class="bi bi-heart-fill like comment-like"></i>
+                     </button>
+                     <p id="likesCounter" class="text-muted mb-2 active">{{ comment.likes|length }}</p>
+                  {% else %}
+                     <button type="button" class="btn btn-default post-info-button smooth-transtion" onclick="likeComment({{ comment.id }})">
+                        <i class="bi bi-heart like comment-like"></i>
+                     </button>
+                     <p id="likesCounter" class="text-muted mb-2">{{ comment.likes|length }}</p>
+                  {% endif %}
+                  <button type="button" class="btn btn-default post-info-button smooth-transtion">
+                     <i class="bi bi-arrow-return-left comment-symbol"></i>
+                  </button>
+                  {% if current_user.is_authenticated and comment.author_id == current_user.id %}
+                     <button type="button" class="btn btn-default post-info-button smooth-transtion" onclick="deleteComment({{ comment.id }})">
+                        <i class="bi bi-trash comment-symbol"></i>
+                     </button>
+                  {% endif %}
+               </div>
+            </div>
+         {% endfor %}
+      </div>
    </div>
 </div>
 {% endblock %}

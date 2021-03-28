@@ -64,10 +64,22 @@
             </a>
             <div class="post-info d-flex flex-row align-items-center">
                <div class="post-info-category d-flex flex-row align-items-center">
-                  <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">
-                     <i class="bi bi-heart like"></i>
-                  </button>
-                  <h5>{{ post.likes|length }}</h5>
+                  {% if not current_user.is_authenticated %}
+                     <a class="btn btn-default post-info-button smooth-transtion" href="{{ url_for('login') }}">
+                        <i class="bi bi-heart"></i>
+                     </a>
+                     <h5 id="likesCounter">{{ post.likes|length }}</h5>
+                  {% elif current_user in post.likes %}
+                     <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like" onclick="likePost({{ post.id }})">
+                        <i class="bi bi-heart-fill like"></i>
+                     </button>
+                     <h5 id="likesCounter" class="active">{{ post.likes|length }}</h5>
+                  {% else %}
+                     <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like" onclick="likePost({{ post.id }})">
+                        <i class="bi bi-heart like"></i>
+                     </button>
+                     <h5 id="likesCounter">{{ post.likes|length }}</h5>
+                  {% endif %}
                </div>
                <div class="post-info-category d-flex flex-row align-items-center">
                   <button type="button" class="btn btn-default post-info-button smooth-transtion" aria-label="like">

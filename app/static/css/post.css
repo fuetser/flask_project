@@ -34,12 +34,84 @@ h4 {
 
 .post-comments {
     background-color: #ffffff;
-    margin-top: 15px;
     padding: 10px;
+    display: flex;
+    justify-content: space-between;
 }
 
 #like:focus {
     outline: none;
     box-shadow: none;
     border: none;
+}
+
+.comment-section {
+    margin: 15px 0;
+    padding: 10px;
+}
+
+.comment-create {
+    padding: 10px;
+    display: flex;
+}
+
+.comment-input {
+    margin-right: 10px;
+}
+
+#commentButton {
+    margin: 0;
+}
+
+.comments-list {
+    padding: 10px;
+}
+
+.comment-element {
+    border-top: 1px solid #a0a0a0;
+    padding: 10px;
+    padding-bottom: 0;
+}
+
+.comment-element:last-child {
+    border-bottom: 1px solid #a0a0a0;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+}
+
+.comment__author {
+    margin: 0;
+    margin-right: 10px; 
+}
+
+.comment__elapsed {
+    margin: 0;
+    margin-top: 3px;
+}
+
+.comment-body-text {
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.comment-footer {
+    margin: 10px 0 5px;
+    display: flex;
+}
+
+.comment-like {
+    font-size: 14px;
+}
+
+.comment-symbol {
+    font-size: 16px;
+    margin-left: 20px;
+}
+
+.arrow-wrapper {
+    margin: 10px 0 0 10px;
+    color: black;
 }

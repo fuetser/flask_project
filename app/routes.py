@@ -1,24 +1,26 @@
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, abort, request
 from flask.json import jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 
 from app import app
 from app.forms import *
 from app.models import *
-from app.utils import create_token
+from app.utils import create_token, localize_comments
 
 
 @app.route("/")
 @app.route("/best")
 def best():
     posts = Post.get_best()
-    return render_template("feed.html", posts=posts, active_link="best")
+    return render_template("feed.html", posts=posts, active_link="best",
+                           current_user=current_user)
 
 
 @app.route("/hot")
 def hot():
     posts = Post.get_hot()
-    return render_template("feed.html", posts=posts, active_link="hot")
+    return render_template("feed.html", posts=posts, active_link="hot",
+                           current_user=current_user)
 
 
 @app.route("/sort")
@@ -29,8 +31,19 @@ def sort():
 @app.route("/posts/<int:post_id>")
 def post(post_id):
     post = Post.query.get(post_id)
+    sort = request.args.get("sort", "popular")
+    reverse = bool(request.args.get("reverse", False))
+    if sort == "date":
+        comments = post.get_comments_by_date(reverse=reverse)
+    elif sort == "popular":
+        comments = post.get_comments_by_likes(reverse=reverse)
+    else:
+        abort(404)
     if post is not None:
-        return render_template("post.html", post=post)
+        return render_template("post.html", post=post,
+                               current_user=current_user, comments=comments)
+    else:
+        abort(404)
 
 
 @app.route("/users/<int:user_id>")
@@ -38,6 +51,8 @@ def user(user_id):
     user = User.query.get(user_id)
     if user is not None:
         return render_template("user.html", user=user)
+    else:
+        abort(404)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -90,8 +105,8 @@ def logout():
     return redirect(url_for("best"))
 
 
-@login_required
 @app.route("/new_post", methods=["GET", "POST"])
+@login_required
 def create_new_post():
     form = NewPostForm()
     if form.validate_on_submit():
@@ -104,11 +119,13 @@ def create_new_post():
 def group(group_id):
     group = Group.query.get(group_id)
     if group is not None:
-        return render_template("group.html", group=group)
+        return render_template(
+            "group.html", group=group, current_user=current_user)
+    else:
+        abort(404)
 
 
 @app.route("/subscribe/<int:group_id>", methods=["POST"])
-@login_required
 def subscribe(group_id):
     group = Group.query.get(group_id)
     if group is not None:
@@ -121,8 +138,8 @@ def subscribe(group_id):
     return jsonify({"error": "Group doesn't exists"})
 
 
-@login_required
 @app.route("/new_group", methods=["GET", "POST"])
+@login_required
 def new_group():
     form = NewGroupForm()
     if form.validate_on_submit():
@@ -140,6 +157,52 @@ def new_group():
             return redirect(url_for("new_group"))
 
     return render_template("new_group.html", form=form)
+
+
+@app.route("/like/<int:post_id>", methods=["POST"])
+def like_post(post_id):
+    post = Post.get_by_id(post_id)
+    if not post:
+        return jsonify({"error": f"Post with id {post_id} no found"})
+    if current_user in post.likes:
+        post.likes.remove(current_user)
+    else:
+        post.likes.append(current_user)
+    post.update()
+    return jsonify({"success": "OK"})
+
+
+@app.route("/comment/<int:post_id>", methods=["POST"])
+def create_comment(post_id):
+    text = request.values.get("text")
+    post = Post.get_by_id(post_id)
+    if not post:
+        abort(404)
+    Comment.create(post_id=post_id, author_id=current_user.id, body=text)
+    return jsonify({"success": "OK"})
+
+
+@app.route("/comment/<int:comment_id>", methods=["DELETE"])
+def delete_comment(comment_id):
+    comment = Comment.get_by_id(comment_id)
+    if not comment:
+        abort(404)
+    comment.delete()
+    return jsonify({"comments": localize_comments(
+        len(Post.get_by_id(comment.post_id).comments))})
+
+
+@app.route("/like_comment/<int:comment_id>", methods=["POST"])
+def like_comment(comment_id):
+    comment = Comment.get_by_id(comment_id)
+    if not comment:
+        abort(404)
+    if current_user in comment.likes:
+        comment.likes.remove(current_user)
+    else:
+        comment.likes.append(current_user)
+    comment.update()
+    return jsonify({"success": "OK"})
 
 
 @app.route("/token")
