@@ -11,19 +11,20 @@ from config import Config
 def get_elapsed(timestamp):
     now = dt.datetime.utcnow()
     delta = now - timestamp
+    seconds = delta.total_seconds()
     if delta < dt.timedelta(minutes=1):
-        return f"{delta.seconds} секунд назад"
+        return f"{seconds} секунд назад"
     elif delta < dt.timedelta(hours=1):
-        minutes = delta.seconds // 60
+        minutes = floor(seconds / 60)
         return f"{minutes} минут назад"
     elif delta < dt.timedelta(days=1):
-        hours = floor(delta.seconds / 60 / 60)
+        hours = floor(seconds / 60 / 60)
         return f"{hours} часов назад"
     elif delta < dt.timedelta(weeks=1):
-        days = floor(delta.seconds / 60 / 60 / 24)
+        days = floor(seconds / 60 / 60 / 24)
         return f"{days} дней назад"
     elif delta < dt.timedelta(weeks=4):
-        weeks = floor(delta.seconds / 60 / 60 / 24 / 7)
+        weeks = floor(seconds / 60 / 60 / 24 / 7)
         return f"{weeks} недели назад"
     elif delta < dt.timedelta(days=365):
         months = (now.year - timestamp.year) * 12 + now.month - timestamp.month

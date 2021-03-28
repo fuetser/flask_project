@@ -40,9 +40,7 @@ class User(UserMixin, db.Model):
     def create(**kwargs):
         user = User(**kwargs)
         user.set_password(user.password_hash)
-        db.session.add(user)
-        db.session.commit()
-        db.session.refresh(user)
+        user.update()
 
     def update(self, password_changed=False):
         if password_changed:
@@ -140,9 +138,7 @@ class Post(db.Model):
     @staticmethod
     def create(**kwargs):
         post = Post(**kwargs)
-        db.session.add(post)
-        db.session.commit()
-        db.session.refresh(post)
+        post.update()
 
     def update(self):
         db.session.add(self)
@@ -186,9 +182,7 @@ class Group(db.Model):
     @staticmethod
     def create(**kwargs):
         group = Group(**kwargs)
-        db.session.add(group)
-        db.session.commit()
-        db.session.refresh(group)
+        group.update()
 
     def update(self):
         db.session.add(self)
@@ -219,14 +213,9 @@ class Comment(db.Model):
     likes = db.relationship(
         "User", secondary=comments_likes, backref="comment_likes")
 
-    def update(self):
-        db.session.add(self)
-        db.session.commit()
-        db.session.refresh(self)
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+    @property
+    def elapsed(self):
+        return get_elapsed(self.timestamp)
 
     @staticmethod
     def get_by_id(comment_id: int):
@@ -235,10 +224,13 @@ class Comment(db.Model):
     @staticmethod
     def create(**kwargs):
         comment = Comment(**kwargs)
-        db.session.add(comment)
-        db.session.commit()
-        db.session.refresh(comment)
+        comment.update()
 
-    @property
-    def elapsed(self):
-        return get_elapsed(self.timestamp)
+    def update(self):
+        db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()

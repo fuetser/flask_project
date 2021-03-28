@@ -39,6 +39,7 @@ def post(post_id):
         comments = post.get_comments_by_likes(reverse=reverse)
     else:
         abort(404)
+
     if post is not None:
         return render_template("post.html", post=post,
                                current_user=current_user, comments=comments)
@@ -163,7 +164,7 @@ def new_group():
 def like_post(post_id):
     post = Post.get_by_id(post_id)
     if not post:
-        return jsonify({"error": f"Post with id {post_id} no found"})
+        return jsonify({"error": f"Post with id {post_id} not found"})
     if current_user in post.likes:
         post.likes.remove(current_user)
     else:
@@ -174,10 +175,10 @@ def like_post(post_id):
 
 @app.route("/comment/<int:post_id>", methods=["POST"])
 def create_comment(post_id):
-    text = request.values.get("text")
     post = Post.get_by_id(post_id)
     if not post:
         abort(404)
+    text = request.values.get("text")
     Comment.create(post_id=post_id, author_id=current_user.id, body=text)
     return jsonify({"success": "OK"})
 
