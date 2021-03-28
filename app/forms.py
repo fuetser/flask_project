@@ -30,7 +30,7 @@ class NewPostForm(FlaskForm):
     content = StringField(
         "Содержание записи", validators=[DataRequired()], widget=TextArea())
     use_markdown = BooleanField("Использовать Markdown")
-    files = FileField()
+    image = FileField()
     submit = SubmitField("Опубликовать")
 
 

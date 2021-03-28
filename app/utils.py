@@ -13,7 +13,7 @@ def get_elapsed(timestamp):
     delta = now - timestamp
     seconds = delta.total_seconds()
     if delta < dt.timedelta(minutes=1):
-        return f"{seconds} секунд назад"
+        return f"{floor(seconds)} секунд назад"
     elif delta < dt.timedelta(hours=1):
         minutes = floor(seconds / 60)
         return f"{minutes} минут назад"

@@ -33,6 +33,16 @@
       });
    }
 </script>
+<script type="text/javascript" defer>
+   // <li><a class="dropdown-item" href="{{ url_for('create_new_post') }}">Создать пост</a></li>
+   var link = document.createElement("a");
+   link.setAttribute("href", "{{ url_for('create_new_post', group_id=group.id) }}");
+   link.setAttribute("class", "dropdown-item");
+   const newContent = document.createTextNode("Создать пост");
+   link.appendChild(newContent);
+   var parent = document.getElementById("dropdownMenu");
+   parent.appendChild(link);
+</script>
 <header class="header">
    <div class="header-wrapper">
       <img class="header-inner group-logo" src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="{{ group.name }} logo">

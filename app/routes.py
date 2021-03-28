@@ -111,8 +111,27 @@ def logout():
 def create_new_post():
     form = NewPostForm()
     if form.validate_on_submit():
-        flash("Запись успешно создана", "success")
-        return redirect(url_for("best"))
+        group_id = request.args.get("group_id")
+        if group_id is None:
+            abort(404)
+        group = Group.get_by_id(group_id)
+        if form.image.has_file():
+            Post.create(
+                title=form.title.data,
+                body=form.content.data,
+                author=current_user,
+                group=group,
+            )
+        else:
+            Post.create(
+                title=form.title.data,
+                body=form.content.data,
+                picture=form.image.data,
+                author=current_user,
+                group=group,
+            )
+        # flash("Запись успешно создана", "success")
+        return redirect(url_for("group", group_id=group_id))
     return render_template("new_post.html", form=form)
 
 
