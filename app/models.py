@@ -139,6 +139,7 @@ class Post(db.Model):
     def create(**kwargs):
         post = Post(**kwargs)
         post.update()
+        print(post.id)
 
     def update(self):
         db.session.add(self)

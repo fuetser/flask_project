@@ -52,7 +52,7 @@ class UsersResource(Resource):
 
     def validate_token(self, user_id: int, payload):
         if user_id != payload.get("sub", -1):
-            abort(403, status=403, ok=False, detail="Invalid token supplied")
+            abort(403, status=403, ok=False, detail="You are not the owner")
 
 
 class UsersListResource(Resource):

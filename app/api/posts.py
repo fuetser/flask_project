@@ -21,6 +21,7 @@ class PostsResource(Resource):
     @token_required
     def put(self, post_id: int, payload):
         post = self.get_post_or_404(post_id)
+        print(payload, post.author_id)
         self.validate_token(post, payload)
         try:
             post_model = PostModelUpdate(**request.json)
@@ -39,9 +40,8 @@ class PostsResource(Resource):
 
     @token_required
     def delete(self, post_id: int, payload):
+        post = self.get_post_or_404(post_id)
         self.validate_token(post, payload)
-        if post.author_id != payload.get("sub", -1):
-            abort(403, status=403, ok=False, detail="Invalid token supplied")
         post.delete()
         return jsonify({"ok": True, "status": 204})
 
@@ -52,10 +52,9 @@ class PostsResource(Resource):
                   detail=f"Post with id {post_id} not found")
         return post
 
-
     def validate_token(self, post, payload):
         if post.author_id != payload.get("sub", -1):
-            abort(403, status=403, ok=False, detail="Invalid token supplied")
+            abort(403, status=403, ok=False, detail="You are not the author")
 
 
 class PostsListResource(Resource):
@@ -75,7 +74,6 @@ class PostsListResource(Resource):
 
     @token_required
     def post(self, payload):
-        self.validate_token(request.json.get("author_id", -1), payload)
         try:
             post_model = PostModelCreate(**request.json)
         except ValidationError as e:
@@ -85,9 +83,10 @@ class PostsListResource(Resource):
         except Exception:
             abort(400, status=400, ok=False, detail="Bad request")
         else:
+            self.validate_token(post_model.author_id, payload)
             Post.create(**post_model.dict())
             return jsonify({"ok": True, "status": 201})
 
     def validate_token(self, user_id: int, payload):
         if user_id != payload.get("sub"):
-            abort(403, status=403, ok=False, detail="Invalid token supplied")
+            abort(403, status=403, ok=False, detail="You are not the author")

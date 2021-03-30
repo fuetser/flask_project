@@ -1,6 +1,7 @@
 from app import api
 from .groups import GroupsResource, GroupsListResource
 from .posts import PostsResource, PostsListResource
+from .tokens import TokenResource
 from .users import UsersResource, UsersListResource
 
 
@@ -12,3 +13,5 @@ api.add_resource(UsersListResource, "/users")
 
 api.add_resource(GroupsResource, "/groups/<int:group_id>")
 api.add_resource(GroupsListResource, "/groups")
+
+api.add_resource(TokenResource, "/tokens")

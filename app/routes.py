@@ -93,6 +93,9 @@ def login():
         user = User.get_by_username(username)
         if user is not None and user.check_password(password):
             login_user(user, remember=form.remember.data)
+            next_page = request.args.get("next")
+            if next_page:
+                return redirect(next_page)
             return redirect(url_for("best"))
         else:
             flash("Ошибка авторизации!", "danger")

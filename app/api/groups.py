@@ -54,7 +54,7 @@ class GroupsResource(Resource):
 
     def validate_token(self, group, payload):
         if group.admin_id != payload.get("sub", -1):
-            abort(401, status=401, ok=False, detail="Invalid token supplied")
+            abort(401, status=401, ok=False, detail="You are not the admin")
 
 
 class GroupsListResource(Resource):
@@ -91,4 +91,4 @@ class GroupsListResource(Resource):
 
     def validate_token(admin_id, payload):
         if admin_id != payload.get("admin_id", -1):
-            abort(401, status=401, ok=False, detail="Invalid token supplied")
+            abort(401, status=401, ok=False, detail="You are not the admin")
