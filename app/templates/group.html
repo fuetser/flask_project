@@ -69,9 +69,11 @@
             <p class="card-text">
                <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', user_id=post.author.id) }}" class="user-link">{{ post.author.username }}</a></small>
             </p>
-            <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
-               <p class="card-text">{{ post.body }}</p>
-            </a>
+            {% if post.picture %}
+               <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
+                  <img class="card-img-top post-image" src="data:image/png;base64,{{ convert_image_to_base64(post.picture) }}">
+               </a>
+            {% endif %}
             <div class="post-info d-flex flex-row align-items-center">
                <div class="post-info-category d-flex flex-row align-items-center">
                   {% if not current_user.is_authenticated %}

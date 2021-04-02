@@ -1,9 +1,13 @@
+from base64 import b64encode
 import datetime as dt
 from functools import wraps
+from io import BytesIO
 from math import floor
 
 from flask_restful import abort, request
 import jwt
+from PIL import Image
+from werkzeug.datastructures import FileStorage
 
 from config import Config
 
@@ -72,3 +76,28 @@ def token_required(func):
         token_data = validate_token(token)
         return func(*args, payload=token_data, **kwargs)
     return inner
+
+
+def convert_wtf_file_to_bytes(wtf_file: FileStorage):
+    with BytesIO() as buffer:
+        wtf_file.save(buffer)
+        return buffer.getvalue()
+
+
+def check_image_validity(image_bytes: bytes):
+    with BytesIO() as buffer:
+        buffer.write(image_bytes)
+        try:
+            image = Image.open(buffer)
+        except:
+            raise ValueError("Invalid image content")
+        assert check_image_ratio(image), "Image ratio must be 2:1 or bigger"
+
+
+def check_image_ratio(image: Image):
+    width, height = image.size
+    return width / height >= 2
+
+
+def convert_image_to_base64(image: bytes) -> str:
+    return b64encode(image).decode("u8")
