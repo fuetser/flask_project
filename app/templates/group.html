@@ -67,7 +67,7 @@
                </span>
             </a>
             <p class="card-text">
-               <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', user_id=post.author.id) }}" class="user-link">{{ post.author.username }}</a></small>
+               <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', username=post.author.username) }}" class="user-link">{{ post.author.username }}</a></small>
             </p>
             <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
                <p class="card-text">{{ post.body }}</p>

@@ -83,3 +83,11 @@ body {
     color: #2288ff;
 }
 /*icons end*/
+
+.smooth-transition {
+    transition: all .1s;
+}
+
+.smooth-transition:hover {
+    transition: all .3s;
+}

@@ -21,7 +21,6 @@ class PostsResource(Resource):
     @token_required
     def put(self, post_id: int, payload):
         post = self.get_post_or_404(post_id)
-        print(payload, post.author_id)
         self.validate_token(post, payload)
         try:
             post_model = PostModelUpdate(**request.json)

@@ -108,3 +108,18 @@ function deleteComment(commentId) {
         }
     })
 }
+
+function deletePost(postId) {
+    $(`#post${postId}`).remove()
+    $.ajax({
+        url: `/post/${postId}`,
+        type: "DELETE",
+        success: responce => {
+            console.log("success")
+        },
+        error: (request, status, error) => {
+            console.log(error, request)
+        }
+    })
+}
+

@@ -1,5 +1,7 @@
+import os
+
 from flask import render_template, flash, redirect, url_for, abort, request
-from flask.json import jsonify
+from flask import jsonify, send_from_directory
 from flask_login import current_user, login_user, logout_user, login_required
 
 from app import app
@@ -47,38 +49,40 @@ def post(post_id):
         abort(404)
 
 
-@app.route("/users/<int:user_id>")
-def user(user_id):
-    user = User.query.get(user_id)
-    if user is not None:
-        return render_template("user.html", user=user)
+@app.route("/users/<string:username>", methods=["GET", "POST"])
+def user(username):
+    if username.isdigit():
+        user = User.query.get(int(username))
     else:
+        user = User.get_by_username(username)
+    if not user:
         abort(404)
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        user.update_from_data(username=form.username.data,
+                              email=form.email.data,
+                              password_hash=form.password.data,
+                              password_changed=form.password.data
+                              )
+        return redirect(url_for("user", username=form.username.data))
+    elif request.method == "GET":
+        form.fill_from_user_object(user)
+    return render_template(
+        "user.html", user=user, current_user=current_user, form=form)
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        username = form.username.data
-        email = form.email.data
-        user = User.get_by_username(username)
-        is_free_email = User.is_free_email(email)
-
-        if user is None and is_free_email:
-            user = User(email=email, username=username)
-            password = form.password.data
-            user.set_password(password)
-            db.session.add(user)
-            db.session.commit()
-            login_user(user, remember=True)
-            flash("Аккаунт успешно создан!", "success")
-            return redirect(url_for("best"))
-
-        else:
-            flash("Аккаунт с такой почтой или именем уже существует!", "danger")
-            return redirect(url_for("register"))
-
+        User.create(username=form.username.data,
+                    email=form.email.data,
+                    password_hash=form.password.data
+                    )
+        user = User.get_by_username(form.username.data)
+        login_user(user, remember=True)
+        flash("Аккаунт успешно создан!", "success")
+        return redirect(url_for("best"))
     return render_template("register.html", form=form, active_link="register")
 
 
@@ -133,7 +137,7 @@ def create_new_post():
                 author=current_user,
                 group=group,
             )
-        # flash("Запись успешно создана", "success")
+        flash("Запись успешно создана", "success")
         return redirect(url_for("group", group_id=group_id))
     return render_template("new_post.html", form=form)
 
@@ -185,8 +189,8 @@ def new_group():
 @app.route("/like/<int:post_id>", methods=["POST"])
 def like_post(post_id):
     post = Post.get_by_id(post_id)
-    if not post:
-        return jsonify({"error": f"Post with id {post_id} not found"})
+    if not post or not current_user.is_authenticated:
+        abort(404)
     if current_user in post.likes:
         post.likes.remove(current_user)
     else:
@@ -198,7 +202,7 @@ def like_post(post_id):
 @app.route("/comment/<int:post_id>", methods=["POST"])
 def create_comment(post_id):
     post = Post.get_by_id(post_id)
-    if not post:
+    if not post or not current_user.is_authenticated:
         abort(404)
     text = request.values.get("text")
     Comment.create(post_id=post_id, author_id=current_user.id, body=text)
@@ -210,7 +214,8 @@ def delete_comment(comment_id):
     comment = Comment.get_by_id(comment_id)
     if not comment:
         abort(404)
-    comment.delete()
+    if current_user.is_authenticated and comment.author_id == current_user.id:
+        comment.delete()
     return jsonify({"comments": localize_comments(
         len(Post.get_by_id(comment.post_id).comments))})
 
@@ -218,7 +223,7 @@ def delete_comment(comment_id):
 @app.route("/like_comment/<int:comment_id>", methods=["POST"])
 def like_comment(comment_id):
     comment = Comment.get_by_id(comment_id)
-    if not comment:
+    if not comment or not current_user.is_authenticated:
         abort(404)
     if current_user in comment.likes:
         comment.likes.remove(current_user)
@@ -228,8 +233,25 @@ def like_comment(comment_id):
     return jsonify({"success": "OK"})
 
 
+@app.route("/post/<int:post_id>", methods=["DELETE"])
+def delete_post(post_id):
+    post = Post.get_by_id(post_id)
+    if not post:
+        abort(404)
+    if current_user.is_authenticated and post.author_id == current_user.id:
+        post.delete()
+    return jsonify({"success": "OK"})
+
+
 @app.route("/token")
 @login_required
 def view_tokens():
     return render_template(
         "tokens.html", token=create_token({"sub": current_user.id}))
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static/favicon/'),
+        'favicon.ico', mimetype='image/vnd.microsoft.icon')

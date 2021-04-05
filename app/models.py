@@ -42,6 +42,12 @@ class User(UserMixin, db.Model):
         user.set_password(user.password_hash)
         user.update()
 
+    def update_from_data(self, password_changed=False, **kwargs):
+        for key, value in kwargs.items():
+            if key in self.__dict__ and value:
+                setattr(self, key, value)
+        self.update(password_changed=password_changed)
+
     def update(self, password_changed=False):
         if password_changed:
             self.set_password(self.password_hash)
@@ -50,6 +56,7 @@ class User(UserMixin, db.Model):
         db.session.refresh(self)
 
     def delete(self):
+        self.on_delete()
         db.session.delete(self)
         db.session.commit()
 
@@ -62,6 +69,10 @@ class User(UserMixin, db.Model):
     def on_delete(self):
         for group in self.groups:
             group.subscribers.remove(self)
+
+    @property
+    def elapsed(self):
+        return get_elapsed(self.registered)
 
 
 @login.user_loader
@@ -139,7 +150,6 @@ class Post(db.Model):
     def create(**kwargs):
         post = Post(**kwargs)
         post.update()
-        print(post.id)
 
     def update(self):
         db.session.add(self)
