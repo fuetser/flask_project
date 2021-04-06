@@ -173,10 +173,6 @@ class PostImage(db.Model):
         PostImage.create(b64string=b64string, mimetype=mimetype, post=post)
 
     @staticmethod
-    def convert_bytes_to_b64string(image_bytes: bytes) -> str:
-        return b64encode(image_bytes).encode("u8")
-
-    @staticmethod
     def create(**kwargs):
         image = PostImage(**kwargs)
         image.update()
@@ -203,6 +199,8 @@ class Group(db.Model):
     name = db.Column(db.String(32), unique=True)
     description = db.Column(db.String(128))
     admin_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+    logo = db.relationship("GroupLogo", uselist=False, backref="group")
     posts = db.relationship("Post", backref="group")
     subscribers = db.relationship(
         "User", secondary=groups_subscribers, backref="groups")
@@ -224,6 +222,33 @@ class Group(db.Model):
     def create(**kwargs):
         group = Group(**kwargs)
         group.update()
+
+    def update(self):
+        db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+class GroupLogo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    b64string = db.Column(db.String)
+    mimetype = db.Column(db.String(16))
+
+    group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
+
+    @staticmethod
+    def from_bytes(image_bytes: bytes, mimetype: str, group: Group):
+        b64string = convert_bytes_to_b64string(image_bytes)
+        GroupLogo.create(b64string=b64string, mimetype=mimetype, group=group)
+
+    @staticmethod
+    def create(**kwargs):
+        image = GroupLogo(**kwargs)
+        image.update()
 
     def update(self):
         db.session.add(self)

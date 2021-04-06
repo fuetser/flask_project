@@ -38,4 +38,5 @@ class NewGroupForm(FlaskForm):
     name = StringField("Имя группы", validators=[DataRequired(), Length(max=32)])
     description = StringField("Описание группы",
         validators=[DataRequired(), Length(max=128)], widget=TextArea())
+    logo = FileField()
     submit = SubmitField("Создать")

@@ -170,13 +170,22 @@ def new_group():
     if form.validate_on_submit():
         name = form.name.data
         description = form.description.data
+        logo_bytes = convert_wtf_file_to_bytes(form.logo.data)
         if Group.is_unique_name(name):
-            group = Group(name=name, description=description)
-            group.subscribers.append(current_user)
-            db.session.add(group)
-            db.session.commit()
-            flash("Группа успешно создана", "success")
-            return redirect(url_for("best"))
+            try:
+                check_group_logo_validity(logo_bytes)
+            except Exception as e:
+                flash(str(e))
+                return redirect(url_for("new_group"))
+            else:
+                group = Group(name=name, description=description)
+                group.subscribers.append(current_user)
+                db.session.add(group)
+                db.session.commit()
+                mimetype = get_mimetype_from_wtf_file(form.logo.data)
+                logo = GroupLogo.from_bytes(logo_bytes, mimetype, group)
+                flash("Группа успешно создана", "success")
+                return redirect(url_for("best"))
         else:
             flash("Данное имя уже занято")
             return redirect(url_for("new_group"))

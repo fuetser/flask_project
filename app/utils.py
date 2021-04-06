@@ -105,3 +105,26 @@ def convert_bytes_to_b64string(image: bytes) -> str:
 
 def get_mimetype_from_wtf_file(wtf_file: FileStorage):
     return wtf_file.mimetype
+
+
+def check_group_logo_validity(image_bytes: bytes):
+    with BytesIO() as buffer:
+        buffer.write(image_bytes)
+        try:
+            image = Image.open(buffer)
+        except:
+            raise ValueError("Invalid image content")
+        assert check_group_logo_image_size(image),\
+            "Group logo must be 64x64 or lower"
+        assert check_group_logo_have_same_side_sizes(image),\
+            "Group logo must have same side sizes"
+
+
+def check_group_logo_have_same_side_sizes(logo: Image):
+    width, height = logo.size
+    return width == height
+
+
+def check_group_logo_image_size(logo: Image):
+    width, height = logo.size
+    return width <= 64 and height <= 64

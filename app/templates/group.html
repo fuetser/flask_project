@@ -45,7 +45,7 @@
 </script>
 <header class="header">
    <div class="header-wrapper">
-      <img class="header-inner group-logo" src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="{{ group.name }} logo">
+      <img class="header-inner group-logo" src="data:{{ group.logo.mimetype }};base64,{{ group.logo.b64string }}" alt="{{ group.name }} logo">
       <h4 class="header-inner group-title">{{ group.name }}</h4>
       {% if not current_user.is_authenticated %}
          <a class="header-inner btn btn-outline-dark subscribe-button active" href="{{ url_for('login') }}">Подписаться</a>
