@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="container-fluid card form">
-   <form method="POST" action="">
+   <form method="POST" action="" enctype="multipart/form-data">
       {{ form.hidden_tag() }}
       <div class="form-group form-field">
          {% if form.name.errors %}
@@ -34,6 +34,7 @@
             {{ form.description(class="form-control form-control-md form-input text-area", placeholder="Описание") }}
          {% endif %}
       </div>
+      {{ form.logo(class="form-control file-upload") }}
       <div class="button-wrapper">
          {{ form.submit(class="btn btn-outline-dark submit") }}
       </div>

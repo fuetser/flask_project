@@ -1,9 +1,13 @@
+from base64 import b64encode
 import datetime as dt
 from functools import wraps
+from io import BytesIO
 from math import floor
 
 from flask_restful import abort, request
 import jwt
+from PIL import Image
+from werkzeug.datastructures import FileStorage
 
 from config import Config
 
@@ -72,3 +76,55 @@ def token_required(func):
         token_data = validate_token(token)
         return func(*args, payload=token_data, **kwargs)
     return inner
+
+
+def convert_wtf_file_to_bytes(wtf_file: FileStorage):
+    with BytesIO() as buffer:
+        wtf_file.save(buffer)
+        return buffer.getvalue()
+
+
+def check_image_validity(image_bytes: bytes):
+    with BytesIO() as buffer:
+        buffer.write(image_bytes)
+        try:
+            image = Image.open(buffer)
+        except:
+            raise ValueError("Invalid image content")
+        assert check_image_ratio(image), "Image ratio must be 2:1 or bigger"
+
+
+def check_image_ratio(image: Image):
+    width, height = image.size
+    return width / height >= 2
+
+
+def convert_bytes_to_b64string(image: bytes) -> str:
+    return b64encode(image).decode("u8")
+
+
+def get_mimetype_from_wtf_file(wtf_file: FileStorage):
+    return wtf_file.mimetype
+
+
+def check_group_logo_validity(image_bytes: bytes):
+    with BytesIO() as buffer:
+        buffer.write(image_bytes)
+        try:
+            image = Image.open(buffer)
+        except:
+            raise ValueError("Invalid image content")
+        assert check_group_logo_image_size(image),\
+            "Group logo must be 64x64 or lower"
+        assert check_group_logo_have_same_side_sizes(image),\
+            "Group logo must have same side sizes"
+
+
+def check_group_logo_have_same_side_sizes(logo: Image):
+    width, height = logo.size
+    return width == height
+
+
+def check_group_logo_image_size(logo: Image):
+    width, height = logo.size
+    return width <= 64 and height <= 64

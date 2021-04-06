@@ -7,7 +7,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app import app
 from app.forms import *
 from app.models import *
-from app.utils import create_token, localize_comments
+from app.utils import *
 
 
 @app.route("/")
@@ -122,23 +122,25 @@ def create_new_post():
         if group_id is None:
             abort(404)
         group = Group.get_by_id(group_id)
+        post = Post.create_and_get(
+            title=form.title.data,
+            body=form.content.data,
+            author=current_user,
+            group=group,
+        )
+
         if form.image.has_file():
-            Post.create(
-                title=form.title.data,
-                body=form.content.data,
-                author=current_user,
-                group=group,
-            )
-        else:
-            Post.create(
-                title=form.title.data,
-                body=form.content.data,
-                picture=form.image.data,
-                author=current_user,
-                group=group,
-            )
-        flash("Запись успешно создана", "success")
+            image_bytes = convert_wtf_file_to_bytes(form.image.data)
+            try:
+                check_image_validity(image_bytes)
+            except Exception as e:
+                ...
+            else:
+                mimetype = get_mimetype_from_wtf_file(form.image.data)
+                PostImage.from_bytes(image_bytes, mimetype, post)
+
         return redirect(url_for("group", group_id=group_id))
+
     return render_template("new_post.html", form=form)
 
 
@@ -172,13 +174,22 @@ def new_group():
     if form.validate_on_submit():
         name = form.name.data
         description = form.description.data
+        logo_bytes = convert_wtf_file_to_bytes(form.logo.data)
         if Group.is_unique_name(name):
-            group = Group(name=name, description=description)
-            group.subscribers.append(current_user)
-            db.session.add(group)
-            db.session.commit()
-            flash("Группа успешно создана", "success")
-            return redirect(url_for("best"))
+            try:
+                check_group_logo_validity(logo_bytes)
+            except Exception as e:
+                flash(str(e))
+                return redirect(url_for("new_group"))
+            else:
+                group = Group(name=name, description=description)
+                group.subscribers.append(current_user)
+                db.session.add(group)
+                db.session.commit()
+                mimetype = get_mimetype_from_wtf_file(form.logo.data)
+                logo = GroupLogo.from_bytes(logo_bytes, mimetype, group)
+                flash("Группа успешно создана", "success")
+                return redirect(url_for("best"))
         else:
             flash("Данное имя уже занято")
             return redirect(url_for("new_group"))

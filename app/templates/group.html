@@ -45,7 +45,7 @@
 </script>
 <header class="header">
    <div class="header-wrapper">
-      <img class="header-inner group-logo" src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="{{ group.name }} logo">
+      <img class="header-inner group-logo" src="data:{{ group.logo.mimetype }};base64,{{ group.logo.b64string }}" alt="{{ group.name }} logo">
       <h4 class="header-inner group-title">{{ group.name }}</h4>
       {% if not current_user.is_authenticated %}
          <a class="header-inner btn btn-outline-dark subscribe-button active" href="{{ url_for('login') }}">Подписаться</a>
@@ -69,9 +69,11 @@
             <p class="card-text">
                <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', username=post.author.username) }}" class="user-link">{{ post.author.username }}</a></small>
             </p>
-            <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
-               <p class="card-text">{{ post.body }}</p>
-            </a>
+            {% if post.image %}
+               <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
+                  <img class="card-img-top post-image" src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}">
+               </a>
+            {% endif %}
             <div class="post-info d-flex flex-row align-items-center">
                <div class="post-info-category d-flex flex-row align-items-center">
                   {% if not current_user.is_authenticated %}
