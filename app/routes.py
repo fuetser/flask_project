@@ -4,7 +4,7 @@ from flask import render_template, flash, redirect, url_for, abort, request
 from flask import jsonify, send_from_directory
 from flask_login import current_user, login_user, logout_user, login_required
 
-from app import app
+from app import app, exceptions
 from app.forms import *
 from app.models import *
 from app.utils import *
@@ -115,31 +115,19 @@ def logout():
 
 @app.route("/new_post", methods=["GET", "POST"])
 @login_required
-def create_new_post():
+def new_post():
     form = NewPostForm()
     if form.validate_on_submit():
-        group_id = request.args.get("group_id")
-        if group_id is None:
+        try:
+            group_id = request.args.get("group_id", -1)
+            post = Post.from_form(current_user, group_id, form)
+        except exceptions.GroupDoesNotExists:
             abort(404)
-        group = Group.get_by_id(group_id)
-        post = Post.create_and_get(
-            title=form.title.data,
-            body=form.content.data,
-            author=current_user,
-            group=group,
-        )
-
-        if form.image.has_file():
-            image_bytes = convert_wtf_file_to_bytes(form.image.data)
-            try:
-                check_image_validity(image_bytes)
-            except Exception as e:
-                ...
-            else:
-                mimetype = get_mimetype_from_wtf_file(form.image.data)
-                PostImage.from_bytes(image_bytes, mimetype, post)
-
-        return redirect(url_for("group", group_id=group_id))
+        except exceptions.ImageError as e:
+            flash(str(e))
+            return redirect(url_for("new_post", group_id=group_id))
+        else:
+            return redirect(url_for("group", group_id=group_id))
 
     return render_template("new_post.html", form=form)
 
@@ -147,11 +135,9 @@ def create_new_post():
 @app.route("/group/<int:group_id>")
 def group(group_id):
     group = Group.query.get(group_id)
-    if group is not None:
-        return render_template(
-            "group.html", group=group, current_user=current_user)
-    else:
+    if group is None:
         abort(404)
+    return render_template("group.html", group=group)
 
 
 @app.route("/subscribe/<int:group_id>", methods=["POST"])

@@ -1,0 +1,6 @@
+class GroupDoesNotExists(Exception):
+    ...
+
+
+class ImageError(Exception):
+    ...

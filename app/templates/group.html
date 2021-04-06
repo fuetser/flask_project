@@ -34,9 +34,8 @@
    }
 </script>
 <script type="text/javascript" defer>
-   // <li><a class="dropdown-item" href="{{ url_for('create_new_post') }}">Создать пост</a></li>
    var link = document.createElement("a");
-   link.setAttribute("href", "{{ url_for('create_new_post', group_id=group.id) }}");
+   link.setAttribute("href", "{{ url_for('new_post', group_id=group.id) }}");
    link.setAttribute("class", "dropdown-item");
    const newContent = document.createTextNode("Создать пост");
    link.appendChild(newContent);

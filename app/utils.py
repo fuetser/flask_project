@@ -9,6 +9,7 @@ import jwt
 from PIL import Image
 from werkzeug.datastructures import FileStorage
 
+from app import exceptions
 from config import Config
 
 
@@ -84,7 +85,7 @@ def convert_wtf_file_to_bytes(wtf_file: FileStorage):
         return buffer.getvalue()
 
 
-def check_image_validity(image_bytes: bytes):
+def raise_for_image_validity(image_bytes: bytes):
     with BytesIO() as buffer:
         buffer.write(image_bytes)
         try:

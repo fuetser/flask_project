@@ -2,10 +2,11 @@ import datetime as dt
 
 from flask_login import UserMixin
 from sqlalchemy.sql.expression import func
+from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app import db, login
-from app.utils import get_elapsed, convert_bytes_to_b64string
+from app import db, login, exceptions
+from app.utils import *
 
 
 class BaseModel:
@@ -151,6 +152,26 @@ class Post(db.Model, BaseModel):
         # TODO
         return Post.get_best()
 
+    @staticmethod
+    def from_form(author, group_id, form):
+        group = Group.get_by_id(group_id)
+        if group is None:
+            raise exceptions.GroupDoesNotExists(
+                f"Group {group_id} does not exists")
+
+        image_bytes = convert_wtf_file_to_bytes(form.image.data)
+        PostImage.raise_for_image_validity(image_bytes)
+
+        post = Post.create_and_get(
+            title=form.title.data,
+            body=form.content.data,
+            author=author,
+            group=group,
+        )
+        mimetype = get_mimetype_from_wtf_file(form.image.data)
+        PostImage.from_bytes(image_bytes, mimetype, post)
+
+
     def get_comments_by_likes(self, reverse: bool):
         return sorted(
             self.comments, key=lambda comm: len(comm.likes), reverse=reverse)
@@ -171,6 +192,13 @@ class PostImage(db.Model, BaseModel):
     def from_bytes(image_bytes: bytes, mimetype: str, post: Post):
         b64string = convert_bytes_to_b64string(image_bytes)
         PostImage.create(b64string=b64string, mimetype=mimetype, post=post)
+
+    @staticmethod
+    def raise_for_image_validity(image_bytes):
+        try:
+            raise_for_image_validity(image_bytes)
+        except Exception as e:
+            raise exceptions.ImageError(str(e)) from e
 
 
 groups_subscribers = db.Table(
