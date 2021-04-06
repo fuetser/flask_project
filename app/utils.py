@@ -99,5 +99,9 @@ def check_image_ratio(image: Image):
     return width / height >= 2
 
 
-def convert_image_to_base64(image: bytes) -> str:
+def convert_bytes_to_b64string(image: bytes) -> str:
     return b64encode(image).decode("u8")
+
+
+def get_mimetype_from_wtf_file(wtf_file: FileStorage):
+    return wtf_file.mimetype

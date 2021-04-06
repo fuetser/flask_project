@@ -5,10 +5,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app import app
 from app.forms import *
 from app.models import *
-from app.utils import (
-    create_token, localize_comments,
-    convert_wtf_file_to_bytes, check_image_validity
-)
+from app.utils import *
 
 
 @app.route("/")
@@ -121,8 +118,13 @@ def create_new_post():
         if group_id is None:
             abort(404)
         group = Group.get_by_id(group_id)
+        post = Post.create_and_get(
+            title=form.title.data,
+            body=form.content.data,
+            author=current_user,
+            group=group,
+        )
 
-        picture = None
         if form.image.has_file():
             image_bytes = convert_wtf_file_to_bytes(form.image.data)
             try:
@@ -130,16 +132,11 @@ def create_new_post():
             except Exception as e:
                 ...
             else:
-                picture = image_bytes
+                mimetype = get_mimetype_from_wtf_file(form.image.data)
+                PostImage.from_bytes(image_bytes, mimetype, post)
 
-        Post.create(
-            title=form.title.data,
-            body=form.content.data,
-            picture=picture,
-            author=current_user,
-            group=group,
-        )
         return redirect(url_for("group", group_id=group_id))
+
     return render_template("new_post.html", form=form)
 
 

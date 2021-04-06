@@ -14,8 +14,8 @@
       <p class="card-text">
          <small class="text-muted">{{ post.elapsed }} от <a href="/users/{{ post.author.id }}" class="user-link">{{ post.author.username }}</a></small>
       </p>
-      {% if post.picture %}
-         <img class="card-img-top post-image" src="data:image/png;base64,{{ convert_image_to_base64(post.picture) }}">
+      {% if post.image %}
+         <img class="card-img-top post-image" src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}">
       {% endif %}
       <p>{{ post.body }}</p>
       <div class="post-info d-flex flex-row align-items-center">

@@ -69,9 +69,9 @@
             <p class="card-text">
                <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', user_id=post.author.id) }}" class="user-link">{{ post.author.username }}</a></small>
             </p>
-            {% if post.picture %}
+            {% if post.image %}
                <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
-                  <img class="card-img-top post-image" src="data:image/png;base64,{{ convert_image_to_base64(post.picture) }}">
+                  <img class="card-img-top post-image" src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}">
                </a>
             {% endif %}
             <div class="post-info d-flex flex-row align-items-center">

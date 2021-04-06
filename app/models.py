@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db
 from app import login
-from app.utils import get_elapsed
+from app.utils import get_elapsed, convert_bytes_to_b64string
 
 
 class User(UserMixin, db.Model):
@@ -82,8 +82,11 @@ class Post(db.Model):
     body = db.Column(db.Text())
     picture = db.Column(db.LargeBinary, nullable=True)
     timestamp = db.Column(db.DateTime, default=dt.datetime.utcnow)
+
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
+
+    image = db.relationship("PostImage", uselist=False, backref="post")
     comments = db.relationship("Comment", backref="post")
     likes = db.relationship(
         "User", secondary=posts_likes, backref="post_likes")
@@ -140,6 +143,43 @@ class Post(db.Model):
         post = Post(**kwargs)
         post.update()
         print(post.id)
+
+    @staticmethod
+    def create_and_get(**kwargs):
+        post = Post(**kwargs)
+        post.update()
+        return post
+
+    def update(self):
+        db.session.add(self)
+        db.session.commit()
+        db.session.refresh(self)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+
+class PostImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    b64string = db.Column(db.String)
+    mimetype = db.Column(db.String(16))
+
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
+
+    @staticmethod
+    def from_bytes(image_bytes: bytes, mimetype: str, post: Post):
+        b64string = convert_bytes_to_b64string(image_bytes)
+        PostImage.create(b64string=b64string, mimetype=mimetype, post=post)
+
+    @staticmethod
+    def convert_bytes_to_b64string(image_bytes: bytes) -> str:
+        return b64encode(image_bytes).encode("u8")
+
+    @staticmethod
+    def create(**kwargs):
+        image = PostImage(**kwargs)
+        image.update()
 
     def update(self):
         db.session.add(self)
