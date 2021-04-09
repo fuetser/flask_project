@@ -294,6 +294,27 @@ class Group(db.Model, BaseModel):
         return not db.session.query(
             db.exists().where(Group.name == name)).scalar()
 
+    @staticmethod
+    def create_from_form_and_get(form, admin: User):
+        if not Group.is_unique_name(form.name.data):
+            raise exceptions.NotUniqueGroupName(
+                f"Group name '{form.name.data}' is not unique")
+
+        logo_bytes = convert_wtf_file_to_bytes(form.logo.data)
+        GroupLogo.raise_for_image_validity(logo_bytes)
+
+        group = Group(
+            name=form.name.data,
+            description=form.description.data
+        )
+        group.subscribers.append(admin)
+        group.update()
+
+        mimetype = get_mimetype_from_wtf_file(form.logo.data)
+        logo = GroupLogo.from_bytes(logo_bytes, mimetype, group)
+
+        return group
+
     def on_subscribe_click(self, user: User):
         if user in self.subscribers:
             self.subscribers.remove(user)
@@ -313,6 +334,13 @@ class GroupLogo(db.Model, BaseModel):
     def from_bytes(image_bytes: bytes, mimetype: str, group: Group):
         b64string = convert_bytes_to_b64string(image_bytes)
         GroupLogo.create(b64string=b64string, mimetype=mimetype, group=group)
+
+    @staticmethod
+    def raise_for_image_validity(image_bytes):
+        try:
+            check_group_logo_validity(image_bytes)
+        except Exception as e:
+            raise exceptions.ImageError(str(e)) from e
 
 
 comments_likes = db.Table(

@@ -132,6 +132,25 @@ def group(group_id):
     return render_template("group.html", group=group)
 
 
+@app.route("/new_group", methods=["GET", "POST"])
+@login_required
+def new_group():
+    form = NewGroupForm()
+    if form.validate_on_submit():
+        try:
+            group = Group.create_from_form_and_get(form, current_user)
+        except exceptions.NotUniqueGroupName:
+            flash("Данное имя уже занято")
+            return redirect(url_for("new_group"))
+        except exceptions.ImageError as e:
+            flash(str(e))
+            return redirect(url_for("new_group"))
+        else:
+            return redirect(url_for("group", group_id=group.id))
+
+    return render_template("new_group.html", form=form)
+
+
 @app.route("/subscribe/<int:group_id>", methods=["POST"])
 def subscribe(group_id):
     group = Group.query.get(group_id)
@@ -139,36 +158,6 @@ def subscribe(group_id):
         abort(404)
     group.on_subscribe_click(current_user)
     return jsonify({"success": "OK"})
-
-
-@app.route("/new_group", methods=["GET", "POST"])
-@login_required
-def new_group():
-    form = NewGroupForm()
-    if form.validate_on_submit():
-        name = form.name.data
-        description = form.description.data
-        logo_bytes = convert_wtf_file_to_bytes(form.logo.data)
-        if Group.is_unique_name(name):
-            try:
-                check_group_logo_validity(logo_bytes)
-            except Exception as e:
-                flash(str(e))
-                return redirect(url_for("new_group"))
-            else:
-                group = Group(name=name, description=description)
-                group.subscribers.append(current_user)
-                db.session.add(group)
-                db.session.commit()
-                mimetype = get_mimetype_from_wtf_file(form.logo.data)
-                logo = GroupLogo.from_bytes(logo_bytes, mimetype, group)
-                flash("Группа успешно создана", "success")
-                return redirect(url_for("best"))
-        else:
-            flash("Данное имя уже занято")
-            return redirect(url_for("new_group"))
-
-    return render_template("new_group.html", form=form)
 
 
 @app.route("/like/<int:post_id>", methods=["POST"])
