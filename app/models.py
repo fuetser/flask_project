@@ -46,6 +46,7 @@ class User(UserMixin, db.Model, BaseModel):
     email = db.Column(db.String(64), unique=True)
     registered = db.Column(db.DateTime, default=dt.datetime.utcnow)
 
+    avatar = db.relationship("UserAvatar", uselist=False, backref="user")
     posts = db.relationship("Post", backref="author")
     comments = db.relationship("Comment", backref="author")
 
@@ -73,6 +74,29 @@ class User(UserMixin, db.Model, BaseModel):
         user.set_password(user.password_hash)
         user.update()
 
+    @staticmethod
+    def create_and_get(**kwargs):
+        user = User(**kwargs)
+        user.set_password(user.password_hash)
+        user.update()
+        return user
+
+    @staticmethod
+    def create_from_form_and_get(form):
+        user = User.create_and_get(
+            username=form.username.data,
+            email=form.email.data,
+            password_hash=form.password.data,
+        )
+
+        image_bytes = convert_wtf_file_to_bytes(form.avatar.data)
+        UserAvatar.raise_for_image_validity(image_bytes)
+
+        mimetype = get_mimetype_from_wtf_file(form.avatar.data)
+        UserAvatar.from_bytes(image_bytes, mimetype, user)
+
+        return user
+
     def update_from_data(self, password_changed=False, **kwargs):
         for key, value in kwargs.items():
             if key in self.__dict__ and value:
@@ -82,7 +106,7 @@ class User(UserMixin, db.Model, BaseModel):
     def update(self, password_changed=False):
         if password_changed:
             self.set_password(self.password_hash)
-        super().delete()
+        super().update()
 
     def delete(self):
         self.on_delete()
@@ -102,6 +126,26 @@ class User(UserMixin, db.Model, BaseModel):
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+
+class UserAvatar(db.Model, BaseModel):
+    id = db.Column(db.Integer, primary_key=True)
+    b64string = db.Column(db.String)
+    mimetype = db.Column(db.String(16))
+
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+    @staticmethod
+    def from_bytes(image_bytes: bytes, mimetype: str, user: User):
+        b64string = convert_bytes_to_b64string(image_bytes)
+        UserAvatar.create(b64string=b64string, mimetype=mimetype, user=user)
+
+    @staticmethod
+    def raise_for_image_validity(image_bytes):
+        try:
+            raise_for_user_avatar_validity(image_bytes)
+        except Exception as e:
+            raise exceptions.ImageError(str(e)) from e
 
 
 posts_likes = db.Table(
@@ -170,7 +214,6 @@ class Post(db.Model, BaseModel):
         )
         mimetype = get_mimetype_from_wtf_file(form.image.data)
         PostImage.from_bytes(image_bytes, mimetype, post)
-
 
     def get_comments_by_likes(self, reverse: bool):
         return sorted(

@@ -117,15 +117,33 @@ def check_group_logo_validity(image_bytes: bytes):
             raise ValueError("Invalid image content")
         assert check_group_logo_image_size(image),\
             "Group logo must be 64x64 or lower"
-        assert check_group_logo_have_same_side_sizes(image),\
+        assert check_image_have_same_sized_sides(image),\
             "Group logo must have same side sizes"
 
 
-def check_group_logo_have_same_side_sizes(logo: Image):
-    width, height = logo.size
+def check_image_have_same_sized_sides(image: Image):
+    width, height = image.size
     return width == height
 
 
 def check_group_logo_image_size(logo: Image):
     width, height = logo.size
+    return width <= 64 and height <= 64
+
+
+def raise_for_user_avatar_validity(image_bytes: bytes):
+    with BytesIO() as buffer:
+        buffer.write(image_bytes)
+        try:
+            image = Image.open(buffer)
+        except:
+            raise ValueError("Invalid image content")
+        assert check_image_have_same_sized_sides(image),\
+            "User avatar must be 64x64 or lower"
+        assert check_user_avatar_image_size(image),\
+            "User avatar must have same side sizes"
+
+
+def check_user_avatar_image_size(avatar: Image):
+    width, height = avatar.size
     return width <= 64 and height <= 64

@@ -75,14 +75,16 @@ def user(username):
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        User.create(username=form.username.data,
-                    email=form.email.data,
-                    password_hash=form.password.data
-                    )
-        user = User.get_by_username(form.username.data)
-        login_user(user, remember=True)
-        flash("Аккаунт успешно создан!", "success")
-        return redirect(url_for("best"))
+        try:
+            user = User.create_from_form_and_get(form)
+        except exceptions.ImageError:
+            flash(str(e))
+            return redirect(url_for("register"))
+        else:
+            login_user(user, remember=True)
+            flash("Аккаунт успешно создан!", "success")
+            return redirect(url_for("best"))
+
     return render_template("register.html", form=form, active_link="register")
 
 

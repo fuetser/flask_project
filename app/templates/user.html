@@ -20,6 +20,9 @@
     </div>
     <div class="tab-content" id="v-pills-tabContent">
       <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+          {% if user.avatar %}
+            <img class="user-avatar" src="data:{{ user.avatar.mimetype }};base64,{{ user.avatar.b64string }}">
+          {% endif %}
           <div class="content-container">
             <div class="d-flex">
              <h2 class="user-username mb-1">{{ user.username }}</h2>

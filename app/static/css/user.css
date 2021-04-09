@@ -25,6 +25,11 @@
     color: #606060;
 }
 
+.user-avatar {
+    border-radius: 100% !important;
+    height: 100%;
+}
+
 .user-id {
     margin: 10px 0 0  15px;
 }
