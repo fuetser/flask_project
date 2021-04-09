@@ -31,19 +31,15 @@ def sort():
 @app.route("/posts/<int:post_id>")
 def post(post_id):
     post = Post.query.get(post_id)
-    sort = request.args.get("sort", "popular")
-    reverse = bool(request.args.get("reverse", False))
-    if sort == "date":
-        comments = post.get_comments_by_date(reverse=reverse)
-    elif sort == "popular":
-        comments = post.get_comments_by_likes(reverse=reverse)
-    else:
+    if post is None:
         abort(404)
 
-    if post is not None:
-        return render_template("post.html", post=post, comments=comments)
-    else:
+    try:
+        comments = post.get_comments(request.args)
+    except exceptions.IncorrectQueryParam:
         abort(404)
+    else:
+        return render_template("post.html", post=post, comments=comments)
 
 
 @app.route("/users/<string:username>", methods=["GET", "POST"])

@@ -215,13 +215,16 @@ class Post(db.Model, BaseModel):
         mimetype = get_mimetype_from_wtf_file(form.image.data)
         PostImage.from_bytes(image_bytes, mimetype, post)
 
-    def get_comments_by_likes(self, reverse: bool):
-        return sorted(
-            self.comments, key=lambda comm: len(comm.likes), reverse=reverse)
+    def get_comments(self, query_params: dict):
+        sort_comments_by = request.args.get("sort", "popular")
+        reverse = bool(request.args.get("reverse", False))
+        if sort_comments_by not in ("date", "popular"):
+            raise exceptions.IncorrectQueryParam("Incorrect query param: 'sort'")
 
-    def get_comments_by_date(self, reverse: bool):
-        return sorted(
-            self.comments, key=lambda comm: comm.timestamp, reverse=reverse)
+        if sort_comments_by == "date":
+            return sorted(self.comments, key=lambda c: c.timestamp, reverse=reverse)
+        elif sort_comments_by == "popular":
+            return sorted(self.comments, key=lambda c: len(c.likes), reverse=reverse)
 
     def on_like_click(self, user: User):
         if user in self.likes:
