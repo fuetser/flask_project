@@ -97,6 +97,14 @@ class User(UserMixin, db.Model, BaseModel):
 
         return user
 
+    def update_from_form(self, form):
+        self.update_from_data(
+            username=form.username.data,
+            email=form.email.data,
+            password_hash=form.password.data,
+            password_changed=form.password.data,
+        )
+
     def update_from_data(self, password_changed=False, **kwargs):
         for key, value in kwargs.items():
             if key in self.__dict__ and value:

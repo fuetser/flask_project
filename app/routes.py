@@ -42,21 +42,18 @@ def post(post_id):
         return render_template("post.html", post=post, comments=comments)
 
 
-@app.route("/users/<string:username>", methods=["GET", "POST"])
-def user(username):
-    if username.isdigit():
-        user = User.query.get(int(username))
+@app.route("/users/<string:username_or_id>", methods=["GET", "POST"])
+def user(username_or_id):
+    if username_or_id.isdigit():
+        user = User.query.get(int(username_or_id))
     else:
-        user = User.get_by_username(username)
-    if not user:
+        user = User.get_by_username(username_or_id)
+    if user is None:
         abort(404)
+
     form = EditProfileForm()
     if form.validate_on_submit():
-        user.update_from_data(username=form.username.data,
-                              email=form.email.data,
-                              password_hash=form.password.data,
-                              password_changed=form.password.data
-                              )
+        user.update_from_form(form)
         return redirect(url_for("user", username=form.username.data))
     elif request.method == "GET":
         form.fill_from_user_object(user)
