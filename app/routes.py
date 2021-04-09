@@ -14,15 +14,13 @@ from app.utils import *
 @app.route("/best")
 def best():
     posts = Post.get_best()
-    return render_template("feed.html", posts=posts, active_link="best",
-                           current_user=current_user)
+    return render_template("feed.html", posts=posts, active_link="best")
 
 
 @app.route("/hot")
 def hot():
     posts = Post.get_hot()
-    return render_template("feed.html", posts=posts, active_link="hot",
-                           current_user=current_user)
+    return render_template("feed.html", posts=posts, active_link="hot")
 
 
 @app.route("/sort")
@@ -43,8 +41,7 @@ def post(post_id):
         abort(404)
 
     if post is not None:
-        return render_template("post.html", post=post,
-                               current_user=current_user, comments=comments)
+        return render_template("post.html", post=post, comments=comments)
     else:
         abort(404)
 
@@ -67,8 +64,7 @@ def user(username):
         return redirect(url_for("user", username=form.username.data))
     elif request.method == "GET":
         form.fill_from_user_object(user)
-    return render_template(
-        "user.html", user=user, current_user=current_user, form=form)
+    return render_template("user.html", user=user, form=form)
 
 
 @app.route("/register", methods=["GET", "POST"])
