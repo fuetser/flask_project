@@ -97,6 +97,15 @@ class User(UserMixin, db.Model, BaseModel):
 
         return user
 
+    @staticmethod
+    def authorize_from_form_and_get(form):
+        username = form.username.data
+        password = form.password.data
+        user = User.get_by_username(username)
+        if user is None or not user.check_password(password):
+            raise exceptions.AuthorizationError("Incorrect username or password")
+        return user
+
     def update_from_form(self, form):
         self.update_from_data(
             username=form.username.data,

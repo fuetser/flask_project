@@ -81,20 +81,21 @@ def register():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("best"))
+
     form = LoginForm()
     if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-        user = User.get_by_username(username)
-        if user is not None and user.check_password(password):
+        try:
+            user = User.authorize_from_form_and_get(form)
+        except exceptions.AuthorizationError:
+            flash("Ошибка авторизации!", "danger")
+            return redirect(url_for("login"))
+        else:
             login_user(user, remember=form.remember.data)
             next_page = request.args.get("next")
             if next_page:
                 return redirect(next_page)
             return redirect(url_for("best"))
-        else:
-            flash("Ошибка авторизации!", "danger")
-            return redirect(url_for("login"))
+
     return render_template("login.html", form=form, active_link="login")
 
 

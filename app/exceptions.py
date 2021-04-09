@@ -8,3 +8,7 @@ class ImageError(Exception):
 
 class IncorrectQueryParam(Exception):
     ...
+
+
+class AuthorizationError(Exception):
+    ...
