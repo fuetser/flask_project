@@ -184,13 +184,9 @@ def new_group():
 @app.route("/like/<int:post_id>", methods=["POST"])
 def like_post(post_id):
     post = Post.get_by_id(post_id)
-    if not post or not current_user.is_authenticated:
+    if post is None or not current_user.is_authenticated:
         abort(404)
-    if current_user in post.likes:
-        post.likes.remove(current_user)
-    else:
-        post.likes.append(current_user)
-    post.update()
+    post.on_like_click(current_user)
     return jsonify({"success": "OK"})
 
 
@@ -218,13 +214,9 @@ def delete_comment(comment_id):
 @app.route("/like_comment/<int:comment_id>", methods=["POST"])
 def like_comment(comment_id):
     comment = Comment.get_by_id(comment_id)
-    if not comment or not current_user.is_authenticated:
+    if comment is None or not current_user.is_authenticated:
         abort(404)
-    if current_user in comment.likes:
-        comment.likes.remove(current_user)
-    else:
-        comment.likes.append(current_user)
-    comment.update()
+    comment.on_like_click(current_user)
     return jsonify({"success": "OK"})
 
 

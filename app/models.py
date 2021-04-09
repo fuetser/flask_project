@@ -223,6 +223,13 @@ class Post(db.Model, BaseModel):
         return sorted(
             self.comments, key=lambda comm: comm.timestamp, reverse=reverse)
 
+    def on_like_click(self, user: User):
+        if user in self.likes:
+            self.likes.remove(user)
+        else:
+            self.likes.append(user)
+        self.update()
+
 
 class PostImage(db.Model, BaseModel):
     id = db.Column(db.Integer, primary_key=True)
@@ -303,3 +310,10 @@ class Comment(db.Model, BaseModel):
     @property
     def elapsed(self):
         return get_elapsed(self.timestamp)
+
+    def on_like_click(self, user: User):
+        if user in self.likes:
+            self.likes.remove(user)
+        else:
+            self.likes.append(user)
+        self.update()
