@@ -141,14 +141,10 @@ def group(group_id):
 @app.route("/subscribe/<int:group_id>", methods=["POST"])
 def subscribe(group_id):
     group = Group.query.get(group_id)
-    if group is not None:
-        if current_user in group.subscribers:
-            group.subscribers.remove(current_user)
-        else:
-            group.subscribers.append(current_user)
-        db.session.commit()
-        return jsonify({"success": "OK"})
-    return jsonify({"error": "Group doesn't exists"})
+    if group is None or not current_user.is_authenticated:
+        abort(404)
+    group.on_subscribe_click(current_user)
+    return jsonify({"success": "OK"})
 
 
 @app.route("/new_group", methods=["GET", "POST"])

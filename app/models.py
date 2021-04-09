@@ -274,6 +274,13 @@ class Group(db.Model, BaseModel):
         return not db.session.query(
             db.exists().where(Group.name == name)).scalar()
 
+    def on_subscribe_click(self, user: User):
+        if user in self.subscribers:
+            self.subscribers.remove(user)
+        else:
+            self.subscribers.append(user)
+        self.update()
+
 
 class GroupLogo(db.Model, BaseModel):
     id = db.Column(db.Integer, primary_key=True)
