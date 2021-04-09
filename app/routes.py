@@ -172,22 +172,21 @@ def like_post(post_id):
 @app.route("/comment/<int:post_id>", methods=["POST"])
 def create_comment(post_id):
     post = Post.get_by_id(post_id)
-    if not post or not current_user.is_authenticated:
+    if post is None or not current_user.is_authenticated:
         abort(404)
     text = request.values.get("text")
-    Comment.create(post_id=post_id, author_id=current_user.id, body=text)
+    Comment.create(post=post, author=current_user, body=text)
     return jsonify({"success": "OK"})
 
 
 @app.route("/comment/<int:comment_id>", methods=["DELETE"])
 def delete_comment(comment_id):
     comment = Comment.get_by_id(comment_id)
-    if not comment:
+    if comment is None:
         abort(404)
-    if current_user.is_authenticated and comment.author_id == current_user.id:
+    if current_user == comment.author:
         comment.delete()
-    return jsonify({"comments": localize_comments(
-        len(Post.get_by_id(comment.post_id).comments))})
+    return jsonify({"comments": localize_comments(len(comment.post.comments))})
 
 
 @app.route("/like_comment/<int:comment_id>", methods=["POST"])
@@ -204,7 +203,7 @@ def delete_post(post_id):
     post = Post.get_by_id(post_id)
     if not post:
         abort(404)
-    if current_user.is_authenticated and post.author_id == current_user.id:
+    if current_user == post.author:
         post.delete()
     return jsonify({"success": "OK"})
 
