@@ -12,7 +12,7 @@
    <div class="post-body card">
       <h3>{{ post.title }}</h3>
       <p class="card-text">
-         <small class="text-muted">{{ post.elapsed }} от <a href="/users/{{ post.author.id }}" class="user-link">{{ post.author.username }}</a></small>
+         <small class="text-muted">{{ post.elapsed }} от <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link">{{ post.author.username }}</a></small>
       </p>
       {% if post.image %}
          <img class="card-img-top post-image" src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}">
@@ -128,4 +128,9 @@
       </div>
    </div>
 </div>
+<script>
+   $(window).keydown(e => {
+      if(e.keyCode === 13) commentPost("{{ post.id }}")
+    })
+</script>
 {% endblock %}

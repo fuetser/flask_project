@@ -20,7 +20,7 @@
 .form-input:focus {
     outline: none;
     box-shadow: none;
-    border-color: black;
+    border-color: #909090;
 }
 
 .label {
@@ -89,8 +89,4 @@
 
 .text-area {
     height: 20vw;
-}
-
-.file-upload {
-    margin: 10px 0 5px;
 }

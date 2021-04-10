@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block extrahead %}
-<link href="{{ url_for('static', filename='css/user.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/forms.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/user.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}{{ user.username }}{% endblock %}
@@ -13,15 +14,18 @@
     <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
       <button class="nav-link tab-button active" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false" style="background-color: #fff;">Профиль</button>
       <button class="nav-link tab-button" id="v-pills-posts-tab" data-bs-toggle="pill" data-bs-target="#v-pills-posts" type="button" role="tab" aria-controls="v-pills-posts" aria-selected="true">Записи</button>
-      {% if current_user.is_authenticated and current_user.id == user.id %}
+      {% if current_user == user %}
         <button class="nav-link tab-button" id="v-pills-subscriptions-tab" data-bs-toggle="pill" data-bs-target="#v-pills-subscriptions" type="button" role="tab" aria-controls="v-pills-subscriptions" aria-selected="false">Подписки</button>
         <button class="nav-link tab-button" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">Настройки</button>
       {% endif %}
     </div>
     <div class="tab-content" id="v-pills-tabContent">
       <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+        <div class="profile-wrapper">
           {% if user.avatar %}
-            <img class="user-avatar" src="data:{{ user.avatar.mimetype }};base64,{{ user.avatar.b64string }}">
+            <img class=" rounded-circle user-avatar" src="data:{{ user.avatar.mimetype }};base64,{{ user.avatar.b64string }}">
+          {% else %}
+            <img class="rounded-circle user-avatar" src="{{ url_for('static', filename='img/default-pfp.png') }}">
           {% endif %}
           <div class="content-container">
             <div class="d-flex">
@@ -29,7 +33,7 @@
              <p class="user-id">Id: {{ user.id }}</p>
             </div>
             <p class="text-muted mb-3">Аккаунт создан {{ user.elapsed }}</p>
-            {% if current_user.is_authenticated and current_user.id == user.id %}
+            {% if current_user == user %}
               <h5>{{ user.email }}</h5>
               <a href="{{ url_for('logout') }}" class="btn btn-danger mt-3">
                 <div class="d-flex align-items-center">
@@ -39,6 +43,7 @@
               </a>
             {% endif %}
           </div>
+        </div>
       </div>
       <div class="tab-pane fade" id="v-pills-posts" role="tabpanel" aria-labelledby="v-pills-posts-tab">
         <p class="text-muted content-container">Всего: {{ user.posts|length }}</p>
@@ -67,6 +72,11 @@
                 <p class="card-text">
                   <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link">{{ post.author.username }}</a></small>
                 </p>
+                {% if post.image %}
+                  <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
+                     <img class="card-img-top rounded post-image" src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}">
+                  </a>
+               {% endif %}
                 <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
                   <p class="card-text">{{ post.body }}</p>
                 </a>
@@ -102,7 +112,7 @@
                       <i class="bi bi-share"></i>
                     </button>
                   </div>
-                  {% if current_user.is_authenticated and current_user.id == post.author_id %}
+                  {% if current_user == post.author %}
                     <div>
                       <button type="button" class="btn btn-default post-info-button smooth-transtion" onclick="deletePost({{ post.id }})">
                         <i class="bi bi-trash"></i>
@@ -114,12 +124,12 @@
           </div>
          {% endfor %}
       </div>
-      {% if current_user.is_authenticated and current_user.id == user.id %}
+      {% if current_user == user %}
         <div class="tab-pane fade" id="v-pills-subscriptions" role="tabpanel" aria-labelledby="v-pills-subscriptions-tab">
           <div class="content-container">
             <p class="text-muted">Всего: {{ user.groups|length }}</p>
           </div>
-          <div class="posts-wall">
+          <div>
             {% if not user.posts %}
               <div class="content-container">
                 <h3>Пока нет подписок</h3>
@@ -132,16 +142,16 @@
             {% for group in user.groups %}
               <div class="card content-container">
                 <div class="card-body" id="group{{ group.id }}">
-                  <div class="subscription-header">
-                    <a class="post-link" href="{{ url_for('group', group_id=group.id) }}">
-                      <span class="post-title">
-                        <h3 class="card-title">{{ group.name }}</h3>
-                      </span>
-                    </a>
-                    <h5 class="text-muted"><b>{{ group.subscribers|length }}</b> Участников</h5>
-                  </div>
-                  <div class="group-description">
-                    <p class="text-muted">{{ group.description }}</p>
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center">
+                      <img class="group-logo" src="data:{{ group.logo.mimetype }};base64,{{ group.logo.b64string }}" alt="{{ group.name }} logo">
+                      <a class="post-link" href="{{ url_for('group', group_id=group.id) }}">
+                        <span class="post-title">
+                          <h3 class="card-title">{{ group.name }}</h3>
+                        </span>
+                      </a>
+                    </div>
+                    <h5 class="text-muted mt-1" style="margin-left: 15px;"><b>{{ group.subscribers|length }}</b> Участников</h5>
                   </div>
                 </div>
               </div>

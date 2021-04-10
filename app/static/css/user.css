@@ -26,8 +26,14 @@
 }
 
 .user-avatar {
-    border-radius: 100% !important;
-    height: 100%;
+    height: 100px;
+    width: 100px;
+}
+
+.group-logo {
+    height: 64px;
+    width: 64px;
+    margin-right: 15px;
 }
 
 .user-id {
@@ -63,6 +69,12 @@
     margin: 0;
 }
 
+.profile-wrapper {
+    display: flex;
+    margin-left: 15px;
+    justify-content: flex-start;
+}
+
 .bi-box-arrow-right:hover {
     color: #fff;
 }
@@ -77,10 +89,4 @@
 
 .btn-danger {
     padding-bottom: 0;
-}
-
-.subscription-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
 }

@@ -1,0 +1,94 @@
+.main {
+    width: 50vw;
+    margin: 15px auto;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.search-input:focus {
+    outline: none;   
+    box-shadow: none;
+    border: 1px solid #808080;
+}
+
+.search-icon {
+    background-color: #f55d3e;
+    color: #fff;
+}
+
+.search-icon:hover {
+    background-color: #f26d52;
+}
+
+.search-icon i {
+    font-size: 14px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.search-icon i:hover {
+    color: #fff;
+}
+
+.form-check-label {
+    margin-right: 15px;
+}
+
+.search-results {
+    margin-top: 15px;
+    border-top: 1px solid #808080;
+}
+
+.search-result-item {
+    margin-top: 15px;
+}
+
+.search-result-link {
+    text-decoration: none;
+    color: #000;
+}
+
+.search-result-link:hover {
+    color: #707070;
+}
+
+.image-preview {
+    margin: 0;
+    margin-right: 15px;
+    width: 64px;
+    height: 64px;
+}
+
+.search-result-body {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 15px 10px 15px;
+}
+
+.search-result-description {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bi-x {
+    margin-top: 5px;
+    font-size: 18px;
+}
+
+.bi-x:hover {
+    color: #000;
+}
+
+.clear-search-button:hover {
+    background-color: #f0f0f0;
+}
+
+.search-footer {
+    margin-top: 15px;
+}

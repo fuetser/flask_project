@@ -16,7 +16,7 @@ class RegisterForm(FlaskForm):
     password = PasswordField("Пароль", validators=[DataRequired()])
     confirm_password = PasswordField(
         "Подтвердите пароль", validators=[DataRequired(), EqualTo("password")])
-    avatar = FileField()
+    avatar = FileField("Выберите аватар")
     submit = SubmitField("Зарегистрироватся")
 
     def validate_username(self, username):

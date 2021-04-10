@@ -69,6 +69,12 @@ class User(UserMixin, db.Model, BaseModel):
             db.exists().where(User.username == username)).scalar()
 
     @staticmethod
+    def get_similar(text: str, page: int):
+        return User.query.filter(
+            User.username.like(f"%{text}%") | User.id.like(f"%{text}%")
+        ).paginate(page=page, per_page=5)
+
+    @staticmethod
     def create(**kwargs):
         user = User(**kwargs)
         user.set_password(user.password_hash)
@@ -192,7 +198,7 @@ class Post(db.Model, BaseModel):
         return get_elapsed(self.timestamp)
 
     @staticmethod
-    def get_best():
+    def get_best(return_query=False):
         sub = db.session.query(
             posts_likes.c.post_id,
             func.count(posts_likes.c.user_id).label("count")
@@ -201,11 +207,11 @@ class Post(db.Model, BaseModel):
 
         posts = db.session.query(Post, sub.c.count) \
             .outerjoin(sub, Post.id == sub.c.post_id) \
-            .order_by(db.desc("count")) \
-            .all()
+            .order_by(db.desc("count"))
 
         # remove count attribute
-        posts = map(lambda pair: pair[0], posts)
+        if not return_query:
+            posts = map(lambda pair: pair[0], posts.all())
         return posts
 
     @staticmethod
@@ -237,11 +243,19 @@ class Post(db.Model, BaseModel):
         reverse = bool(request.args.get("reverse", False))
         if sort_comments_by not in ("date", "popular"):
             raise exceptions.IncorrectQueryParam("Incorrect query param: 'sort'")
-
         if sort_comments_by == "date":
-            return sorted(self.comments, key=lambda c: c.timestamp, reverse=reverse)
+            return sorted(
+                self.comments, key=lambda c: c.timestamp, reverse=reverse)
         elif sort_comments_by == "popular":
-            return sorted(self.comments, key=lambda c: len(c.likes), reverse=reverse)
+            return sorted(
+                self.comments, key=lambda c: len(c.likes), reverse=reverse)
+
+    @staticmethod
+    def get_similar(text: str, page: int):
+        posts = Post.get_best(return_query=True)
+        return posts.filter(Post.title.like(f"%{text}%") | Post.body.like(
+            f"%{text}%") | Post.id.like(f"%{text}%")
+        ).paginate(page=page, per_page=5)
 
     def on_like_click(self, user: User):
         if user in self.likes:
@@ -321,6 +335,12 @@ class Group(db.Model, BaseModel):
         else:
             self.subscribers.append(user)
         self.update()
+
+    @staticmethod
+    def get_similar(text: str, page: int):
+        return Group.query.filter(Group.name.like(f"%{text}%") | Group.id.like(
+            f"%{text}%") | Group.description.like(f"%{text}%")).paginate(
+            page=page, per_page=5)
 
 
 class GroupLogo(db.Model, BaseModel):

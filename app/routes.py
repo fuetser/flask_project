@@ -23,9 +23,9 @@ def hot():
     return render_template("feed.html", posts=posts, active_link="hot")
 
 
-@app.route("/sort")
+@app.route("/search")
 def sort():
-    return render_template("base.html", active_link="sort")
+    return render_template("search.html", active_link="sort")
 
 
 @app.route("/posts/<int:post_id>")
@@ -66,8 +66,8 @@ def register():
     if form.validate_on_submit():
         try:
             user = User.create_from_form_and_get(form)
-        except exceptions.ImageError:
-            flash(str(e))
+        except exceptions.ImageError as e:
+            flash(str(e), "warning")
             return redirect(url_for("register"))
         else:
             login_user(user, remember=True)
@@ -116,7 +116,7 @@ def new_post():
         except exceptions.GroupDoesNotExists:
             abort(404)
         except exceptions.ImageError as e:
-            flash(str(e))
+            flash(str(e), "warning")
             return redirect(url_for("new_post", group_id=group_id))
         else:
             return redirect(url_for("group", group_id=group_id))
@@ -143,7 +143,7 @@ def new_group():
             flash("Данное имя уже занято")
             return redirect(url_for("new_group"))
         except exceptions.ImageError as e:
-            flash(str(e))
+            flash(str(e, "warning"))
             return redirect(url_for("new_group"))
         else:
             return redirect(url_for("group", group_id=group.id))
@@ -176,7 +176,10 @@ def create_comment(post_id):
         abort(404)
     text = request.values.get("text")
     Comment.create(post=post, author=current_user, body=text)
-    return jsonify({"success": "OK"})
+    return jsonify({
+        "html_data": render_template("comments.html", comments=post.comments),
+        "title": localize_comments(len(post.comments))
+    })
 
 
 @app.route("/comment/<int:comment_id>", methods=["DELETE"])
@@ -186,7 +189,8 @@ def delete_comment(comment_id):
         abort(404)
     if current_user == comment.author:
         comment.delete()
-    return jsonify({"comments": localize_comments(len(comment.post.comments))})
+    return jsonify({"title": localize_comments(
+        len(Post.get_by_id(comment.post_id).comments))})
 
 
 @app.route("/like_comment/<int:comment_id>", methods=["POST"])
@@ -206,6 +210,30 @@ def delete_post(post_id):
     if current_user == post.author:
         post.delete()
     return jsonify({"success": "OK"})
+
+
+@app.route("/search", methods=["POST"])
+def get_search_results():
+    page = request.args.get("page", 1, type=int)
+    request_text = request.values.get("request_text", "").strip()
+    search_groups = request.values.get("search_groups") == "true"
+    search_users = request.values.get("search_users") == "true"
+    search_posts = request.values.get("search_posts") == "true"
+    if not request_text or not (search_groups or search_users or search_posts):
+        return jsonify({"ok": False})
+    elif search_groups:
+        search_results = Group.get_similar(request_text, page=page)
+    elif search_users:
+        search_results = User.get_similar(request_text, page=page)
+    else:
+        search_results = Post.get_similar(request_text, page=page)
+    return jsonify({
+        "ok": True,
+        "html_data": render_template(
+            "search_results.html", results=search_results,
+            search_groups=search_groups, search_users=search_users,
+            text=request_text, current_user=current_user)
+    })
 
 
 @app.route("/token")

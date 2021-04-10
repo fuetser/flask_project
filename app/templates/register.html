@@ -62,11 +62,14 @@
             {{ form.confirm_password(class="form-control form-control-md form-input") }}
         {% endif %}
       </div>
-      {{ form.avatar(class="form-control file-upload") }}
+      <div class="form-group form-field"> 
+          {{ form.avatar.label(class="form-label label") }}
+          {{ form.avatar(class="form-control") }}
+      </div>
       {{ form.submit(class="btn btn-outline-dark submit") }}
       <span class="have-account">
         Уже есть аккаунт?
-        <a href="/login" class="link">
+        <a href="{{ url_for('login') }}" class="link">
             <small class="text-muted">Войти</small>
         </a>
     </span>
