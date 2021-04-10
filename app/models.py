@@ -6,7 +6,8 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login, exceptions
-from app.utils import *
+from app.services.image_service import RawImage
+from app.utils import get_elapsed
 
 
 class BaseModel:
@@ -83,18 +84,16 @@ class User(UserMixin, db.Model, BaseModel):
 
     @staticmethod
     def create_from_form_and_get(form):
+        raw_image = RawImage.from_wtf_file(form.avatar.data)
+        raw_image.raise_for_image_validity()
+        raw_image.crop_to_64square()
+
         user = User.create_and_get(
             username=form.username.data,
             email=form.email.data,
             password_hash=form.password.data,
         )
-
-        image_bytes = convert_wtf_file_to_bytes(form.avatar.data)
-        UserAvatar.raise_for_image_validity(image_bytes)
-
-        mimetype = get_mimetype_from_wtf_file(form.avatar.data)
-        UserAvatar.from_bytes(image_bytes, mimetype, user)
-
+        UserAvatar.from_raw_image(raw_image, user)
         return user
 
     @staticmethod
@@ -153,16 +152,11 @@ class UserAvatar(db.Model, BaseModel):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
     @staticmethod
-    def from_bytes(image_bytes: bytes, mimetype: str, user: User):
-        b64string = convert_bytes_to_b64string(image_bytes)
-        UserAvatar.create(b64string=b64string, mimetype=mimetype, user=user)
-
-    @staticmethod
-    def raise_for_image_validity(image_bytes):
-        try:
-            raise_for_user_avatar_validity(image_bytes)
-        except Exception as e:
-            raise exceptions.ImageError(str(e)) from e
+    def from_raw_image(raw_image: RawImage, user: User):
+        UserAvatar.create(
+            b64string=raw_image.b64string,
+            mimetype=raw_image.mimetype,
+            user=user)
 
 
 posts_likes = db.Table(
@@ -220,8 +214,8 @@ class Post(db.Model, BaseModel):
             raise exceptions.GroupDoesNotExists(
                 f"Group {group_id} does not exists")
 
-        image_bytes = convert_wtf_file_to_bytes(form.image.data)
-        PostImage.raise_for_image_validity(image_bytes)
+        raw_image = RawImage.from_wtf_file(form.image.data)
+        raw_image.raise_for_image_validity()
 
         post = Post.create_and_get(
             title=form.title.data,
@@ -229,8 +223,7 @@ class Post(db.Model, BaseModel):
             author=author,
             group=group,
         )
-        mimetype = get_mimetype_from_wtf_file(form.image.data)
-        PostImage.from_bytes(image_bytes, mimetype, post)
+        PostImage.from_raw_image(raw_image, post)
 
     def get_comments(self, query_params: dict):
         sort_comments_by = request.args.get("sort", "popular")
@@ -259,16 +252,11 @@ class PostImage(db.Model, BaseModel):
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
 
     @staticmethod
-    def from_bytes(image_bytes: bytes, mimetype: str, post: Post):
-        b64string = convert_bytes_to_b64string(image_bytes)
-        PostImage.create(b64string=b64string, mimetype=mimetype, post=post)
-
-    @staticmethod
-    def raise_for_image_validity(image_bytes):
-        try:
-            raise_for_image_validity(image_bytes)
-        except Exception as e:
-            raise exceptions.ImageError(str(e)) from e
+    def from_raw_image(raw_image: RawImage, post: Post):
+        PostImage.create(
+            b64string=raw_image.b64string,
+            mimetype=raw_image.mimetype,
+            post=post)
 
 
 groups_subscribers = db.Table(
@@ -300,8 +288,9 @@ class Group(db.Model, BaseModel):
             raise exceptions.NotUniqueGroupName(
                 f"Group name '{form.name.data}' is not unique")
 
-        logo_bytes = convert_wtf_file_to_bytes(form.logo.data)
-        GroupLogo.raise_for_image_validity(logo_bytes)
+        raw_image = RawImage.from_wtf_file(form.logo.data)
+        raw_image.raise_for_image_validity()
+        raw_image.crop_to_64square()
 
         group = Group(
             name=form.name.data,
@@ -310,9 +299,7 @@ class Group(db.Model, BaseModel):
         group.subscribers.append(admin)
         group.update()
 
-        mimetype = get_mimetype_from_wtf_file(form.logo.data)
-        logo = GroupLogo.from_bytes(logo_bytes, mimetype, group)
-
+        GroupLogo.from_raw_image(raw_image, group)
         return group
 
     def on_subscribe_click(self, user: User):
@@ -331,16 +318,11 @@ class GroupLogo(db.Model, BaseModel):
     group_id = db.Column(db.Integer, db.ForeignKey("group.id"))
 
     @staticmethod
-    def from_bytes(image_bytes: bytes, mimetype: str, group: Group):
-        b64string = convert_bytes_to_b64string(image_bytes)
-        GroupLogo.create(b64string=b64string, mimetype=mimetype, group=group)
-
-    @staticmethod
-    def raise_for_image_validity(image_bytes):
-        try:
-            check_group_logo_validity(image_bytes)
-        except Exception as e:
-            raise exceptions.ImageError(str(e)) from e
+    def from_raw_image(raw_image: RawImage, group: Group):
+        GroupLogo.create(
+            b64string=raw_image.b64string,
+            mimetype=raw_image.mimetype,
+            group=group)
 
 
 comments_likes = db.Table(
