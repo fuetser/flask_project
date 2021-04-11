@@ -232,8 +232,8 @@ class Post(db.Model, BaseModel):
         PostImage.from_raw_image(raw_image, post)
 
     def get_comments(self, query_params: dict):
-        sort_comments_by = request.args.get("sort", "popular")
-        reverse = bool(request.args.get("reverse", False))
+        sort_comments_by = query_params.get("sort", "popular")
+        reverse = bool(query_params.get("reverse", False))
         if sort_comments_by not in ("date", "popular"):
             raise exceptions.IncorrectQueryParam("Incorrect query param: 'sort'")
         if sort_comments_by == "date":
