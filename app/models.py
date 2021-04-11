@@ -6,8 +6,9 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login, exceptions
-from app.services.image_service import RawImage
 from app.utils import get_elapsed
+from app.services.image_service import RawImage
+from app.services.token_service import create_token, is_valide_token
 
 
 class BaseModel:
@@ -46,6 +47,7 @@ class User(UserMixin, db.Model, BaseModel):
     password_hash = db.Column(db.String(256))
     email = db.Column(db.String(64), unique=True)
     registered = db.Column(db.DateTime, default=dt.datetime.utcnow)
+    _token = db.Column(db.String(128), default="")
 
     avatar = db.relationship("UserAvatar", uselist=False, backref="user")
     posts = db.relationship("Post", backref="author")
@@ -54,6 +56,13 @@ class User(UserMixin, db.Model, BaseModel):
     @property
     def elapsed(self):
         return get_elapsed(self.registered)
+
+    @property
+    def token(self):
+        if not is_valide_token(self._token):
+            self._token = create_token({"sub": self.id})
+            super().update()
+        return self._token
 
     @staticmethod
     def get_by_username(username: str):

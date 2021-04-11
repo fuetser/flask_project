@@ -240,8 +240,7 @@ def get_search_results():
 @app.route("/token")
 @login_required
 def view_tokens():
-    return render_template(
-        "tokens.html", token=create_token({"sub": current_user.id}))
+    return render_template("tokens.html")
 
 
 @app.route('/favicon.ico')

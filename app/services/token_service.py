@@ -23,6 +23,15 @@ def validate_token(token: str):
         return token_data
 
 
+def is_valide_token(token: str):
+    try:
+        jwt.decode(token, key=Config.SECRET_KEY, algorithms=Config.JWT_ALGORITHM)
+    except:
+        return False
+    else:
+        return True
+
+
 def token_required(func):
     @wraps(func)
     def inner(*args, **kwargs):

@@ -16,7 +16,7 @@
 <script defer>
     const token = document.querySelector("#token")
     const copyButton = document.querySelector("#copyButton")
-    token.value = "{{ token }}"
+    token.value = "{{ current_user.token }}"
     copyButton.addEventListener("click", e => {
         token.focus();
         token.select();
