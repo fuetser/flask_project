@@ -16,7 +16,7 @@ class RegisterForm(FlaskForm):
     password = PasswordField("Пароль", validators=[DataRequired()])
     confirm_password = PasswordField(
         "Подтвердите пароль", validators=[DataRequired(), EqualTo("password")])
-    avatar = FileField("Выберите аватар")
+    avatar = FileField("Выберите аватар", validators=[DataRequired()])
     submit = SubmitField("Зарегистрироватся")
 
     def validate_username(self, username):
@@ -42,7 +42,7 @@ class NewPostForm(FlaskForm):
     content = StringField(
         "Содержание записи", validators=[DataRequired()], widget=TextArea())
     use_markdown = BooleanField("Использовать Markdown")
-    image = FileField()
+    image = FileField("Выберите картинку", validators=[DataRequired()])
     submit = SubmitField("Опубликовать")
 
 
@@ -51,7 +51,7 @@ class NewGroupForm(FlaskForm):
         "Имя группы", validators=[DataRequired(), Length(max=32)])
     description = StringField("Описание группы", validators=[
         DataRequired(), Length(max=128)], widget=TextArea())
-    logo = FileField()
+    logo = FileField("Выберите логотип", validators=[DataRequired()])
     submit = SubmitField("Создать")
 
 
