@@ -4,7 +4,7 @@ from pydantic import ValidationError
 
 from ..models import User
 from .schemas import UserModel, UserModelCreate, UserModelUpdate
-from ..utils import token_required
+from ..services.token_service import token_required
 
 
 class UsersResource(Resource):

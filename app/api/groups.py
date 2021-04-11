@@ -4,7 +4,7 @@ from pydantic import ValidationError
 
 from ..models import Group
 from .schemas import GroupModel, GroupModelCreate, GroupModelUpdate
-from ..utils import token_required
+from ..services.token_service import token_required
 
 
 class GroupsResource(Resource):

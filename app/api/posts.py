@@ -2,9 +2,9 @@ from flask import jsonify
 from flask_restful import Resource, abort, request
 from pydantic import ValidationError
 
-from .schemas import PostModel, PostModelUpdate, PostModelCreate
 from ..models import Post
-from ..utils import token_required
+from .schemas import PostModel, PostModelUpdate, PostModelCreate
+from ..services.token_service import token_required
 
 
 class PostsResource(Resource):

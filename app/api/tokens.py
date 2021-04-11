@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash
 
 from .. models import User
 from .schemas import TokenCreateModel
-from ..utils import create_token
+from ..services.token_service import create_token
 
 
 class TokenResource(Resource):
