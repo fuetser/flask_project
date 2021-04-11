@@ -7,7 +7,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app import app, exceptions
 from app.forms import *
 from app.models import *
-from app.utils import localize_comments
+from app.utils import localize_comments, create_token
 
 
 @app.route("/")
