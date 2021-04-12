@@ -23,6 +23,7 @@
             <a class="nav-item nav-link" href="{{ url_for('best') }}" id="best">Лучшее</a>
             <a class="nav-item nav-link" href="{{ url_for('hot') }}" id="hot">Горячее</a>
             <a class="nav-item nav-link" href="{{ url_for('sort') }}" id="sort">Поиск</a>
+            <a class="nav-item nav-link" href="{{ url_for('my_feed') }}" id="my_feed">Моё</a>
          </div>
          <div class="navbar-nav navbar-block d-flex align-items-center justify-content-center">
             {% if current_user.is_authenticated %}

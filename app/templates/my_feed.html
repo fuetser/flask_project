@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+<link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}Моё{% endblock %}
+
+{% block content %}
+<div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
+   {% for post in posts %}
+   <div class="card">
+      <div class="card-body">
+         <a class="post-link smooth-transition" href="{{ url_for('post', post_id=post.id) }}">
+            <span class="post-title">
+               <h4 class="card-title">{{ post.title }}</h4>
+            </span>
+         </a>
+         <p class="card-text">
+            <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link smooth-transition">{{ post.author.username }}</a></small>
+         </p>
+         {% if post.image %}
+            <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
+               <img class="card-img-top rounded post-image" src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}">
+            </a>
+         {% endif %}
+         <div class="post-info d-flex flex-row align-items-center">
+            <div class="post-info-category d-flex flex-row align-items-center likes-wrapper">
+               {% if not current_user.is_authenticated %}
+                  <a class="btn btn-default post-info-button smooth-transition" href="{{ url_for('login') }}">
+                     <i class="bi bi-heart"></i>
+                  </a>
+                  <h5 id="likesCounter">{{ post.likes|length }}</h5>
+               {% elif current_user in post.likes %}
+                  <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="like" onclick="likePost({{ post.id }})">
+                     <i class="bi bi-heart-fill like"></i>
+                  </button>
+                  <h5 id="likesCounter" class="active">{{ post.likes|length }}</h5>
+               {% else %}
+                  <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="like" onclick="likePost({{ post.id }})">
+                     <i class="bi bi-heart like"></i>
+                  </button>
+                  <h5 id="likesCounter">{{ post.likes|length }}</h5>
+               {% endif %}
+            </div>
+            <div class="post-info-category d-flex flex-row align-items-center">
+               <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="like">
+                  <a href="{{ url_for('post', post_id=post.id) }}#comments" class="post-link-icon">
+                     <i class="bi bi-chat-right"></i>
+                  </a>
+               </button>
+               <h5>{{ post.comments|length }}</h5>
+            </div>
+            <div>
+               <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="share">
+                  <i class="bi bi-share"></i>
+               </button>
+            </div>
+         </div>
+      </div>
+   </div>
+   {% endfor %}
+</div>
+{% endblock %}

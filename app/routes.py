@@ -29,6 +29,13 @@ def sort():
     return render_template("search.html", active_link="sort")
 
 
+@app.route("/my_feed")
+@login_required
+def my_feed():
+    posts = current_user.get_posts_from_subscribed_groups()
+    return render_template("my_feed.html", posts=posts, active_link="my_feed")
+
+
 @app.route("/posts/<int:post_id>")
 def post(post_id):
     post = Post.query.get(post_id)

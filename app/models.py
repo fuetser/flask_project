@@ -120,6 +120,10 @@ class User(UserMixin, db.Model, BaseModel):
             raise exceptions.AuthorizationError("Incorrect username or password")
         return user
 
+    def get_posts_from_subscribed_groups(self):
+        groups_ids = [group.id for group in self.groups]
+        return Post.query.filter(Post.group_id.in_(groups_ids)).all()
+
     def update_from_form(self, form):
         self.update_from_data(
             username=form.username.data,
