@@ -62,7 +62,7 @@ def user(username_or_id):
     form = EditProfileForm()
     if form.validate_on_submit():
         user.update_from_form(form)
-        return redirect(url_for("user", username=form.username.data))
+        return redirect(url_for("user", username_or_id=form.username.data))
     elif request.method == "GET":
         form.fill_from_user_object(user)
     return render_template("user.html", user=user, form=form)

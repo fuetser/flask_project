@@ -2,7 +2,7 @@
    <div class="comment-element" id="comment{{ comment.id }}">
       <div class="comment-header">
          <h5 class="comment__author">
-            <a class="username-link smooth-transition" href="{{ url_for('user', username=comment.author.username) }}">{{ comment.author.username }}</a>
+            <a class="username-link smooth-transition" href="{{ url_for('user', username_or_id=comment.author.username) }}">{{ comment.author.username }}</a>
          </h5>
          <p class="text-muted comment__elapsed">{{ comment.elapsed }}</p>
       </div>
