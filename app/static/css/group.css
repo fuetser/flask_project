@@ -66,3 +66,13 @@
 .group-subscribers-count {
     margin: 0;
 }
+
+.edit-button {
+    color: #000;
+    font-size: 20px;
+    margin-left: 15px;
+}
+
+.edit-button:hover {
+    color: #606060;
+}

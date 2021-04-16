@@ -5,7 +5,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 
-from .models import User
+from .models import User, Group
 
 
 class RegisterForm(FlaskForm):
@@ -45,6 +45,12 @@ class NewPostForm(FlaskForm):
     image = FileField("Выберите картинку", validators=[DataRequired()])
     submit = SubmitField("Опубликовать")
 
+    def fill_from_post_object(self, post):
+        self.title.data = post.title
+        self.content.data = post.body
+        self.use_markdown.data = post.uses_markdown
+        self.submit.label.text = "Сохранить"
+
 
 class NewGroupForm(FlaskForm):
     name = StringField(
@@ -53,6 +59,27 @@ class NewGroupForm(FlaskForm):
         DataRequired(), Length(max=128)], widget=TextArea())
     logo = FileField("Выберите логотип", validators=[DataRequired()])
     submit = SubmitField("Создать")
+
+    def validate_name(self, name):
+        if not Group.is_unique_name(name.data):
+            raise ValidationError(f"Название {name.data} уже занято")
+
+
+class EditGroupForm(FlaskForm):
+    name = StringField(
+        "Имя группы", validators=[DataRequired(), Length(max=32)])
+    description = StringField("Описание группы", validators=[
+        DataRequired(), Length(max=128)], widget=TextArea())
+    logo = FileField("Выберите логотип")
+    submit = SubmitField("Сохранить")
+
+    def fill_from_group_object(self, group):
+        self.name.data = group.name
+        self.description.data = group.description
+
+    def validate_name(self, name):
+        if not Group.is_unique_name(name.data):
+            raise ValidationError(f"Название {name.data} уже занято")
 
 
 class EditProfileForm(FlaskForm):

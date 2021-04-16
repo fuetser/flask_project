@@ -85,8 +85,14 @@
 .button-wrapper {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
 }
 
 .text-area {
     height: 20vw;
+}
+
+.file-upload {
+    margin-top: 10px;
+    margin-bottom: 5px;
 }

@@ -49,7 +49,14 @@
       {% if not current_user.is_authenticated %}
          <a class="header-inner btn btn-outline-dark subscribe-button active" href="{{ url_for('login') }}">Подписаться</a>
       {% elif current_user in group.subscribers %}
-         <button class="header-inner btn btn-outline-dark subscribe-button" id="subscribeButton" onclick="subscribe();">Отписаться</button>
+      <div class="header-inner d-flex align-items-center">
+         <button class="btn btn-outline-dark subscribe-button" id="subscribeButton" onclick="subscribe();">Отписаться</button>
+         {% if current_user.id == group.admin_id %}
+            <a href="{{ url_for('edit_group', group_id=group.id) }}" class="mt-1">
+               <i class="bi bi-pencil-square edit-button smooth-transition"></i>
+            </a>
+         {% endif %}
+      </div>
       {% else %}
          <button class="header-inner btn btn-outline-dark subscribe-button active" id="subscribeButton" onclick="subscribe();">Подписаться</button>
       {% endif %}

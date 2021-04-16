@@ -113,13 +113,28 @@ function deleteComment(commentId) {
     })
 }
 
-function deletePost(postId) {
-    $(`#post${postId}`).remove()
+function deletePost(postId, redirectToBest) {
     $.ajax({
         url: `/post/${postId}`,
         type: "DELETE",
         success: responce => {
             console.log("success")
+        },
+        error: (request, status, error) => {
+            console.log(error, request)
+        }
+    })
+    if(redirectToBest) document.location.href = "/best"
+    $(`#post${postId}`).remove()
+}
+
+function deleteGroup(groupId) {
+    $.ajax({
+        url: `/group/${groupId}`,
+        type: "DELETE",
+        success: responce => {
+            console.log("success")
+            document.location.href = "/best"
         },
         error: (request, status, error) => {
             console.log(error, request)

@@ -2,7 +2,6 @@ import datetime as dt
 
 from flask_login import UserMixin
 from sqlalchemy.sql.expression import func
-from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login, exceptions
@@ -197,6 +196,7 @@ class Post(db.Model, BaseModel):
 
     image = db.relationship("PostImage", uselist=False, backref="post")
     comments = db.relationship("Comment", backref="post")
+    uses_markdown = db.Column(db.Boolean, default=False)
     likes = db.relationship(
         "User", secondary=posts_likes, backref="post_likes")
 
@@ -241,6 +241,7 @@ class Post(db.Model, BaseModel):
             body=form.content.data,
             author=author,
             group=group,
+            uses_markdown=form.use_markdown.data
         )
         PostImage.from_raw_image(raw_image, post)
 
@@ -268,6 +269,16 @@ class Post(db.Model, BaseModel):
             self.likes.remove(user)
         else:
             self.likes.append(user)
+        self.update()
+
+    def update_from_form(self, form):
+        self.title = form.title.data
+        self.body = form.content.data
+        self.uses_markdown = form.use_markdown.data
+        if form.image.data:
+            raw_image = RawImage.from_wtf_file(form.image.data)
+            raw_image.raise_for_image_validity()
+            PostImage.from_raw_image(raw_image, self)
         self.update()
 
 
@@ -321,7 +332,8 @@ class Group(db.Model, BaseModel):
 
         group = Group(
             name=form.name.data,
-            description=form.description.data
+            description=form.description.data,
+            admin_id=admin.id
         )
         group.subscribers.append(admin)
         group.update()
@@ -334,6 +346,16 @@ class Group(db.Model, BaseModel):
             self.subscribers.remove(user)
         else:
             self.subscribers.append(user)
+        self.update()
+
+    def update_from_form(self, form):
+        self.name = form.name.data
+        self.description = form.description.data
+        if form.logo.data:
+            raw_image = RawImage.from_wtf_file(form.logo.data)
+            raw_image.raise_for_image_validity()
+            raw_image.crop_to_64square()
+            GroupLogo.from_raw_image(raw_image, self)
         self.update()
 
     @staticmethod

@@ -3,6 +3,7 @@ import os
 from flask import render_template, flash, redirect, url_for, abort, request
 from flask import jsonify, send_from_directory
 from flask_login import current_user, login_user, logout_user, login_required
+from markdown import markdown
 
 from app import app, exceptions
 from app.forms import *
@@ -47,6 +48,10 @@ def post(post_id):
     except exceptions.IncorrectQueryParam:
         abort(404)
     else:
+        if post.uses_markdown:
+            post.body = markdown(post.body)
+        else:
+            post.body = post.body.replace("\n", "</br>")
         return render_template("post.html", post=post, comments=comments)
 
 
@@ -132,6 +137,21 @@ def new_post():
     return render_template("new_post.html", form=form)
 
 
+@app.route("/post/<int:post_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_post(post_id):
+    post = Post.get_by_id(post_id)
+    if not post or post.author != current_user:
+        abort(404)
+    form = NewPostForm()
+    if form.validate_on_submit():
+        post.update_from_form(form)
+        return redirect(url_for("post", post_id=post_id))
+    elif request.method == "GET":
+        form.fill_from_post_object(post)
+    return render_template("new_post.html", form=form)
+
+
 @app.route("/group/<int:group_id>")
 def group(group_id):
     group = Group.query.get(group_id)
@@ -157,6 +177,21 @@ def new_group():
             return redirect(url_for("group", group_id=group.id))
 
     return render_template("new_group.html", form=form)
+
+
+@app.route("/group/<int:group_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_group(group_id):
+    group = Group.get_by_id(group_id)
+    if not group or group.admin_id != current_user.id:
+        abort(404)
+    form = EditGroupForm()
+    if form.validate_on_submit():
+        group.update_from_form(form)
+        return redirect(url_for("group", group_id=group.id))
+    elif request.method == "GET":
+        form.fill_from_group_object(group)
+    return render_template("new_group.html", form=form, group_id=group.id)
 
 
 @app.route("/subscribe/<int:group_id>", methods=["POST"])
@@ -217,6 +252,16 @@ def delete_post(post_id):
         abort(404)
     if current_user == post.author:
         post.delete()
+    return jsonify({"success": "OK"})
+
+
+@app.route("/group/<int:group_id>", methods=["DELETE"])
+def delete_group(group_id):
+    group = Group.get_by_id(group_id)
+    if not group:
+        abort(404)
+    if group.admin_id == current_user.id:
+        group.delete()
     return jsonify({"success": "OK"})
 
 
