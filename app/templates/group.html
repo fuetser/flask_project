@@ -73,7 +73,7 @@
                </span>
             </a>
             <p class="card-text">
-               <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link">{{ post.author.username }}</a></small>
+               <small class="text-muted">{{ post.elapsed }} от <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link">{{ post.author.username }}</a></small>
 
             </p>
             {% if post.image %}

@@ -17,7 +17,7 @@
             </span>
          </a>
          <p class="card-text">
-            <small class="text-muted">{{ post.elapsed }} от <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link smooth-transition">{{ post.author.username }}</a></small>
+            <small class="text-muted">{{ post.elapsed }} от <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link smooth-transition">{{ post.author.username }}</a> в <a href="{{ url_for('group', group_id=post.group.id) }}" class="group-link smooth-transition">{{ post.group.name }}</a></small>
          </p>
          {% if post.image %}
             <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">

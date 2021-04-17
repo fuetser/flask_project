@@ -17,12 +17,12 @@
     color: #656565;
 }
 
-.user-link {
+.user-link, .group-link {
     color: inherit;
     text-decoration: none;
 }
 
-.user-link:hover {
+.user-link:hover, .group-link:hover {
     color: #000;
 }
 
