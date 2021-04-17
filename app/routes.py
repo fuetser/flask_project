@@ -157,13 +157,8 @@ def group(group_id):
 def new_group():
     form = NewGroupForm()
     if form.validate_on_submit():
-        try:
-            group = Group.create_from_form_and_get(form, current_user)
-        except exceptions.NotUniqueGroupName:
-            flash("Данное имя уже занято")
-            return redirect(url_for("new_group"))
-        else:
-            return redirect(url_for("group", group_id=group.id))
+        group = Group.create_from_form_and_get(form, current_user)
+        return redirect(url_for("group", group_id=group.id))
 
     return render_template("new_group.html", form=form)
 

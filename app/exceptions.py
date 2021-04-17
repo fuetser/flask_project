@@ -12,7 +12,3 @@ class IncorrectQueryParam(Exception):
 
 class AuthorizationError(Exception):
     ...
-
-
-class NotUniqueGroupName(Exception):
-    ...

@@ -319,10 +319,6 @@ class Group(db.Model, BaseModel):
 
     @staticmethod
     def create_from_form_and_get(form, admin: User):
-        if not Group.is_unique_name(form.name.data):
-            raise exceptions.NotUniqueGroupName(
-                f"Group name '{form.name.data}' is not unique")
-
         group = Group(
             name=form.name.data,
             description=form.description.data,
