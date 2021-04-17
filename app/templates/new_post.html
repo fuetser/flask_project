@@ -34,7 +34,18 @@
             {{ form.content(class="form-control form-control-md form-input text-area", placeholder="Содержание") }}
          {% endif %}
       </div>
-      {{ form.image(class="form-control file-upload") }}
+      <div class="form-group form-field">
+         {% if form.image.errors %}
+            {{ form.image(class="form-control form-control-md file-upload is-invalid") }}
+            <div class="invalid-feedback">
+               {% for error in form.image.errors %}
+                  <span>{{ error }}</span>
+               {% endfor %}
+            </div>
+         {% else %}
+            {{ form.image(class="form-control form-control-md file-upload", placeholder="Заголовок") }}
+         {% endif %}
+      </div>
       <div class="check-wrapper">
          <div class="button-wrapper">
             {{ form.submit(class="btn btn-outline-dark submit") }}

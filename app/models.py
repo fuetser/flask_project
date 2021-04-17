@@ -98,15 +98,13 @@ class User(UserMixin, db.Model, BaseModel):
 
     @staticmethod
     def create_from_form_and_get(form):
-        raw_image = RawImage.from_wtf_file(form.avatar.data)
-        raw_image.raise_for_image_validity()
-        raw_image.crop_to_64square()
-
         user = User.create_and_get(
             username=form.username.data,
             email=form.email.data,
             password_hash=form.password.data,
         )
+        raw_image = form.avatar.data
+        raw_image.crop_to_64square()
         UserAvatar.from_raw_image(raw_image, user)
         return user
 
@@ -233,9 +231,6 @@ class Post(db.Model, BaseModel):
             raise exceptions.GroupDoesNotExists(
                 f"Group {group_id} does not exists")
 
-        raw_image = RawImage.from_wtf_file(form.image.data)
-        raw_image.raise_for_image_validity()
-
         post = Post.create_and_get(
             title=form.title.data,
             body=form.content.data,
@@ -243,7 +238,9 @@ class Post(db.Model, BaseModel):
             group=group,
             uses_markdown=form.use_markdown.data
         )
-        PostImage.from_raw_image(raw_image, post)
+        if form.image.data is not None:
+            raw_image = form.image.data
+            PostImage.from_raw_image(raw_image, post)
 
     def get_comments(self, query_params: dict):
         sort_comments_by = query_params.get("sort", "popular")
@@ -276,7 +273,7 @@ class Post(db.Model, BaseModel):
         self.body = form.content.data
         self.uses_markdown = form.use_markdown.data
         if form.image.data:
-            raw_image = RawImage.from_wtf_file(form.image.data)
+            raw_image = form.image.data
             raw_image.raise_for_image_validity()
             PostImage.from_raw_image(raw_image, self)
         self.update()
@@ -326,10 +323,6 @@ class Group(db.Model, BaseModel):
             raise exceptions.NotUniqueGroupName(
                 f"Group name '{form.name.data}' is not unique")
 
-        raw_image = RawImage.from_wtf_file(form.logo.data)
-        raw_image.raise_for_image_validity()
-        raw_image.crop_to_64square()
-
         group = Group(
             name=form.name.data,
             description=form.description.data,
@@ -338,7 +331,10 @@ class Group(db.Model, BaseModel):
         group.subscribers.append(admin)
         group.update()
 
+        raw_image = form.logo.data
+        raw_image.crop_to_64square()
         GroupLogo.from_raw_image(raw_image, group)
+
         return group
 
     def on_subscribe_click(self, user: User):
@@ -352,7 +348,7 @@ class Group(db.Model, BaseModel):
         self.name = form.name.data
         self.description = form.description.data
         if form.logo.data:
-            raw_image = RawImage.from_wtf_file(form.logo.data)
+            raw_image = form.logo.data
             raw_image.raise_for_image_validity()
             raw_image.crop_to_64square()
             GroupLogo.from_raw_image(raw_image, self)

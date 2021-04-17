@@ -77,15 +77,10 @@ def user(username_or_id):
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        try:
-            user = User.create_from_form_and_get(form)
-        except exceptions.ImageError as e:
-            flash(str(e), "warning")
-            return redirect(url_for("register"))
-        else:
-            login_user(user, remember=True)
-            flash("Аккаунт успешно создан!", "success")
-            return redirect(url_for("best"))
+        user = User.create_from_form_and_get(form)
+        login_user(user, remember=True)
+        flash("Аккаунт успешно создан!", "success")
+        return redirect(url_for("best"))
 
     return render_template("register.html", form=form, active_link="register")
 
@@ -128,9 +123,6 @@ def new_post():
             post = Post.from_form(current_user, group_id, form)
         except exceptions.GroupDoesNotExists:
             abort(404)
-        except exceptions.ImageError as e:
-            flash(str(e), "warning")
-            return redirect(url_for("new_post", group_id=group_id))
         else:
             return redirect(url_for("group", group_id=group_id))
 
@@ -169,9 +161,6 @@ def new_group():
             group = Group.create_from_form_and_get(form, current_user)
         except exceptions.NotUniqueGroupName:
             flash("Данное имя уже занято")
-            return redirect(url_for("new_group"))
-        except exceptions.ImageError as e:
-            flash(str(e, "warning"))
             return redirect(url_for("new_group"))
         else:
             return redirect(url_for("group", group_id=group.id))

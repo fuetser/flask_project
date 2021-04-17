@@ -62,9 +62,18 @@
             {{ form.confirm_password(class="form-control form-control-md form-input") }}
         {% endif %}
       </div>
-      <div class="form-group form-field"> 
-          {{ form.avatar.label(class="form-label label") }}
-          {{ form.avatar(class="form-control") }}
+      <div class="form-group form-field">
+         {{ form.avatar.label(class="form-label label") }}
+         {% if form.avatar.errors %}
+            {{ form.avatar(class="form-control form-control-md file-upload is-invalid") }}
+            <div class="invalid-feedback">
+               {% for error in form.avatar.errors %}
+                  <span>{{ error }}</span>
+               {% endfor %}
+            </div>
+         {% else %}
+            {{ form.avatar(class="form-control form-control-md file-upload", placeholder="Заголовок") }}
+         {% endif %}
       </div>
       {{ form.submit(class="btn btn-outline-dark submit") }}
       <span class="have-account">

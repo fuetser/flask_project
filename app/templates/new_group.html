@@ -34,7 +34,18 @@
             {{ form.description(class="form-control form-control-md form-input text-area", placeholder="Описание") }}
          {% endif %}
       </div>
-      {{ form.logo(class="form-control file-upload") }}
+      <div class="form-group form-field">
+         {% if form.logo.errors %}
+            {{ form.logo(class="form-control form-control-md file-upload is-invalid") }}
+            <div class="invalid-feedback">
+               {% for error in form.logo.errors %}
+                  <span>{{ error }}</span>
+               {% endfor %}
+            </div>
+         {% else %}
+            {{ form.logo(class="form-control form-control-md file-upload", placeholder="Заголовок") }}
+         {% endif %}
+      </div>
       <div class="button-wrapper">
          {% if group_id %}
             <button type="button" href="{{ url_for('delete_group', group_id=group_id) }}" class="btn btn-danger" style="height: 100%; margin-right: 15px;" onclick="deleteGroup({{ group_id }})">

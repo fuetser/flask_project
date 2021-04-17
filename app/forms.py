@@ -6,6 +6,8 @@ from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 
 from .models import User, Group
+from app import exceptions
+from app.services.image_service import RawImage
 
 
 class RegisterForm(FlaskForm):
@@ -27,6 +29,15 @@ class RegisterForm(FlaskForm):
         if not User.is_free_email(email.data):
             raise ValidationError(f"Адрес {email.data} уже занят")
 
+    def validate_avatar(self, avatar):
+        raw_image = RawImage.from_wtf_file(avatar.data)
+        try:
+            raw_image.raise_for_image_validity()
+        except exceptions.ImageError:
+            raise ValidationError("Некорректное изображение")
+        else:
+            self.avatar.data = raw_image
+
 
 class LoginForm(FlaskForm):
     username = StringField(
@@ -42,8 +53,18 @@ class NewPostForm(FlaskForm):
     content = StringField(
         "Содержание записи", validators=[DataRequired()], widget=TextArea())
     use_markdown = BooleanField("Использовать Markdown")
-    image = FileField("Выберите картинку", validators=[DataRequired()])
+    image = FileField("Выберите картинку (необязательно)")
     submit = SubmitField("Опубликовать")
+
+    def validate_image(self, image):
+        if image.data is not None:
+            raw_image = RawImage.from_wtf_file(image.data)
+            try:
+                raw_image.raise_for_image_validity()
+            except exceptions.ImageError:
+                raise ValidationError("Некорректное изображение")
+            else:
+                self.image.data = raw_image
 
     def fill_from_post_object(self, post):
         self.title.data = post.title
@@ -64,6 +85,15 @@ class NewGroupForm(FlaskForm):
         if not Group.is_unique_name(name.data):
             raise ValidationError(f"Название {name.data} уже занято")
 
+    def validate_logo(self, logo):
+        raw_image = RawImage.from_wtf_file(logo.data)
+        try:
+            raw_image.raise_for_image_validity()
+        except exceptions.ImageError:
+            raise ValidationError("Некорректное изображение")
+        else:
+            self.logo.data = raw_image
+
 
 class EditGroupForm(FlaskForm):
     name = StringField(
@@ -80,6 +110,15 @@ class EditGroupForm(FlaskForm):
     def validate_name(self, name):
         if not Group.is_unique_name(name.data):
             raise ValidationError(f"Название {name.data} уже занято")
+
+    def validate_logo(self, logo):
+        raw_image = RawImage.from_wtf_file(logo.data)
+        try:
+            raw_image.raise_for_image_validity()
+        except exceptions.ImageError:
+            raise ValidationError("Некорректное изображение")
+        else:
+            self.logo.data = raw_image
 
 
 class EditProfileForm(FlaskForm):
