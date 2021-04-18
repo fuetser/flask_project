@@ -5,7 +5,9 @@ flask-sqlalchemy
 flask-migrate
 flask-login
 flask-restful
+gunicorn
 markdown
 pillow
+psycopg2
 pydantic
 pyjwt
