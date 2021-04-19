@@ -12,3 +12,7 @@ class IncorrectQueryParam(Exception):
 
 class AuthorizationError(Exception):
     ...
+
+
+class InvalidSearchQuery(Exception):
+    ...

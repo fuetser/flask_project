@@ -1,10 +1,9 @@
 {% if not results.items %}
 <div class="search-result-body">
-    <h3>По запросу <i>{{ text }}</i> ничего не найдено</h3>
+    <h3>По запросу <i>{{ request_text }}</i> ничего не найдено</h3>
 </div>
 {% else %}
-    {% if search_groups %}
-        {% set sort = "groups" %}
+    {% if search_by == "groups" %}
         {% for group in results.items %}
             <a href="{{ url_for('group', group_id=group.id) }}" class="search-result-link smooth-transition">
                 <div class="card search-result-item">
@@ -24,8 +23,7 @@
                 </div>
             </a>
         {% endfor %}
-    {% elif search_users %}
-        {% set sort = "users" %}
+    {% elif search_by == "users" %}
         {% for user in results.items %}
             <a href="{{ url_for('user', username_or_id=user.username) }}" class="search-result-link smooth-transition">
                 <div class="card search-result-item">
@@ -43,8 +41,7 @@
                 </div>
             </a>
         {% endfor %}
-    {% else %}
-        {% set sort = "posts" %}
+    {% elif search_by == "posts" %}
         {% for post, counter in results.items %}
           <div class="card">
               <div class="card-body">
@@ -101,7 +98,7 @@
     <div class="search-footer">
         {% for page_index in results.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
             {% if page_index %}
-                <button type="button" onclick="swapPage{{ text, sort, page_index }}" class="btn btn-light">
+                <button type="button" onclick="swapPage{{ request_text, search_by, page_index }}" class="btn btn-light">
                     {{ page_index }}
                 </button>
             {% else %}

@@ -80,8 +80,7 @@ class User(UserMixin, db.Model, BaseModel):
     @staticmethod
     def get_similar(text: str, page: int):
         return User.query.filter(
-            User.username.like(f"%{text}%") | User.id.like(f"%{text}%")
-        ).paginate(page=page, per_page=5)
+            User.username.like(f"%{text}%")).paginate(page=page, per_page=5)
 
     @staticmethod
     def create(**kwargs):
@@ -257,8 +256,8 @@ class Post(db.Model, BaseModel):
     @staticmethod
     def get_similar(text: str, page: int):
         posts = Post.get_best(return_query=True)
-        return posts.filter(Post.title.like(f"%{text}%") | Post.body.like(
-            f"%{text}%") | Post.id.like(f"%{text}%")
+        return posts.filter(
+            Post.title.like(f"%{text}%") | Post.body.like(f"%{text}%")
         ).paginate(page=page, per_page=5)
 
     def on_like_click(self, user: User):
@@ -352,9 +351,9 @@ class Group(db.Model, BaseModel):
 
     @staticmethod
     def get_similar(text: str, page: int):
-        return Group.query.filter(Group.name.like(f"%{text}%") | Group.id.like(
-            f"%{text}%") | Group.description.like(f"%{text}%")).paginate(
-            page=page, per_page=5)
+        return Group.query.filter(
+            Group.name.like(f"%{text}%") | Group.description.like(f"%{text}%")
+        ).paginate(page=page, per_page=5)
 
 
 class GroupLogo(db.Model, BaseModel):

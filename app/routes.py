@@ -10,6 +10,7 @@ from app.forms import *
 from app.models import *
 from app.utils import localize_comments
 from app.services.token_service import create_token
+from app.services.search_service import search_by_query
 
 
 @app.route("/")
@@ -251,26 +252,22 @@ def delete_group(group_id):
 
 @app.route("/search", methods=["POST"])
 def get_search_results():
-    page = request.args.get("page", 1, type=int)
-    request_text = request.values.get("request_text", "").strip()
-    search_groups = request.values.get("search_groups") == "true"
-    search_users = request.values.get("search_users") == "true"
-    search_posts = request.values.get("search_posts") == "true"
-    if not request_text or not (search_groups or search_users or search_posts):
+    try:
+        query_args = request.args
+        query_values = request.values
+        results, search_by, request_text = search_by_query(query_args, query_values)
+    except exceptions.InvalidSearchQuery:
         return jsonify({"ok": False})
-    elif search_groups:
-        search_results = Group.get_similar(request_text, page=page)
-    elif search_users:
-        search_results = User.get_similar(request_text, page=page)
     else:
-        search_results = Post.get_similar(request_text, page=page)
-    return jsonify({
-        "ok": True,
-        "html_data": render_template(
-            "search_results.html", results=search_results,
-            search_groups=search_groups, search_users=search_users,
-            text=request_text, current_user=current_user)
-    })
+        return jsonify({
+            "ok": True,
+            "html_data": render_template(
+                "search_results.html",
+                results=results,
+                search_by=search_by,
+                request_text=request_text,
+            )
+        })
 
 
 @app.route("/token")

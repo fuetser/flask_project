@@ -143,23 +143,22 @@ function deleteGroup(groupId) {
 }
 
 function performSearch() {
+    let searchBy = $("#searchGroupsCheckbox").prop("checked") ? "groups" :
+        $("#searchUsersCheckbox").prop("checked") ? "users" :
+        $("#searchPostsCheckbox").prop("checked") ? "posts" :
+        "none";
     const requestText = $("#searchInput").val()
-    const searchGroups = $("#searchGroupsCheckbox").prop("checked")
-    const searchUsers = $("#searchUsersCheckbox").prop("checked")
-    const searchPosts = $("#searchPostsCheckbox").prop("checked")
     const searchResults = $("#searchResults")
     if(requestText) {
         addSearchParamToUrl("q", requestText)
-        addSearchTargetToUrl(searchGroups, searchUsers, searchPosts)
+        addSearchTargetToUrl(searchBy)
         $.ajax({
             url: "",
             type: "POST",
             dataType: "json",
             data: {
                 request_text: requestText,
-                search_groups: searchGroups,
-                search_users: searchUsers,
-                search_posts: searchPosts
+                searchBy: searchBy
             },
             success: responce => {
                 searchResults.html(responce.html_data)
@@ -181,6 +180,10 @@ function addSearchParamToUrl(key, value) {
     }
 }
 
+function addSearchTargetToUrl(searchBy) {
+    addSearchParamToUrl("sort", searchBy)
+}
+
 function removeSearchParamFromUrl(key) {
     if (history.pushState) {
         let searchParams = new URLSearchParams(window.location.search)
@@ -188,16 +191,6 @@ function removeSearchParamFromUrl(key) {
         let newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + searchParams.toString()
         window.history.pushState({path: newurl}, '', newurl)
     }
-}
-
-function addSearchTargetToUrl(searchGroups, searchUsers, searchPosts) {
-    let searchTarget = "groups"
-    if(searchUsers){
-        searchTarget = "users"
-    } else if(searchPosts){
-        searchTarget = "posts"
-    }
-    addSearchParamToUrl("sort", searchTarget)
 }
 
 function prepareSearchPage(){
