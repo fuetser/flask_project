@@ -146,7 +146,7 @@ function performSearch() {
     let searchBy = $("#searchGroupsCheckbox").prop("checked") ? "groups" :
         $("#searchUsersCheckbox").prop("checked") ? "users" :
         $("#searchPostsCheckbox").prop("checked") ? "posts" :
-        "none";
+        "groups";
     const requestText = $("#searchInput").val()
     const searchResults = $("#searchResults")
     if(requestText) {
