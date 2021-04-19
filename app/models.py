@@ -46,7 +46,7 @@ class User(UserMixin, db.Model, BaseModel):
     password_hash = db.Column(db.String(256))
     email = db.Column(db.String(64), unique=True)
     registered = db.Column(db.DateTime, default=dt.datetime.utcnow)
-    _token = db.Column(db.String(128), default="")
+    _token = db.Column(db.String(256), default="")
 
     avatar = db.relationship("UserAvatar", uselist=False, backref="user")
     posts = db.relationship("Post", backref="author")
