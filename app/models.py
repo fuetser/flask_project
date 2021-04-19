@@ -203,19 +203,13 @@ class Post(db.Model, BaseModel):
 
     @staticmethod
     def get_best(return_query=False):
-        sub = db.session.query(
-            posts_likes.c.post_id,
-            func.count(posts_likes.c.user_id).label("count")
-        ).group_by(posts_likes.c.post_id) \
-         .subquery()
+        posts = Post.query\
+            .outerjoin(posts_likes, Post.id == posts_likes.c.post_id)\
+            .group_by(Post.id)\
+            .order_by(db.desc(func.count(posts_likes.c.user_id)))
 
-        posts = db.session.query(Post, sub.c.count) \
-            .outerjoin(sub, Post.id == sub.c.post_id) \
-            .order_by(db.desc("count"))
-
-        # remove count attribute
         if not return_query:
-            posts = map(lambda pair: pair[0], posts.all())
+            posts = posts.all()
         return posts
 
     @staticmethod
