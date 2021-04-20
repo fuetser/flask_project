@@ -5,7 +5,7 @@ from sqlalchemy.sql.expression import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login, exceptions
-from app.utils import get_elapsed
+from app.utils import get_elapsed, get_current_time
 from app.services.image_service import RawImage
 from app.services.token_service import create_token, is_valide_token
 
@@ -202,15 +202,17 @@ class Post(db.Model, BaseModel):
         return get_elapsed(self.timestamp)
 
     @staticmethod
-    def get_best(return_query=False):
-        posts = Post.query\
+    def get_best(days=1):
+        query = Post.get_best_posts_query()
+        current_time = get_current_time() - dt.timedelta(days=days)
+        return query.filter(Post.timestamp >= current_time).all()
+
+    @staticmethod
+    def get_best_posts_query():
+        return Post.query\
             .outerjoin(posts_likes, Post.id == posts_likes.c.post_id)\
             .group_by(Post.id)\
             .order_by(db.desc(func.count(posts_likes.c.user_id)))
-
-        if not return_query:
-            posts = posts.all()
-        return posts
 
     @staticmethod
     def get_hot():
@@ -249,8 +251,8 @@ class Post(db.Model, BaseModel):
 
     @staticmethod
     def get_similar(text: str, page: int):
-        posts = Post.get_best(return_query=True)
-        return posts.filter(
+        query = Post.get_best_posts_query()
+        return query.filter(
             Post.title.like(f"%{text}%") | Post.body.like(f"%{text}%")
         ).paginate(page=page, per_page=5)
 

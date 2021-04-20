@@ -34,3 +34,7 @@ def localize_comments(count):
     if count % 10 in (2, 3, 4) and count % 100 // 10 != 1:
         return f"{count} комментария"
     return f"{count} комментариев"
+
+
+def get_current_time():
+    return dt.datetime.utcnow()
