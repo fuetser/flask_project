@@ -1,7 +1,7 @@
 import datetime as dt
 
 from flask_login import UserMixin
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.expression import func, extract
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login, exceptions
@@ -216,8 +216,21 @@ class Post(db.Model, BaseModel):
 
     @staticmethod
     def get_hot():
-        # TODO
-        return Post.get_best()
+        query = Post.get_hot_posts_query()
+        return query.all()
+
+    @staticmethod
+    def get_hot_posts_query():
+        current_time = get_current_time()
+        time_limit = current_time - dt.timedelta(hours=1)
+        return Post.query\
+            .outerjoin(posts_likes, Post.id == posts_likes.c.post_id)\
+            .group_by(Post.id)\
+            .filter(Post.timestamp >= time_limit)\
+            .order_by(
+                func.count(posts_likes.c.user_id) /
+                ((current_time - Post.timestamp) / 60 + 1)
+            )
 
     @staticmethod
     def from_form(author, group_id, form):
