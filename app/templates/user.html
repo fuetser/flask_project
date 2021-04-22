@@ -46,11 +46,11 @@
         </div>
       </div>
       <div class="tab-pane fade" id="v-pills-posts" role="tabpanel" aria-labelledby="v-pills-posts-tab">
-        <p class="text-muted content-container">Всего: {{ user.posts|length }}</p>
-          {% if not user.posts %}
+          {% set posts = user.get_paginated_posts(current_page) %}
+          {% if not posts.items %}
             <div class="content-container">
               <h3>Пока нет записей</h3>
-              {% if user.id == current_user.id %}
+              {% if user == current_user %}
                 <p class="text-muted">
                   Вы можете создать запись, перейдя в выбранную группу
                 </p>
@@ -61,7 +61,7 @@
               {% endif %}
             </div>
           {% endif %}
-          {% for post in user.posts %}
+          {% for post in posts.items %}
           <div class="content-container card" id="post{{ post.id }}">
             <div class="card-body">
               <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
@@ -70,7 +70,7 @@
                 </span>
               </a>
                 <p class="card-text">
-                  <small class="text-muted">{{ post.elapsed }} в <a href="{{ url_for('group', group_id=post.group.id) }}" class="group-link smooth-transition">{{ post.group.name }}</a></small>
+                  <small class="text-muted">{{ post.elapsed }} от <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link smooth-transition">{{ post.author.username }}</a> в <a href="{{ url_for('group', group_id=post.group.id) }}" class="group-link smooth-transition">{{ post.group.name }}</a></small>
                 </p>
                 {% if post.image %}
                   <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
@@ -106,7 +106,7 @@
                   </div>
                   <div>
                     <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="share">
-                      <i class="bi bi-share"></i>
+                      <i class="bi bi-share" data-link="{{ url_for('post', post_id=post.id) }}"></i>
                     </button>
                   </div>
                   {% if current_user == post.author %}
@@ -120,12 +120,31 @@
             </div>
           </div>
          {% endfor %}
+         <div class="content-container">
+           <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
+             {% for page_index in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+               {% if page_index %}
+                 {% if page_index == current_page %}
+                   <li class="page-item active">
+                 {% else %}
+                   <li class="page-item">
+                 {% endif %}
+                   <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByUser('{{ user.username }}', event)">
+                        {{ page_index }}
+                   </button>
+                   </li>
+                 {% else %}
+                   <li class="page-item">
+                     <span class="p-2 fs-4">...</span>
+                   </li>
+                 {% endif %}
+             {% endfor %}
+           </ul>
+         </div>
       </div>
       {% if current_user == user %}
+        {% set groups = user.get_paginated_subscriptions(current_page) %}
         <div class="tab-pane fade" id="v-pills-subscriptions" role="tabpanel" aria-labelledby="v-pills-subscriptions-tab">
-          <div class="content-container">
-            <p class="text-muted">Всего: {{ user.groups|length }}</p>
-          </div>
           <div>
             {% if not user.groups %}
               <div class="content-container">
@@ -136,7 +155,7 @@
                   </p>
               </div>
             {% endif %}
-            {% for group in user.groups %}
+            {% for group in groups.items %}
               <div class="card content-container">
                 <div class="card-body" id="group{{ group.id }}">
                   <div class="d-flex align-items-center">
@@ -153,6 +172,27 @@
                 </div>
               </div>
             {% endfor %}
+            <div class="content-container">
+              <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
+                 {% for page_index in groups.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                     {% if page_index %}
+                       {% if page_index == current_page %}
+                         <li class="page-item active">
+                       {% else %}
+                         <li class="page-item">
+                       {% endif %}
+                         <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showUserSubscriptions('{{ user.username }}', event)">
+                              {{ page_index }}
+                         </button>
+                       </li>
+                     {% else %}
+                       <li class="page-item">
+                         <span class="p-2 fs-4">...</span>
+                       </li>
+                     {% endif %}
+                 {% endfor %}
+               </ul>
+            </div>
           </div>
         </div>
         <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
@@ -165,7 +205,7 @@
           </a>
           <div class="content-container">
             <div class="container-fluid card form" style="width: 100%;">
-              <form method="POST" action="">
+              <form method="POST" action="" enctype="multipart/form-data">
                   {{ form.hidden_tag() }}
                 <div class="form-group form-field">
                   {{ form.email.label(class="form-label label") }}
@@ -191,6 +231,19 @@
                       </div>
                   {% else %}
                       {{ form.username(class="form-control form-control-md form-input") }}
+                  {% endif %}
+                </div>
+                <div class="form-group form-field">
+                  {{ form.image.label(class="form-label label") }}
+                  {% if form.image.errors %}
+                      {{ form.image(class="form-control form-control-md form-input is-invalid") }}
+                      <div class="invalid-feedback">
+                          {% for error in form.image.errors %}
+                              <span>{{ error }}</span>
+                          {% endfor %}
+                      </div>
+                  {% else %}
+                      {{ form.image(class="form-control form-control-md form-input") }}
                   {% endif %}
                 </div>
                 <div class="form-group form-field">
@@ -276,6 +329,7 @@
         }
       }
       insertUrlParam(button.id)
+      removeSearchParamFromUrl("page")
       setActiveTab()
     })
   }
@@ -283,12 +337,17 @@
   // показ активной вкладки согласно query параметру
   function setActiveTab(){
     const searchParams = new URLSearchParams(window.location.search);
-    const activeTabParam = searchParams.get("tab")
+    let activeTabParam = searchParams.get("tab")
+    if(["profile", "posts", "subscriptions", "settings"].indexOf(activeTabParam) === -1) {
+      activeTabParam = "profile"
+      addSearchParamToUrl("tab", "profile")
+    }
     let activeTabButton = $(`#v-pills-${activeTabParam}-tab`)
     let activeTabDiv = $(`#v-pills-${activeTabParam}`)
     if(!activeTabButton.length | !activeTabDiv.length){
       activeTabButton = $("#v-pills-profile-tab")
       activeTabDiv = $("#v-pills-profile")
+      addSearchParamToUrl("tab", "profile")
     }
     for(const button of tabsButtons){
       $(button).removeClass("active")

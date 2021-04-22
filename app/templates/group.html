@@ -63,8 +63,8 @@
    </div>
 </header>
 <main class="main">
-   <div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
-   {% for post in group.posts %}
+   <div class="posts-wall d-flex flex-column justify-content-center bd-highlight" id="postsHolder">
+   {% for post in posts.items %}
       <div class="card">
          <div class="card-body">
             <a class="post-link smooth-transition" href="{{ url_for('post', post_id=post.id) }}">
@@ -125,4 +125,25 @@
       </p>
    </div>
 </main>
+<div class="pagination-footer" id="paginationFooter">
+   <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
+     {% for page_index in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+         {% if page_index %}
+           {% if page_index == current_page %}
+             <li class="page-item active">
+           {% else %}
+             <li class="page-item">
+           {% endif %}
+            <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByGroup({{ group.id }}, event)">
+                 {{ page_index }}
+            </button>
+           </li>
+         {% else %}
+           <li class="page-item">
+             <span class="p-2 fs-4">...</span>
+           </li>
+         {% endif %}
+     {% endfor %}
+   </ul>
+</div>
 {% endblock %}

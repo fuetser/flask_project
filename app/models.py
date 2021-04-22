@@ -1,13 +1,14 @@
 import datetime as dt
 
 from flask_login import UserMixin
-from sqlalchemy.sql.expression import func, extract
+from sqlalchemy.sql.expression import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login, exceptions
 from app.utils import get_elapsed, get_current_time
 from app.services.image_service import RawImage
 from app.services.token_service import create_token, is_valide_token
+from config import Config
 
 
 class BaseModel:
@@ -79,8 +80,8 @@ class User(UserMixin, db.Model, BaseModel):
 
     @staticmethod
     def get_similar(text: str, page: int):
-        return User.query.filter(
-            User.username.like(f"%{text}%")).paginate(page=page, per_page=5)
+        return User.query.filter(User.username.like(
+            f"%{text}%")).paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
     @staticmethod
     def create(**kwargs):
@@ -116,9 +117,10 @@ class User(UserMixin, db.Model, BaseModel):
             raise exceptions.AuthorizationError("Incorrect username or password")
         return user
 
-    def get_posts_from_subscribed_groups(self):
+    def get_posts_from_subscribed_groups(self, page):
         groups_ids = [group.id for group in self.groups]
-        return Post.query.filter(Post.group_id.in_(groups_ids)).all()
+        return Post.query.filter(Post.group_id.in_(
+            groups_ids)).paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
     def update_from_form(self, form):
         self.update_from_data(
@@ -127,6 +129,10 @@ class User(UserMixin, db.Model, BaseModel):
             password_hash=form.password.data,
             password_changed=form.password.data,
         )
+        if form.image.data:
+            raw_image = form.image.data
+            raw_image.crop_to_64square()
+            UserAvatar.from_raw_image(raw_image, self)
 
     def update_from_data(self, password_changed=False, **kwargs):
         for key, value in kwargs.items():
@@ -152,6 +158,15 @@ class User(UserMixin, db.Model, BaseModel):
 
     def check_password(self, password: str):
         return check_password_hash(self.password_hash, password)
+
+    def get_paginated_posts(self, page):
+        return Post.query.filter(Post.author_id == self.id).paginate(
+            page=page, per_page=Config.POSTS_PER_PAGE)
+
+    def get_paginated_subscriptions(self, page):
+        groups = [group.id for group in self.groups]
+        return Group.query.filter(Group.id.in_(groups)).paginate(
+            page=page, per_page=Config.POSTS_PER_PAGE)
 
 
 @login.user_loader
@@ -202,10 +217,11 @@ class Post(db.Model, BaseModel):
         return get_elapsed(self.timestamp)
 
     @staticmethod
-    def get_best(days=1):
+    def get_best(page, days=1):
         query = Post.get_best_posts_query()
         current_time = get_current_time() - dt.timedelta(days=days)
-        return query.filter(Post.timestamp >= current_time).all()
+        return query.filter(Post.timestamp >= current_time).paginate(
+            page=page, per_page=Config.POSTS_PER_PAGE)
 
     @staticmethod
     def get_best_posts_query():
@@ -215,9 +231,9 @@ class Post(db.Model, BaseModel):
             .order_by(db.desc(func.count(posts_likes.c.user_id)))
 
     @staticmethod
-    def get_hot():
+    def get_hot(page):
         query = Post.get_hot_posts_query()
-        return query.all()
+        return query.paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
     @staticmethod
     def get_hot_posts_query():
@@ -265,9 +281,10 @@ class Post(db.Model, BaseModel):
     @staticmethod
     def get_similar(text: str, page: int):
         query = Post.get_best_posts_query()
-        return query.filter(
-            Post.title.like(f"%{text}%") | Post.body.like(f"%{text}%")
-        ).paginate(page=page, per_page=5)
+        authors = [author.id for author in User.get_similar(text, 1).items]
+        return query.filter(Post.title.like(f"%{text}%") | Post.body.like(
+            f"%{text}%") | Post.author_id.in_(authors)
+        ).paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
     def on_like_click(self, user: User):
         if user in self.likes:
@@ -353,16 +370,19 @@ class Group(db.Model, BaseModel):
         self.description = form.description.data
         if form.logo.data:
             raw_image = form.logo.data
-            raw_image.raise_for_image_validity()
             raw_image.crop_to_64square()
             GroupLogo.from_raw_image(raw_image, self)
         self.update()
+
+    def get_paginated_posts(self, page: int):
+        return Post.query.filter(Post.group_id == self.id).paginate(
+            page=page, per_page=Config.POSTS_PER_PAGE)
 
     @staticmethod
     def get_similar(text: str, page: int):
         return Group.query.filter(
             Group.name.like(f"%{text}%") | Group.description.like(f"%{text}%")
-        ).paginate(page=page, per_page=5)
+        ).paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
 
 class GroupLogo(db.Model, BaseModel):
@@ -393,9 +413,6 @@ class Comment(db.Model, BaseModel):
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     timestamp = db.Column(db.DateTime, default=dt.datetime.utcnow)
     body = db.Column(db.Text())
-    is_reply = db.Column(db.Boolean, default=False)
-    reply_to = db.Column(db.Integer, nullable=True)  # db.ForeignKey("comment.id")
-    # replies = db.relationship("Comment", lazy="dinamic")
     likes = db.relationship(
         "User", secondary=comments_likes, backref="comment_likes")
 

@@ -1,0 +1,38 @@
+{% for group in groups.items %}
+  <div class="card content-container">
+    <div class="card-body" id="group{{ group.id }}">
+      <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center">
+          <img class="group-logo rounded-circle" src="data:{{ group.logo.mimetype }};base64,{{ group.logo.b64string }}" alt="{{ group.name }} logo">
+          <a class="post-link" href="{{ url_for('group', group_id=group.id) }}">
+            <span class="post-title">
+              <h3 class="card-title">{{ group.name }}</h3>
+            </span>
+          </a>
+        </div>
+        <h5 class="text-muted mt-1" style="margin-left: 15px;"><b>{{ group.subscribers|length }}</b> Участников</h5>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+<div class="content-container">
+  <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
+     {% for page_index in groups.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+         {% if page_index %}
+           {% if page_index == current_page %}
+             <li class="page-item active">
+           {% else %}
+             <li class="page-item">
+           {% endif %}
+             <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showUserSubscriptions('{{ username }}', event)">
+                  {{ page_index }}
+             </button>
+           </li>
+         {% else %}
+           <li class="page-item">
+             <span class="p-2 fs-4">...</span>
+           </li>
+         {% endif %}
+     {% endfor %}
+   </ul>
+</div>

@@ -42,7 +42,7 @@
             </a>
         {% endfor %}
     {% elif search_by == "posts" %}
-        {% for post, counter in results.items %}
+        {% for post in results.items %}
           <div class="card">
               <div class="card-body">
                  <a class="post-link smooth-transition" href="{{ url_for('post', post_id=post.id) }}">
@@ -51,7 +51,7 @@
                     </span>
                  </a>
                  <p class="card-text">
-                    <small class="text-muted">{{ post.elapsed }} by <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link smooth-transition">{{ post.author.username }}</a></small>
+                    <small class="text-muted">{{ post.elapsed }} от <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link smooth-transition">{{ post.author.username }}</a> в <a href="{{ url_for('group', group_id=post.group.id) }}" class="group-link smooth-transition">{{ post.group.name }}</a></small>
                  </p>
                  {% if post.image %}
                     <a class="post-link" href="posts/{{ post.id }}">
@@ -87,7 +87,7 @@
                     </div>
                     <div>
                        <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="share">
-                          <i class="bi bi-share"></i>
+                          <i class="bi bi-share" data-link="{{ url_for('post', post_id=post.id) }}"></i>
                        </button>
                     </div>
                  </div>
@@ -96,14 +96,24 @@
         {% endfor %}
     {% endif %}
     <div class="search-footer">
+      <ul class="pagination m-0">
         {% for page_index in results.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
             {% if page_index %}
-                <button type="button" onclick="swapPage{{ request_text, search_by, page_index }}" class="btn btn-light">
+              {% if page_index == current_page %}
+                <li class="page-item active">
+              {% else %}
+                <li class="page-item">
+              {% endif %}
+                <button type="button" onclick="swapPage{{ request_text, search_by, page_index }}" class="page-link">
                     {{ page_index }}
                 </button>
+              </li>
             {% else %}
-                <span>...</span>
+              <li class="page-item">
+                <span class="p-2 fs-4">...</span>
+              </li>
             {% endif %}
         {% endfor %}
+      </ul>
     </div>
 {% endif %}

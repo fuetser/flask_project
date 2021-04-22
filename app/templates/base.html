@@ -54,6 +54,22 @@
 
       {% block content %}{% endblock %}
 
+      <div>
+        <div class="toast-container p-3 bottom-0 start-0" id="toastPlacement" style="z-index: 999; position: fixed;">
+          <div class="toast fade" id="toastMessage">
+            <div class="toast-header">
+              <img src="{{ url_for('static', filename='favicon/favicon.ico') }}" class="rounded me-2" height="25">
+              <strong class="me-auto">SYB</strong>
+              <small>Только что</small>
+              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" id="hideToastButton"></button> 
+            </div>
+            <div class="toast-body">
+              Ссылка на запись скопирована
+            </div>
+          </div>
+        </div>
+      </div>
+
       <script type="text/javascript">
          const activeLink = document.getElementById("{{ active_link }}")
          if(activeLink !== null)

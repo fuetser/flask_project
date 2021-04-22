@@ -3,6 +3,8 @@ const body = document.querySelector("body")
 const clearSearchButton = document.querySelector("#clearSearchButton")
 const likeButtons = document.getElementsByClassName("like")
 const likesWrappers = document.getElementsByClassName("likes-wrapper")
+const shareButtons = document.getElementsByClassName("bi-share")
+const daysButtons = document.getElementsByClassName("days-button")
 
 var lastScroll = window.scrollY * 2
 
@@ -49,6 +51,62 @@ function animateLikeButtons(){
     )
 }
 
+function connectShareButtons() {
+    Array.from(shareButtons).filter(btn => btn !== null).forEach(btn => {
+        btn.addEventListener("click", e => {
+            $("#toastMessage").addClass("show")
+            timeout = setTimeout(() => $("#toastMessage").removeClass("show"), 5000)
+            navigator.permissions.query({name: "clipboard-write"}).then(result => {
+              if (result.state == "granted" || result.state == "prompt") {
+                navigator.clipboard.writeText(window.location.protocol + "//" + window.location.host + $(btn).data("link"))
+              }
+            })
+        })
+    })
+    $("#hideToastButton").click(e => {
+        $("#toastMessage").removeClass("show")
+         window.clearTimeout(timeout)
+    })
+}
+
+function connectDaysButtons() {
+    Array.from(daysButtons).filter(btn => btn !== null).forEach(btn => {
+        btn.addEventListener("click", e => {
+            for(const button of daysButtons) {
+                $(button).parent().removeClass("active")
+            }
+            $(btn).parent().addClass("active")
+            if(history.pushState){
+                let searchParams = new URLSearchParams(window.location.search)
+                const days = $(btn).data("days")
+                addSearchParamToUrl("days", days)
+                removeSearchParamFromUrl("page")
+                showPostsByAge(days, 1)
+            }
+        })
+    })
+}
+
+function prepareMainPage() {
+    if(history.pushState){
+        let searchParams = new URLSearchParams(window.location.search)
+        switch(searchParams.get("days")) {
+            case "7":
+                $("#weekButton").addClass("active")
+                break
+            case "30":
+                $("#monthButton").addClass("active")
+                break
+            case "365":
+                $("#yearButton").addClass("active")
+                break
+            default:
+                $("#dayButton").addClass("active")
+                break
+        }
+    }
+}
+
 function likePost(postId){
    $.ajax({
       url: `/like/${postId}`,
@@ -76,7 +134,7 @@ function commentPost(postId){
                 $("#commentsTitle").text(responce.title)
             },
             error: (request, status, error) => {
-                console.log(error, request)
+                console.log(error)
           }
         })
         $("#commentInput").val("")
@@ -92,7 +150,7 @@ function likeComment(commentId){
             console.log("success")
         },
         error: (request, status, error) => {
-            console.log(error, request)
+            console.log(error)
         }
     })
 }
@@ -108,7 +166,7 @@ function deleteComment(commentId) {
             $("#commentsTitle").text(responce.title)
         },
         error: (request, status, error) => {
-            console.log(error, request)
+            console.log(error)
         }
     })
 }
@@ -121,7 +179,7 @@ function deletePost(postId, redirectToBest) {
             console.log("success")
         },
         error: (request, status, error) => {
-            console.log(error, request)
+            console.log(error)
         }
     })
     if(redirectToBest) document.location.href = "/best"
@@ -137,7 +195,7 @@ function deleteGroup(groupId) {
             document.location.href = "/best"
         },
         error: (request, status, error) => {
-            console.log(error, request)
+            console.log(error)
         }
     })
 }
@@ -163,9 +221,10 @@ function performSearch() {
             success: responce => {
                 searchResults.html(responce.html_data)
                 animateLikeButtons()
+                connectShareButtons()
             },
             error: (request, status, error) => {
-                console.log(error, request)
+                console.log(error)
             }
         })
     }
@@ -213,6 +272,7 @@ function prepareSearchPage(){
         }
         performSearch()
         animateLikeButtons()
+        connectShareButtons()
     }
 }
 
@@ -222,6 +282,7 @@ function swapPage(requestText, searchTarget, pageIndex) {
     addSearchParamToUrl("page", pageIndex)
     performSearch()
     animateLikeButtons()
+    connectShareButtons()
 }
 
 function search() {
@@ -229,4 +290,92 @@ function search() {
     performSearch()
 }
 
-$(window).ready(e => animateLikeButtons())
+function showPostsByPage(postsSortType, event) {
+    addSearchParamToUrl("page", $(event.target).data("page"))
+    if (history.pushState) {
+        let searchParams = new URLSearchParams(window.location.search)
+        showPostsByAge(
+            searchParams.get("days") || 1, 
+            $(event.target).data("page"),
+            postsSortType
+        )
+        window.scrollTo(0, 0)
+    }
+}
+
+function showPostsByAge(days, pageIndex, postsSortType) {
+    $.ajax({
+        url: `/posts/${days}?page=${pageIndex}`,
+        type: "POST",
+        dataType: "json",
+        data: {type: postsSortType},
+        success: responce => {
+            $("#postsHolder").html(responce.html_data)
+            animateLikeButtons()
+            connectShareButtons()
+        },
+        error: (request, status, error) => {
+            console.log(error)
+        }
+    })
+}
+
+function showPostsByGroup(groupId, event) {
+    addSearchParamToUrl("page", $(event.target).data("page"))
+    $.ajax({
+        url: "",
+        type: "POST",
+        success: responce => {
+            $("#postsHolder").html(responce.html_data)
+            animateLikeButtons()
+            connectShareButtons()
+            window.scrollTo(0, 0)
+            if((footer = $("#paginationFooter")).length > 0) {
+                footer.remove()
+            }
+        },
+        error: (request, status, error) => {
+            console.log(error)
+        }
+    })
+}
+
+function showPostsByUser(username, event) {
+    const pageIndex = $(event.target).data("page")
+    addSearchParamToUrl("page", pageIndex)
+    $.ajax({
+        url: `/user_posts/${username}?page=${pageIndex}`,
+        type: "POST",
+        success: responce => {
+            $("#v-pills-posts").html(`<div class="content-container">${responce.html_data}</div>`)
+            animateLikeButtons()
+            connectShareButtons()
+            window.scrollTo(0, 0)
+        },
+        error: (request, status, error) => {
+            console.log(error)
+        }
+    })
+}
+
+function showUserSubscriptions(username, event) {
+    const pageIndex = $(event.target).data("page")
+    addSearchParamToUrl("page", pageIndex)
+    $.ajax({
+        url: `/user_subscriptions/${username}?page=${pageIndex}`,
+        type: "POST",
+        success: responce => {
+            $("#v-pills-subscriptions").html(`<div class="content-container">${responce.html_data}</div>`)
+            window.scrollTo(0, 0)
+        },
+        error: (request, status, error) => {
+            console.log(error)
+        }
+    })
+}
+
+$(window).ready(e => {
+    animateLikeButtons()
+    connectShareButtons()
+    connectDaysButtons()
+})

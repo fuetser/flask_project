@@ -13,3 +13,4 @@ class Config:
 
     JWT_ALGORITHM = "HS256"
     TOKEN_EXPIRATION = 86400
+    POSTS_PER_PAGE = 5

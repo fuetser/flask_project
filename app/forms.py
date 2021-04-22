@@ -101,24 +101,28 @@ class EditGroupForm(FlaskForm):
     description = StringField("Описание группы", validators=[
         DataRequired(), Length(max=128)], widget=TextArea())
     logo = FileField("Выберите логотип")
+    # поле для хранения изначального названия группы
+    __group_name = StringField()
     submit = SubmitField("Сохранить")
 
     def fill_from_group_object(self, group):
         self.name.data = group.name
         self.description.data = group.description
+        self.__group_name.data = group.name
 
     def validate_name(self, name):
-        if not Group.is_unique_name(name.data):
+        if not Group.is_unique_name(name.data) and name.data != self.__group_name.data:
             raise ValidationError(f"Название {name.data} уже занято")
 
     def validate_logo(self, logo):
-        raw_image = RawImage.from_wtf_file(logo.data)
-        try:
-            raw_image.raise_for_image_validity()
-        except exceptions.ImageError:
-            raise ValidationError("Некорректное изображение")
-        else:
-            self.logo.data = raw_image
+        if logo.data:
+            raw_image = RawImage.from_wtf_file(logo.data)
+            try:
+                raw_image.raise_for_image_validity()
+            except exceptions.ImageError:
+                raise ValidationError("Некорректное изображение")
+            else:
+                self.logo.data = raw_image
 
 
 class EditProfileForm(FlaskForm):
@@ -130,6 +134,7 @@ class EditProfileForm(FlaskForm):
     password = PasswordField("Новый пароль")
     confirm_password = PasswordField(
         "Подтвердите пароль", validators=[EqualTo("password")])
+    image = FileField("Выберите аватар")
     submit = SubmitField("Сохранить")
 
     def validate_old_password(self, old_password):
@@ -146,6 +151,16 @@ class EditProfileForm(FlaskForm):
         if not User.is_free_email(email.data):
             if current_user.is_authenticated and email.data != current_user.email:
                 raise ValidationError(f"Адрес {email.data} уже занят")
+
+    def validate_image(self, image):
+        if image.data:
+            raw_image = RawImage.from_wtf_file(image.data)
+            try:
+                raw_image.raise_for_image_validity()
+            except exceptions.ImageError:
+                raise ValidationError("Некорректное изображение")
+            else:
+                self.image.data = raw_image
 
     def fill_from_user_object(self, user: User):
         self.username.data = user.username

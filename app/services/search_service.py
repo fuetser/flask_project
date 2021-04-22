@@ -19,4 +19,4 @@ def search_by_query(query_args, query_values):
     elif search_by == "posts":
         results = Post.get_similar(request_text, page=page)
 
-    return results, search_by, request_text
+    return results, search_by, request_text, page

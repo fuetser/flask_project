@@ -7,8 +7,26 @@
 {% block title %}Лента{% endblock %}
 
 {% block content %}
-<div class="posts-wall d-flex flex-column justify-content-center bd-highlight">
-   {% for post in posts %}
+{% if active_link == "best" %}
+   <div class="posts-wall">
+      <ul class="pagination mb-0" style="margin-top: 15px;">
+         <li class="page-item" id="dayButton">
+            <button type="button" class="page-link days-button" data-days="1">Сутки</button>
+         </li>
+         <li class="page-item" id="weekButton">
+            <button type="button" class="page-link days-button" data-days="7">Неделя</button>
+         </li>
+         <li class="page-item" id="monthButton">
+            <button type="button" class="page-link days-button" data-days="30">Месяц</button>
+         </li>
+         <li class="page-item" id="yearButton">
+            <button type="button" class="page-link days-button" data-days="365">Год</button>
+         </li>
+      </ul>
+   </div>
+{% endif %}
+<div class="posts-wall d-flex flex-column justify-content-center bd-highlight" id="postsHolder">
+   {% for post in posts.items %}
    <div class="card" id="post{{ post.id }}">
       <div class="card-body">
          <a class="post-link smooth-transition" href="{{ url_for('post', post_id=post.id) }}">
@@ -53,12 +71,40 @@
             </div>
             <div>
                <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="share">
-                  <i class="bi bi-share"></i>
+                  <i class="bi bi-share" data-link="{{ url_for('post', post_id=post.id) }}"></i>
                </button>
             </div>
          </div>
       </div>
    </div>
    {% endfor %}
+   <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
+     {% for page_index in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+         {% if page_index %}
+           {% if page_index == current_page %}
+             <li class="page-item active">
+           {% else %}
+             <li class="page-item">
+           {% endif %}
+           {% if active_link == "best" %}
+               <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByPage('best', event)">
+                    {{ page_index }}
+               </button>
+            {% else %}
+               <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByPage('hot', event)">
+                    {{ page_index }}
+               </button>
+            {% endif %}
+           </li>
+         {% else %}
+           <li class="page-item">
+             <span class="p-2 fs-4">...</span>
+           </li>
+         {% endif %}
+     {% endfor %}
+   </ul>
 </div>
+<script>
+   $(window).ready(e => prepareMainPage())
+</script>
 {% endblock %}

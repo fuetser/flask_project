@@ -9,21 +9,27 @@ from app import app, exceptions
 from app.forms import *
 from app.models import *
 from app.utils import localize_comments
-from app.services.token_service import create_token
 from app.services.search_service import search_by_query
 
 
 @app.route("/")
 @app.route("/best")
 def best():
-    posts = Post.get_best()
-    return render_template("feed.html", posts=posts, active_link="best")
+    page = request.args.get("page", 1, type=int)
+    days = request.args.get("days", 1, type=int)
+    if days not in (1, 7, 30, 365):
+        abort(404)
+    posts = Post.get_best(page, days)
+    return render_template(
+        "feed.html", posts=posts, active_link="best", current_page=page)
 
 
 @app.route("/hot")
 def hot():
-    posts = Post.get_hot()
-    return render_template("feed.html", posts=posts, active_link="hot")
+    page = request.args.get("page", 1, type=int)
+    posts = Post.get_hot(page)
+    return render_template(
+        "feed.html", posts=posts, active_link="hot", current_page=page)
 
 
 @app.route("/search")
@@ -34,8 +40,10 @@ def sort():
 @app.route("/my_feed")
 @login_required
 def my_feed():
-    posts = current_user.get_posts_from_subscribed_groups()
-    return render_template("my_feed.html", posts=posts, active_link="my_feed")
+    page = request.args.get("page", 1, type=int)
+    posts = current_user.get_posts_from_subscribed_groups(page)
+    return render_template(
+        "my_feed.html", posts=posts, active_link="my_feed", current_page=page)
 
 
 @app.route("/posts/<int:post_id>")
@@ -58,24 +66,30 @@ def post(post_id):
 
 @app.route("/users/<string:username_or_id>", methods=["GET", "POST"])
 def user(username_or_id):
-    if username_or_id.isdigit():
+    try:
         user = User.query.get(int(username_or_id))
-    else:
-        user = User.get_by_username(username_or_id)
+    except ValueError:
+        user = None
+    user = user or User.get_by_username(username_or_id)
     if user is None:
         abort(404)
 
+    page = request.args.get("page", 1, type=int)
     form = EditProfileForm()
     if form.validate_on_submit():
         user.update_from_form(form)
         return redirect(url_for("user", username_or_id=form.username.data))
     elif request.method == "GET":
         form.fill_from_user_object(user)
-    return render_template("user.html", user=user, form=form)
+    return render_template(
+        "user.html", user=user, form=form, current_page=page)
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for("best"))
+
     form = RegisterForm()
     if form.validate_on_submit():
         user = User.create_from_form_and_get(form)
@@ -148,9 +162,12 @@ def edit_post(post_id):
 @app.route("/group/<int:group_id>")
 def group(group_id):
     group = Group.query.get(group_id)
+    page = request.args.get("page", 1, type=int)
     if group is None:
         abort(404)
-    return render_template("group.html", group=group)
+    posts = group.get_paginated_posts(page)
+    return render_template(
+        "group.html", group=group, posts=posts, current_page=page)
 
 
 @app.route("/new_group", methods=["GET", "POST"])
@@ -176,6 +193,7 @@ def edit_group(group_id):
         return redirect(url_for("group", group_id=group.id))
     elif request.method == "GET":
         form.fill_from_group_object(group)
+        form.group = group
     return render_template("new_group.html", form=form, group_id=group.id)
 
 
@@ -253,9 +271,9 @@ def delete_group(group_id):
 @app.route("/search", methods=["POST"])
 def get_search_results():
     try:
-        query_args = request.args
-        query_values = request.values
-        results, search_by, request_text = search_by_query(query_args, query_values)
+        results, search_by, request_text, current_page = search_by_query(
+            request.args, request.values
+        )
     except exceptions.InvalidSearchQuery:
         return jsonify({"ok": False})
     else:
@@ -266,8 +284,69 @@ def get_search_results():
                 results=results,
                 search_by=search_by,
                 request_text=request_text,
+                current_page=current_page
             )
         })
+
+
+@app.route("/posts/<int:days>", methods=["POST"])
+def get_posts_by_age(days):
+    page = request.args.get("page", 1, type=int)
+    posts_type = request.values.get("type", "best")
+    if posts_type == "hot":
+        posts = Post.get_hot(page)
+    elif posts_type == "my_feed":
+        posts = current_user.get_posts_from_subscribed_groups(page)
+    else:
+        posts = Post.get_best(page, days)
+    return jsonify({
+        "ok": True, "html_data": render_template(
+            "posts.html", posts=posts, current_page=page, type=posts_type
+        )
+    })
+
+
+
+@app.route("/group/<int:group_id>", methods=["POST"])
+def get_posts_by_group(group_id):
+    group = Group.get_by_id(group_id)
+    page = request.args.get("page", 1, type=int)
+    posts = group.get_paginated_posts(page)
+    if not group:
+        abort(404)
+    return jsonify({
+        "ok": True, "html_data": render_template(
+            "posts.html", posts=posts, current_page=page,
+            type="group", group_id=group.id)
+    })
+
+
+@app.route("/user_posts/<string:username>", methods=["POST"])
+def get_posts_by_user(username):
+    user = User.get_by_username(username)
+    page = request.args.get("page", 1, type=int)
+    if not user:
+        abort(404)
+    posts = user.get_paginated_posts(page)
+    return jsonify({
+        "ok": True, "html_data": render_template(
+            "posts.html", posts=posts, current_page=page,
+            type="user_posts", username=user.username)
+    })
+
+
+@app.route("/user_subscriptions/<string:username>", methods=["POST"])
+def get_subscriptions_by_user(username):
+    user = User.get_by_username(username)
+    page = request.args.get("page", 1, type=int)
+    if not user:
+        abort(404)
+    groups = user.get_paginated_subscriptions(page)
+    return jsonify({
+        "ok": True, "html_data": render_template(
+            "subscriptions.html", groups=groups,
+            current_page=page, username=user.username)
+    })
 
 
 @app.route("/token")

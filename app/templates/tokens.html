@@ -18,8 +18,8 @@
     const copyButton = document.querySelector("#copyButton")
     token.value = "{{ current_user.token }}"
     copyButton.addEventListener("click", e => {
-        token.focus();
-        token.select();
+        token.focus()
+        token.select()
         document.execCommand('copy')
     })
 </script>

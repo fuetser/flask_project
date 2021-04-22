@@ -1,15 +1,5 @@
-{% extends "base.html" %}
-
-{% block extrahead %}
-<link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
-{% endblock %}
-
-{% block title %}Моё{% endblock %}
-
-{% block content %}
-<div class="posts-wall d-flex flex-column justify-content-center bd-highlight" id="postsHolder">
-   {% for post in posts.items %}
-   <div class="card">
+{% for post in posts.items %}
+   <div class="card" id="post{{ post.id }}">
       <div class="card-body">
          <a class="post-link smooth-transition" href="{{ url_for('post', post_id=post.id) }}">
             <span class="post-title">
@@ -59,25 +49,41 @@
          </div>
       </div>
    </div>
-   {% endfor %}
-   <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
-      {% for page_index in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-         {% if page_index %}
-            {% if page_index == current_page %}
-              <li class="page-item active">
-            {% else %}
-              <li class="page-item">
-            {% endif %}
+{% endfor %}
+<ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
+   {% for page_index in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if page_index %}
+         {% if page_index == current_page %}
+           <li class="page-item active">
+         {% else %}
+           <li class="page-item">
+         {% endif %}
+         {% if type == "best" %}
+            <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByPage('best', event)">
+               {{ page_index }}
+            </button>
+         {% elif type == "my_feed" %}
             <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByPage('my_feed', event)">
                {{ page_index }}
             </button>
-            </li>
+         {% elif type == "group" %}
+            <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByGroup({{ group_id }}, event)">
+                 {{ page_index }}
+            </button>
+         {% elif type == "user_posts" %}
+            <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByUser('{{ username }}', event)">
+                 {{ page_index }}
+            </button>
          {% else %}
-            <li class="page-item">
-               <span class="p-2 fs-4">...</span>
-            </li>
+            <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByPage('hot', event)">
+               {{ page_index }}
+            </button>
+         </li>
          {% endif %}
-     {% endfor %}
-   </ul>
-</div>
-{% endblock %}
+      {% else %}
+         <li class="page-item">
+            <span class="p-2 fs-4">...</span>
+         </li>
+      {% endif %}
+  {% endfor %}
+</ul>

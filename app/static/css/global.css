@@ -1,6 +1,7 @@
 body {
     background-color: #f5f5f5;
     padding-top: 3.2em;
+    padding-bottom: 15px;
 }
 
 .btn:focus {
@@ -90,4 +91,12 @@ body {
 
 .smooth-transition:hover {
     transition: all .3s;
+}
+
+#toastMessage {
+    pointer-events: none;
+}
+
+#toastMessage.show {
+    pointer-events: all;
 }
