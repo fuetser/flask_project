@@ -1,7 +1,7 @@
 import datetime as dt
 
 from flask_login import UserMixin
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.expression import func, extract
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login, exceptions
@@ -257,7 +257,7 @@ class Post(db.Model, BaseModel):
             .filter(Post.timestamp >= time_limit)
             .order_by(
                 func.count(posts_likes.c.user_id)
-                / ((current_time - Post.timestamp) / 60 + 1)
+                / (extract("epoch", current_time - Post.timestamp) / 60 + 1)
             )
         )
 
