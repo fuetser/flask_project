@@ -22,11 +22,10 @@ def test_request_without_token():
 
 
 def test_creating_user():
-    resp = requests.post(USERS_URL, json={
-        "username": USERNAME,
-        "password": PASSWORD,
-        "email": EMAIL
-    })
+    resp = requests.post(
+        USERS_URL,
+        json={"username": USERNAME, "password": PASSWORD, "email": EMAIL},
+    )
     assert resp.json().get("status") == 201, "Unable to create user"
 
 
@@ -37,10 +36,9 @@ def test_invalid_user_creation():
 
 def test_geting_api_token():
     global TOKEN
-    resp = requests.post(TOKEN_URL, json={
-        "username": USERNAME,
-        "password": PASSWORD
-    })
+    resp = requests.post(
+        TOKEN_URL, json={"username": USERNAME, "password": PASSWORD}
+    )
     token = resp.json().get("token")
     assert token is not None, "Unable to get token with given credentials"
     TOKEN = token
@@ -55,11 +53,15 @@ def test_geting_user_id():
 
 
 def test_creating_group():
-    resp = requests.post(GROUPS_URL, json={
-        "name": "Original name for group",
-        "description": "Description for original group",
-        "admin_id": USER_ID
-    }, params={"token": TOKEN})
+    resp = requests.post(
+        GROUPS_URL,
+        json={
+            "name": "Original name for group",
+            "description": "Description for original group",
+            "admin_id": USER_ID,
+        },
+        params={"token": TOKEN},
+    )
     assert resp.json().get("status") == 201, "Unable to create group"
 
 
@@ -72,12 +74,16 @@ def test_geting_group_id():
 
 
 def test_creating_post():
-    resp = requests.post(POSTS_URL, json={
-        "title": "Test post title",
-        "body": "Body for post",
-        "author_id": USER_ID,
-        "group_id": GROUP_ID
-    }, params={"token": TOKEN})
+    resp = requests.post(
+        POSTS_URL,
+        json={
+            "title": "Test post title",
+            "body": "Body for post",
+            "author_id": USER_ID,
+            "group_id": GROUP_ID,
+        },
+        params={"token": TOKEN},
+    )
     assert resp.json().get("status") == 201, "Unable to create post"
 
 
@@ -105,8 +111,11 @@ def test_wrong_post_id():
 
 
 def test_changing_post():
-    resp = requests.put(f"{POSTS_URL}/{POST_ID}", json={"title": "New title"},
-                        params={"token": TOKEN})
+    resp = requests.put(
+        f"{POSTS_URL}/{POST_ID}",
+        json={"title": "New title"},
+        params={"token": TOKEN},
+    )
     assert resp.json().get("status") == 201, "Unable to change post"
 
 
@@ -127,20 +136,28 @@ def test_geting_user_by_username():
 
 def test_changing_user():
     resp = requests.put(
-        f"{USERS_URL}/{USERNAME}", json={"password": "new_password"},
-        params={"token": TOKEN})
+        f"{USERS_URL}/{USERNAME}",
+        json={"password": "new_password"},
+        params={"token": TOKEN},
+    )
     assert resp.json().get("status") == 201, "Unable to change user"
 
 
 def test_change_name_to_taken():
-    resp = requests.put(f"{USERS_URL}/{USERNAME}", json={"username": USERNAME},
-                        params={"token": TOKEN})
+    resp = requests.put(
+        f"{USERS_URL}/{USERNAME}",
+        json={"username": USERNAME},
+        params={"token": TOKEN},
+    )
     assert resp.json().get("status") == 400, "Username changet to taken one"
 
 
 def test_extra_params_to_user_change():
-    resp = requests.put(f"{USERS_URL}/{USERNAME}", json={"key": "value"},
-                        params={"token": TOKEN})
+    resp = requests.put(
+        f"{USERS_URL}/{USERNAME}",
+        json={"key": "value"},
+        params={"token": TOKEN},
+    )
     assert resp.json().get("status") == 400, "Extra params in request allowed"
 
 
@@ -155,8 +172,11 @@ def test_invalid_group_creation():
 
 
 def test_invalid_group_changes():
-    resp = requests.put(f"{GROUPS_URL}/{GROUP_ID}", json={"key": "value"},
-                        params={"token": TOKEN})
+    resp = requests.put(
+        f"{GROUPS_URL}/{GROUP_ID}",
+        json={"key": "value"},
+        params={"token": TOKEN},
+    )
     assert resp.json().get("status") == 400, "Group changed with invalid data"
 
 
@@ -170,5 +190,5 @@ def test_deleting_user():
     assert resp.json().get("status") == 204, "Unable to delete user"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pytest.main([__file__])

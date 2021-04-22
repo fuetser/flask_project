@@ -6,13 +6,16 @@ from app import app
 error_decriptions = {
     403: (
         "У Вас недостаточно прав для доступа к данной странице",
-        "Проверьте свой профиль и повторите попытку позже"),
+        "Проверьте свой профиль и повторите попытку позже",
+    ),
     404: (
         "Похоже, запрашиваемая страница не существует",
-        "Проверьте правильность запроса и повторите попытку позже"),
+        "Проверьте правильность запроса и повторите попытку позже",
+    ),
     500: (
         "В данный момент сервер не может обработать Ваш запрос",
-        "Повторите попытку позже"),
+        "Повторите попытку позже",
+    ),
 }
 
 error_titles = {
@@ -27,5 +30,12 @@ error_titles = {
 @app.errorhandler(500)
 def handle_error(error):
     error = error.code
-    return (render_template("error.html", error_code=error,
-        title=error_titles[error], description=error_decriptions[error]), error)
+    return (
+        render_template(
+            "error.html",
+            error_code=error,
+            title=error_titles[error],
+            description=error_decriptions[error],
+        ),
+        error,
+    )

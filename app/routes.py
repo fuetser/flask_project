@@ -21,7 +21,8 @@ def best():
         abort(404)
     posts = Post.get_best(page, days)
     return render_template(
-        "feed.html", posts=posts, active_link="best", current_page=page)
+        "feed.html", posts=posts, active_link="best", current_page=page
+    )
 
 
 @app.route("/hot")
@@ -29,7 +30,8 @@ def hot():
     page = request.args.get("page", 1, type=int)
     posts = Post.get_hot(page)
     return render_template(
-        "feed.html", posts=posts, active_link="hot", current_page=page)
+        "feed.html", posts=posts, active_link="hot", current_page=page
+    )
 
 
 @app.route("/search")
@@ -43,7 +45,8 @@ def my_feed():
     page = request.args.get("page", 1, type=int)
     posts = current_user.get_posts_from_subscribed_groups(page)
     return render_template(
-        "my_feed.html", posts=posts, active_link="my_feed", current_page=page)
+        "my_feed.html", posts=posts, active_link="my_feed", current_page=page
+    )
 
 
 @app.route("/posts/<int:post_id>")
@@ -82,7 +85,8 @@ def user(username_or_id):
     elif request.method == "GET":
         form.fill_from_user_object(user)
     return render_template(
-        "user.html", user=user, form=form, current_page=page)
+        "user.html", user=user, form=form, current_page=page
+    )
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -167,7 +171,8 @@ def group(group_id):
         abort(404)
     posts = group.get_paginated_posts(page)
     return render_template(
-        "group.html", group=group, posts=posts, current_page=page)
+        "group.html", group=group, posts=posts, current_page=page
+    )
 
 
 @app.route("/new_group", methods=["GET", "POST"])
@@ -222,10 +227,14 @@ def create_comment(post_id):
         abort(404)
     text = request.values.get("text")
     Comment.create(post=post, author=current_user, body=text)
-    return jsonify({
-        "html_data": render_template("comments.html", comments=post.comments),
-        "title": localize_comments(len(post.comments))
-    })
+    return jsonify(
+        {
+            "html_data": render_template(
+                "comments.html", comments=post.comments
+            ),
+            "title": localize_comments(len(post.comments)),
+        }
+    )
 
 
 @app.route("/comment/<int:comment_id>", methods=["DELETE"])
@@ -235,8 +244,13 @@ def delete_comment(comment_id):
         abort(404)
     if current_user == comment.author:
         comment.delete()
-    return jsonify({"title": localize_comments(
-        len(Post.get_by_id(comment.post_id).comments))})
+    return jsonify(
+        {
+            "title": localize_comments(
+                len(Post.get_by_id(comment.post_id).comments)
+            )
+        }
+    )
 
 
 @app.route("/like_comment/<int:comment_id>", methods=["POST"])
@@ -277,16 +291,18 @@ def get_search_results():
     except exceptions.InvalidSearchQuery:
         return jsonify({"ok": False})
     else:
-        return jsonify({
-            "ok": True,
-            "html_data": render_template(
-                "search_results.html",
-                results=results,
-                search_by=search_by,
-                request_text=request_text,
-                current_page=current_page
-            )
-        })
+        return jsonify(
+            {
+                "ok": True,
+                "html_data": render_template(
+                    "search_results.html",
+                    results=results,
+                    search_by=search_by,
+                    request_text=request_text,
+                    current_page=current_page,
+                ),
+            }
+        )
 
 
 @app.route("/posts/<int:days>", methods=["POST"])
@@ -299,12 +315,14 @@ def get_posts_by_age(days):
         posts = current_user.get_posts_from_subscribed_groups(page)
     else:
         posts = Post.get_best(page, days)
-    return jsonify({
-        "ok": True, "html_data": render_template(
-            "posts.html", posts=posts, current_page=page, type=posts_type
-        )
-    })
-
+    return jsonify(
+        {
+            "ok": True,
+            "html_data": render_template(
+                "posts.html", posts=posts, current_page=page, type=posts_type
+            ),
+        }
+    )
 
 
 @app.route("/group/<int:group_id>", methods=["POST"])
@@ -314,11 +332,18 @@ def get_posts_by_group(group_id):
     posts = group.get_paginated_posts(page)
     if not group:
         abort(404)
-    return jsonify({
-        "ok": True, "html_data": render_template(
-            "posts.html", posts=posts, current_page=page,
-            type="group", group_id=group.id)
-    })
+    return jsonify(
+        {
+            "ok": True,
+            "html_data": render_template(
+                "posts.html",
+                posts=posts,
+                current_page=page,
+                type="group",
+                group_id=group.id,
+            ),
+        }
+    )
 
 
 @app.route("/user_posts/<string:username>", methods=["POST"])
@@ -328,11 +353,18 @@ def get_posts_by_user(username):
     if not user:
         abort(404)
     posts = user.get_paginated_posts(page)
-    return jsonify({
-        "ok": True, "html_data": render_template(
-            "posts.html", posts=posts, current_page=page,
-            type="user_posts", username=user.username)
-    })
+    return jsonify(
+        {
+            "ok": True,
+            "html_data": render_template(
+                "posts.html",
+                posts=posts,
+                current_page=page,
+                type="user_posts",
+                username=user.username,
+            ),
+        }
+    )
 
 
 @app.route("/user_subscriptions/<string:username>", methods=["POST"])
@@ -342,11 +374,17 @@ def get_subscriptions_by_user(username):
     if not user:
         abort(404)
     groups = user.get_paginated_subscriptions(page)
-    return jsonify({
-        "ok": True, "html_data": render_template(
-            "subscriptions.html", groups=groups,
-            current_page=page, username=user.username)
-    })
+    return jsonify(
+        {
+            "ok": True,
+            "html_data": render_template(
+                "subscriptions.html",
+                groups=groups,
+                current_page=page,
+                username=user.username,
+            ),
+        }
+    )
 
 
 @app.route("/token")
@@ -355,8 +393,10 @@ def view_tokens():
     return render_template("tokens.html")
 
 
-@app.route('/favicon.ico')
+@app.route("/favicon.ico")
 def favicon():
     return send_from_directory(
-        os.path.join(app.root_path, 'static/favicon/'),
-        'favicon.ico', mimetype='image/vnd.microsoft.icon')
+        os.path.join(app.root_path, "static/favicon/"),
+        "favicon.ico",
+        mimetype="image/vnd.microsoft.icon",
+    )

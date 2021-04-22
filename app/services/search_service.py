@@ -9,7 +9,8 @@ def search_by_query(query_args, query_values):
 
     if request_text is None or search_by not in ("groups", "users", "posts"):
         raise exceptions.InvalidSearchQuery(
-            "Request text is empty or invalid search_by value")
+            "Request text is empty or invalid search_by value"
+        )
 
     request_text = request_text.strip().lower()
     if search_by == "groups":

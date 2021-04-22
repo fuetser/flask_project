@@ -19,7 +19,7 @@ class CommentModel(BaseModel):
     id: int
     post_id: int
     author_id: int
-    timestamp: datetime = datetime.utcnow(),
+    timestamp: datetime = datetime.utcnow()
     body: str
     likes: Optional[List[UserLikeModel]] = []
 
@@ -98,7 +98,9 @@ class UserModelCreate(UserModelBase):
 class UserModelUpdate(BaseModel):
     username: Optional[constr(max_length=25)]
     email: Optional[constr(max_length=64)]
-    password_hash: Optional[constr(max_length=255)] = Field(None, alias="password")
+    password_hash: Optional[constr(max_length=255)] = Field(
+        None, alias="password"
+    )
     registered: Optional[datetime]
     posts: Optional[List[PostModel]]
     comments: Optional[List[CommentModel]]

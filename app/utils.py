@@ -76,7 +76,6 @@ def _put_in_years_form(year):
     return f"{years} лет назад"
 
 
-
 def localize_comments(count):
     if count % 10 == 1 and count % 100 != 11:
         return f"{count} комментарий"

@@ -12,10 +12,13 @@ class UsersResource(Resource):
     def get(self, username: str, payload):
         user = self.get_user_or_404(username)
         user_model = UserModel.from_orm(user)
-        return jsonify({
-            "users": [user_model.dict(exclude={"password_hash", "email"})],
-            "status": 200, "ok": True
-        })
+        return jsonify(
+            {
+                "users": [user_model.dict(exclude={"password_hash", "email"})],
+                "status": 200,
+                "ok": True,
+            }
+        )
 
     @token_required
     def put(self, username: str, payload):
@@ -25,8 +28,12 @@ class UsersResource(Resource):
             user_model = UserModelUpdate(**request.json)
         except ValidationError as e:
             error = e.errors()[0]
-            abort(400, status=400, ok=False,
-                  detail=f"At {error['loc'][0]}: {error['msg']}")
+            abort(
+                400,
+                status=400,
+                ok=False,
+                detail=f"At {error['loc'][0]}: {error['msg']}",
+            )
         except Exception:
             abort(400, status=400, ok=False, detail="Bad request")
         else:
@@ -46,8 +53,12 @@ class UsersResource(Resource):
     def get_user_or_404(self, username: str) -> User:
         user = User.get_by_username(username)
         if not user:
-            abort(404, status=404, ok=False,
-                  detail=f"User with username {username} not found")
+            abort(
+                404,
+                status=404,
+                ok=False,
+                detail=f"User with username {username} not found",
+            )
         return user
 
     def validate_token(self, user_id: int, payload):
@@ -63,21 +74,33 @@ class UsersListResource(Resource):
         limit = request.args.get("limit", 10)
         users = User.get_all(offset, limit)
         if not users:
-            abort(400, status=400, ok=False,
-                  detail="Wrong offset or limit value")
-        return jsonify({
-            "users": [UserModel.from_orm(user).dict(
-                exclude={"password_hash", "email"}) for user in users],
-            "status": 200, "ok": True
-        })
+            abort(
+                400, status=400, ok=False, detail="Wrong offset or limit value"
+            )
+        return jsonify(
+            {
+                "users": [
+                    UserModel.from_orm(user).dict(
+                        exclude={"password_hash", "email"}
+                    )
+                    for user in users
+                ],
+                "status": 200,
+                "ok": True,
+            }
+        )
 
     def post(self):
         try:
             user_model = UserModelCreate(**request.json)
         except ValidationError as e:
             error = e.errors()[0]
-            abort(400, status=400, ok=False,
-                  detail=f"At {error['loc'][0]}: {error['msg']}")
+            abort(
+                400,
+                status=400,
+                ok=False,
+                detail=f"At {error['loc'][0]}: {error['msg']}",
+            )
         except Exception:
             abort(400, status=400, ok=False, detail="Bad request")
         else:

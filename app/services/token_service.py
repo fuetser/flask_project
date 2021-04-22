@@ -12,7 +12,8 @@ def validate_token(token: str):
         abort(401, detail="Token is missing", status=401, ok=False)
     try:
         token_data = jwt.decode(
-            token, key=Config.SECRET_KEY, algorithms=Config.JWT_ALGORITHM)
+            token, key=Config.SECRET_KEY, algorithms=Config.JWT_ALGORITHM
+        )
     except jwt.ExpiredSignatureError:
         abort(401, detail="Token is expired", status=401, ok=False)
     except jwt.InvalidSignatureError:
@@ -25,7 +26,9 @@ def validate_token(token: str):
 
 def is_valide_token(token: str):
     try:
-        jwt.decode(token, key=Config.SECRET_KEY, algorithms=Config.JWT_ALGORITHM)
+        jwt.decode(
+            token, key=Config.SECRET_KEY, algorithms=Config.JWT_ALGORITHM
+        )
     except:
         return False
     else:
@@ -38,6 +41,7 @@ def token_required(func):
         token = request.args.get("token")
         token_data = validate_token(token)
         return func(*args, payload=token_data, **kwargs)
+
     return inner
 
 

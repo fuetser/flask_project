@@ -3,7 +3,13 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.widgets import TextArea
-from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    Length,
+    EqualTo,
+    ValidationError,
+)
 
 from .models import User, Group
 from app import exceptions
@@ -12,12 +18,15 @@ from app.services.image_service import RawImage
 
 class RegisterForm(FlaskForm):
     email = StringField(
-        "Адрес электронной почты", validators=[DataRequired(), Email()])
+        "Адрес электронной почты", validators=[DataRequired(), Email()]
+    )
     username = StringField(
-        "Имя пользователя", validators=[DataRequired(), Length(min=3, max=25)])
+        "Имя пользователя", validators=[DataRequired(), Length(min=3, max=25)]
+    )
     password = PasswordField("Пароль", validators=[DataRequired()])
     confirm_password = PasswordField(
-        "Подтвердите пароль", validators=[DataRequired(), EqualTo("password")])
+        "Подтвердите пароль", validators=[DataRequired(), EqualTo("password")]
+    )
     avatar = FileField("Выберите аватар", validators=[DataRequired()])
     submit = SubmitField("Зарегистрироватся")
 
@@ -41,7 +50,8 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     username = StringField(
-        "Имя пользователя", validators=[DataRequired(), Length(min=3, max=25)])
+        "Имя пользователя", validators=[DataRequired(), Length(min=3, max=25)]
+    )
     password = PasswordField("Пароль", validators=[DataRequired()])
     remember = BooleanField("Запомнить данные")
     submit = SubmitField("Войти")
@@ -49,9 +59,11 @@ class LoginForm(FlaskForm):
 
 class NewPostForm(FlaskForm):
     title = StringField(
-        "Заголовок", validators=[DataRequired(), Length(min=2, max=64)])
+        "Заголовок", validators=[DataRequired(), Length(min=2, max=64)]
+    )
     content = StringField(
-        "Содержание записи", validators=[DataRequired()], widget=TextArea())
+        "Содержание записи", validators=[DataRequired()], widget=TextArea()
+    )
     use_markdown = BooleanField("Использовать Markdown")
     image = FileField("Выберите картинку (необязательно)")
     submit = SubmitField("Опубликовать")
@@ -75,9 +87,13 @@ class NewPostForm(FlaskForm):
 
 class NewGroupForm(FlaskForm):
     name = StringField(
-        "Имя группы", validators=[DataRequired(), Length(max=32)])
-    description = StringField("Описание группы", validators=[
-        DataRequired(), Length(max=128)], widget=TextArea())
+        "Имя группы", validators=[DataRequired(), Length(max=32)]
+    )
+    description = StringField(
+        "Описание группы",
+        validators=[DataRequired(), Length(max=128)],
+        widget=TextArea(),
+    )
     logo = FileField("Выберите логотип", validators=[DataRequired()])
     submit = SubmitField("Создать")
 
@@ -97,9 +113,13 @@ class NewGroupForm(FlaskForm):
 
 class EditGroupForm(FlaskForm):
     name = StringField(
-        "Имя группы", validators=[DataRequired(), Length(max=32)])
-    description = StringField("Описание группы", validators=[
-        DataRequired(), Length(max=128)], widget=TextArea())
+        "Имя группы", validators=[DataRequired(), Length(max=32)]
+    )
+    description = StringField(
+        "Описание группы",
+        validators=[DataRequired(), Length(max=128)],
+        widget=TextArea(),
+    )
     logo = FileField("Выберите логотип")
     # поле для хранения изначального названия группы
     __group_name = StringField()
@@ -111,7 +131,10 @@ class EditGroupForm(FlaskForm):
         self.__group_name.data = group.name
 
     def validate_name(self, name):
-        if not Group.is_unique_name(name.data) and name.data != self.__group_name.data:
+        if (
+            not Group.is_unique_name(name.data)
+            and name.data != self.__group_name.data
+        ):
             raise ValidationError(f"Название {name.data} уже занято")
 
     def validate_logo(self, logo):
@@ -127,13 +150,16 @@ class EditGroupForm(FlaskForm):
 
 class EditProfileForm(FlaskForm):
     email = StringField(
-        "Адрес электронной почты", validators=[DataRequired(), Email()])
+        "Адрес электронной почты", validators=[DataRequired(), Email()]
+    )
     username = StringField(
-        "Имя пользователя", validators=[DataRequired(), Length(min=3, max=25)])
+        "Имя пользователя", validators=[DataRequired(), Length(min=3, max=25)]
+    )
     old_password = PasswordField("Старый пароль")
     password = PasswordField("Новый пароль")
     confirm_password = PasswordField(
-        "Подтвердите пароль", validators=[EqualTo("password")])
+        "Подтвердите пароль", validators=[EqualTo("password")]
+    )
     image = FileField("Выберите аватар")
     submit = SubmitField("Сохранить")
 
@@ -144,12 +170,18 @@ class EditProfileForm(FlaskForm):
 
     def validate_username(self, username):
         if not User.is_free_username(username.data):
-            if current_user.is_authenticated and username.data != current_user.username:
+            if (
+                current_user.is_authenticated
+                and username.data != current_user.username
+            ):
                 raise ValidationError(f"Имя {username.data} уже занято")
 
     def validate_email(self, email):
         if not User.is_free_email(email.data):
-            if current_user.is_authenticated and email.data != current_user.email:
+            if (
+                current_user.is_authenticated
+                and email.data != current_user.email
+            ):
                 raise ValidationError(f"Адрес {email.data} уже занят")
 
     def validate_image(self, image):

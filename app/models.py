@@ -71,17 +71,20 @@ class User(UserMixin, db.Model, BaseModel):
     @staticmethod
     def is_free_email(email: str) -> bool:
         return not db.session.query(
-            db.exists().where(User.email == email)).scalar()
+            db.exists().where(User.email == email)
+        ).scalar()
 
     @staticmethod
     def is_free_username(username: str) -> bool:
         return not db.session.query(
-            db.exists().where(User.username == username)).scalar()
+            db.exists().where(User.username == username)
+        ).scalar()
 
     @staticmethod
     def get_similar(text: str, page: int):
-        return User.query.filter(User.username.like(
-            f"%{text}%")).paginate(page=page, per_page=Config.POSTS_PER_PAGE)
+        return User.query.filter(User.username.like(f"%{text}%")).paginate(
+            page=page, per_page=Config.POSTS_PER_PAGE
+        )
 
     @staticmethod
     def create(**kwargs):
@@ -114,13 +117,16 @@ class User(UserMixin, db.Model, BaseModel):
         password = form.password.data
         user = User.get_by_username(username)
         if user is None or not user.check_password(password):
-            raise exceptions.AuthorizationError("Incorrect username or password")
+            raise exceptions.AuthorizationError(
+                "Incorrect username or password"
+            )
         return user
 
     def get_posts_from_subscribed_groups(self, page):
         groups_ids = [group.id for group in self.groups]
-        return Post.query.filter(Post.group_id.in_(
-            groups_ids)).paginate(page=page, per_page=Config.POSTS_PER_PAGE)
+        return Post.query.filter(Post.group_id.in_(groups_ids)).paginate(
+            page=page, per_page=Config.POSTS_PER_PAGE
+        )
 
     def update_from_form(self, form):
         self.update_from_data(
@@ -161,12 +167,14 @@ class User(UserMixin, db.Model, BaseModel):
 
     def get_paginated_posts(self, page):
         return Post.query.filter(Post.author_id == self.id).paginate(
-            page=page, per_page=Config.POSTS_PER_PAGE, error_out=False)
+            page=page, per_page=Config.POSTS_PER_PAGE, error_out=False
+        )
 
     def get_paginated_subscriptions(self, page):
         groups = [group.id for group in self.groups]
         return Group.query.filter(Group.id.in_(groups)).paginate(
-            page=page, per_page=Config.POSTS_PER_PAGE, error_out=False)
+            page=page, per_page=Config.POSTS_PER_PAGE, error_out=False
+        )
 
 
 @login.user_loader
@@ -186,13 +194,14 @@ class UserAvatar(db.Model, BaseModel):
         UserAvatar.create(
             b64string=raw_image.b64string,
             mimetype=raw_image.mimetype,
-            user=user)
+            user=user,
+        )
 
 
 posts_likes = db.Table(
     "posts_likes",
     db.Column("post_id", db.Integer, db.ForeignKey("post.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
 )
 
 
@@ -210,7 +219,8 @@ class Post(db.Model, BaseModel):
     comments = db.relationship("Comment", backref="post")
     uses_markdown = db.Column(db.Boolean, default=False)
     likes = db.relationship(
-        "User", secondary=posts_likes, backref="post_likes")
+        "User", secondary=posts_likes, backref="post_likes"
+    )
 
     @property
     def elapsed(self):
@@ -221,14 +231,16 @@ class Post(db.Model, BaseModel):
         query = Post.get_best_posts_query()
         current_time = get_current_time() - dt.timedelta(days=days)
         return query.filter(Post.timestamp >= current_time).paginate(
-            page=page, per_page=Config.POSTS_PER_PAGE)
+            page=page, per_page=Config.POSTS_PER_PAGE
+        )
 
     @staticmethod
     def get_best_posts_query():
-        return Post.query\
-            .outerjoin(posts_likes, Post.id == posts_likes.c.post_id)\
-            .group_by(Post.id)\
+        return (
+            Post.query.outerjoin(posts_likes, Post.id == posts_likes.c.post_id)
+            .group_by(Post.id)
             .order_by(db.desc(func.count(posts_likes.c.user_id)))
+        )
 
     @staticmethod
     def get_hot(page):
@@ -239,28 +251,30 @@ class Post(db.Model, BaseModel):
     def get_hot_posts_query():
         current_time = get_current_time()
         time_limit = current_time - dt.timedelta(hours=1)
-        return Post.query\
-            .outerjoin(posts_likes, Post.id == posts_likes.c.post_id)\
-            .group_by(Post.id)\
-            .filter(Post.timestamp >= time_limit)\
+        return (
+            Post.query.outerjoin(posts_likes, Post.id == posts_likes.c.post_id)
+            .group_by(Post.id)
+            .filter(Post.timestamp >= time_limit)
             .order_by(
-                func.count(posts_likes.c.user_id) /
-                ((current_time - Post.timestamp) / 60 + 1)
+                func.count(posts_likes.c.user_id)
+                / ((current_time - Post.timestamp) / 60 + 1)
             )
+        )
 
     @staticmethod
     def from_form(author, group_id, form):
         group = Group.get_by_id(group_id)
         if group is None:
             raise exceptions.GroupDoesNotExists(
-                f"Group {group_id} does not exists")
+                f"Group {group_id} does not exists"
+            )
 
         post = Post.create_and_get(
             title=form.title.data,
             body=form.content.data,
             author=author,
             group=group,
-            uses_markdown=form.use_markdown.data
+            uses_markdown=form.use_markdown.data,
         )
         if form.image.data is not None:
             raw_image = form.image.data
@@ -270,20 +284,26 @@ class Post(db.Model, BaseModel):
         sort_comments_by = query_params.get("sort", "popular")
         reverse = bool(query_params.get("reverse", False))
         if sort_comments_by not in ("date", "popular"):
-            raise exceptions.IncorrectQueryParam("Incorrect query param: 'sort'")
+            raise exceptions.IncorrectQueryParam(
+                "Incorrect query param: 'sort'"
+            )
         if sort_comments_by == "date":
             return sorted(
-                self.comments, key=lambda c: c.timestamp, reverse=reverse)
+                self.comments, key=lambda c: c.timestamp, reverse=reverse
+            )
         elif sort_comments_by == "popular":
             return sorted(
-                self.comments, key=lambda c: len(c.likes), reverse=reverse)
+                self.comments, key=lambda c: len(c.likes), reverse=reverse
+            )
 
     @staticmethod
     def get_similar(text: str, page: int):
         query = Post.get_best_posts_query()
         authors = [author.id for author in User.get_similar(text, 1).items]
-        return query.filter(Post.title.like(f"%{text}%") | Post.body.like(
-            f"%{text}%") | Post.author_id.in_(authors)
+        return query.filter(
+            Post.title.like(f"%{text}%")
+            | Post.body.like(f"%{text}%")
+            | Post.author_id.in_(authors)
         ).paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
     def on_like_click(self, user: User):
@@ -316,13 +336,14 @@ class PostImage(db.Model, BaseModel):
         PostImage.create(
             b64string=raw_image.b64string,
             mimetype=raw_image.mimetype,
-            post=post)
+            post=post,
+        )
 
 
 groups_subscribers = db.Table(
     "groups_subscribers",
     db.Column("group_id", db.Integer, db.ForeignKey("group.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
 )
 
 
@@ -335,19 +356,21 @@ class Group(db.Model, BaseModel):
     logo = db.relationship("GroupLogo", uselist=False, backref="group")
     posts = db.relationship("Post", backref="group")
     subscribers = db.relationship(
-        "User", secondary=groups_subscribers, backref="groups")
+        "User", secondary=groups_subscribers, backref="groups"
+    )
 
     @staticmethod
     def is_unique_name(name: str) -> bool:
         return not db.session.query(
-            db.exists().where(Group.name == name)).scalar()
+            db.exists().where(Group.name == name)
+        ).scalar()
 
     @staticmethod
     def create_from_form_and_get(form, admin: User):
         group = Group(
             name=form.name.data,
             description=form.description.data,
-            admin_id=admin.id
+            admin_id=admin.id,
         )
         group.subscribers.append(admin)
         group.update()
@@ -376,7 +399,8 @@ class Group(db.Model, BaseModel):
 
     def get_paginated_posts(self, page: int):
         return Post.query.filter(Post.group_id == self.id).paginate(
-            page=page, per_page=Config.POSTS_PER_PAGE)
+            page=page, per_page=Config.POSTS_PER_PAGE
+        )
 
     @staticmethod
     def get_similar(text: str, page: int):
@@ -397,13 +421,14 @@ class GroupLogo(db.Model, BaseModel):
         GroupLogo.create(
             b64string=raw_image.b64string,
             mimetype=raw_image.mimetype,
-            group=group)
+            group=group,
+        )
 
 
 comments_likes = db.Table(
     "comments_likes",
     db.Column("comment_id", db.Integer, db.ForeignKey("comment.id")),
-    db.Column("user_id", db.Integer, db.ForeignKey("user.id"))
+    db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
 )
 
 
@@ -414,7 +439,8 @@ class Comment(db.Model, BaseModel):
     timestamp = db.Column(db.DateTime, default=dt.datetime.utcnow)
     body = db.Column(db.Text())
     likes = db.relationship(
-        "User", secondary=comments_likes, backref="comment_likes")
+        "User", secondary=comments_likes, backref="comment_likes"
+    )
 
     @property
     def elapsed(self):
