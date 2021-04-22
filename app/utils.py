@@ -3,29 +3,78 @@ from math import floor
 
 
 def get_elapsed(timestamp):
-    now = dt.datetime.utcnow()
+    now = get_current_time()
     delta = now - timestamp
     seconds = delta.total_seconds()
     if delta < dt.timedelta(minutes=1):
-        return f"{floor(seconds)} секунд назад"
+        return "только что"
     elif delta < dt.timedelta(hours=1):
         minutes = floor(seconds / 60)
-        return f"{minutes} минут назад"
+        return _put_in_minutes_form(minutes)
     elif delta < dt.timedelta(days=1):
         hours = floor(seconds / 60 / 60)
-        return f"{hours} часов назад"
+        return _put_in_hours_form(hours)
     elif delta < dt.timedelta(weeks=1):
         days = floor(seconds / 60 / 60 / 24)
-        return f"{days} дней назад"
+        return _put_in_days_form(days)
     elif delta < dt.timedelta(weeks=4):
         weeks = floor(seconds / 60 / 60 / 24 / 7)
-        return f"{weeks} недели назад"
+        return _put_in_weeks_form(weeks)
     elif delta < dt.timedelta(days=365):
         months = (now.year - timestamp.year) * 12 + now.month - timestamp.month
-        return f"{months} месяцев назад"
+        return _put_in_months_form(months)
     else:
         years = now.year - timestamp.year
-        return f"{years} лет назад"
+        return _put_in_years_form(years)
+
+
+def _put_in_minutes_form(minutes):
+    if minutes % 10 == 1 and minutes // 10 != 1:
+        return "минуту назад"
+    elif minutes % 10 in (2, 3, 4):
+        return f"{minutes} минуты назад"
+    return f"{minutes} минут назад"
+
+
+def _put_in_hours_form(hours):
+    if hours == 1:
+        return "час назад"
+    elif hours in (2, 3, 4):
+        return f"{hours} часа назад"
+    return f"{hours} часов назад"
+
+
+def _put_in_days_form(days):
+    if days == 1:
+        return "вчера"
+    elif days in (2, 3, 4):
+        return f"{days} дня назад"
+    return f"{days} дней назад"
+
+
+def _put_in_weeks_form(weeks):
+    if weeks == 1:
+        return "неделю назад"
+    return f"{weeks} недели назад"
+
+
+def _put_in_months_form(months):
+    if months == 1:
+        return "месяц назад"
+    elif months in (2, 3, 4):
+        return f"{months} месяца назад"
+    return f"{months} месяцев назад"
+
+
+def _put_in_years_form(year):
+    if years == 1:
+        return "год назад"
+    elif years % 10 == 1 and years % 100 // 10 != 1:
+        return f"{years} год назад"
+    elif years % 10 in (2, 3, 4) and years % 100 // 10 != 1:
+        return f"{years} года назад"
+    return f"{years} лет назад"
+
 
 
 def localize_comments(count):
