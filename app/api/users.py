@@ -13,7 +13,7 @@ class UsersResource(Resource):
         user = self.get_user_or_404(username)
         user_model = UserModel.from_orm(user)
         return jsonify({
-            "users": [user_model.dict(exclude={"password_hash"})],
+            "users": [user_model.dict(exclude={"password_hash", "email"})],
             "status": 200, "ok": True
         })
 
@@ -66,8 +66,8 @@ class UsersListResource(Resource):
             abort(400, status=400, ok=False,
                   detail="Wrong offset or limit value")
         return jsonify({
-            "users": [UserModel.from_orm(user).dict(exclude={"password_hash"})
-                      for user in users],
+            "users": [UserModel.from_orm(user).dict(
+                exclude={"password_hash", "email"}) for user in users],
             "status": 200, "ok": True
         })
 

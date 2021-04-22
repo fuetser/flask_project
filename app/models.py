@@ -161,12 +161,12 @@ class User(UserMixin, db.Model, BaseModel):
 
     def get_paginated_posts(self, page):
         return Post.query.filter(Post.author_id == self.id).paginate(
-            page=page, per_page=Config.POSTS_PER_PAGE)
+            page=page, per_page=Config.POSTS_PER_PAGE, error_out=False)
 
     def get_paginated_subscriptions(self, page):
         groups = [group.id for group in self.groups]
         return Group.query.filter(Group.id.in_(groups)).paginate(
-            page=page, per_page=Config.POSTS_PER_PAGE)
+            page=page, per_page=Config.POSTS_PER_PAGE, error_out=False)
 
 
 @login.user_loader

@@ -8,7 +8,7 @@ from ..services.token_service import token_required
 
 
 class GroupsResource(Resource):
-    exclude_fields = {"subscribers": {"__all__": {"password_hash"}}}
+    exclude_fields = {"subscribers": {"__all__": {"password_hash", "email"}}}
 
     @token_required
     def get(self, group_id: int, payload):
@@ -58,7 +58,7 @@ class GroupsResource(Resource):
 
 
 class GroupsListResource(Resource):
-    exclude_fields = {"subscribers": {"__all__": {"password_hash"}}}
+    exclude_fields = {"subscribers": {"__all__": {"password_hash", "email"}}}
 
     @token_required
     def get(self, payload):

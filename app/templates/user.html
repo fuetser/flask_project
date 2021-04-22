@@ -199,7 +199,7 @@
           <a href="{{ url_for('view_tokens') }}" class="user-link h5 smooth-transition">
             <div class="content-container card">
               <div class="card-body">
-                <h5>Api токены</h5>
+                <h5>API токен</h5>
               </div>
             </div>
           </a>
@@ -329,6 +329,11 @@
         }
       }
       insertUrlParam(button.id)
+      if(button.id === "v-pills-posts-tab"){
+        showPostsByUser("{{ user.username }}", event)
+      } else if(button.id === "v-pills-subscriptions-tab") {
+        showUserSubscriptions("{{ user.username }}", event)
+      }
       removeSearchParamFromUrl("page")
       setActiveTab()
     })

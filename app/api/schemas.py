@@ -21,8 +21,6 @@ class CommentModel(BaseModel):
     author_id: int
     timestamp: datetime = datetime.utcnow(),
     body: str
-    is_reply: bool = False
-    reply_to: Optional[int]
     likes: Optional[List[UserLikeModel]] = []
 
     class Config:
