@@ -1,5 +1,5 @@
 {% for group in groups.items %}
-  <div class="card content-container">
+  <div class="card mt-0">
     <div class="card-body" id="group{{ group.id }}">
       <div class="d-flex align-items-center">
         <div class="d-flex align-items-center">
@@ -15,7 +15,7 @@
     </div>
   </div>
 {% endfor %}
-<div class="content-container">
+<div>
   <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
      {% for page_index in groups.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
          {% if page_index %}

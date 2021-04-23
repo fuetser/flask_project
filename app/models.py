@@ -7,41 +7,51 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login, exceptions
 from app.utils import get_elapsed, get_current_time
 from app.services.image_service import RawImage
-from app.services.token_service import create_token, is_valide_token
+from app.services.token_service import create_token, is_valid_token
 from config import Config
 
 
 class BaseModel:
+    """Базовая модель с общими методами для всех сущностей"""
+
     @classmethod
     def get_by_id(ModelClass, id: int):
+        """метод для получения объекта по id"""
         return ModelClass.query.get(id)
 
     @classmethod
     def get_all(ModelClass, offset: int, limit: int):
+        """метод для получения списка всех объектов"""
         return ModelClass.query.offset(offset).limit(limit).all()
 
     @classmethod
     def create(ModelClass, **kwargs):
+        """метод для создания объекта"""
         model_instance = ModelClass(**kwargs)
         model_instance.update()
 
     @classmethod
     def create_and_get(ModelClass, **kwargs):
+        """метод для создания и получения объекта"""
         model_instance = ModelClass(**kwargs)
         model_instance.update()
         return model_instance
 
     def update(self):
+        """метод для обновления объекта в базе данных"""
         db.session.add(self)
         db.session.commit()
         db.session.refresh(self)
 
     def delete(self):
+        """метод для удаления объекта из базы данных"""
         db.session.delete(self)
         db.session.commit()
 
 
 class User(UserMixin, db.Model, BaseModel):
+    """Модель пользователя"""
+
     id = db.Column(db.Integer, primary_key=True, index=True)
     username = db.Column(db.String(25), unique=True)
     password_hash = db.Column(db.String(256))
@@ -55,11 +65,13 @@ class User(UserMixin, db.Model, BaseModel):
 
     @property
     def elapsed(self):
+        """метод для получения даты создания аккаунта"""
         return get_elapsed(self.registered)
 
     @property
     def token(self):
-        if not is_valide_token(self._token):
+        """метод для создания и сохранения API токена пользователя"""
+        if not is_valid_token(self._token):
             self._token = create_token({"sub": self.id})
             super().update()
         return self._token
@@ -82,6 +94,7 @@ class User(UserMixin, db.Model, BaseModel):
 
     @staticmethod
     def get_similar(text: str, page: int):
+        """метод для поиска пользователей с похожим именем"""
         return User.query.filter(User.username.like(f"%{text}%")).paginate(
             page=page, per_page=Config.POSTS_PER_PAGE
         )
@@ -101,6 +114,7 @@ class User(UserMixin, db.Model, BaseModel):
 
     @staticmethod
     def create_from_form_and_get(form):
+        """метод для создания пользователя из формы регистрации"""
         user = User.create_and_get(
             username=form.username.data,
             email=form.email.data,
@@ -113,6 +127,7 @@ class User(UserMixin, db.Model, BaseModel):
 
     @staticmethod
     def authorize_from_form_and_get(form):
+        """метод для авторизации пользователя из формы авторизации"""
         username = form.username.data
         password = form.password.data
         user = User.get_by_username(username)
@@ -123,12 +138,14 @@ class User(UserMixin, db.Model, BaseModel):
         return user
 
     def get_posts_from_subscribed_groups(self, page):
+        """метод для получения списка записец из подписок пользователя"""
         groups_ids = [group.id for group in self.groups]
         return Post.query.filter(Post.group_id.in_(groups_ids)).paginate(
             page=page, per_page=Config.POSTS_PER_PAGE
         )
 
     def update_from_form(self, form):
+        """метод для обновления информации о пользователе из формы настроек"""
         self.update_from_data(
             username=form.username.data,
             email=form.email.data,
@@ -141,6 +158,7 @@ class User(UserMixin, db.Model, BaseModel):
             UserAvatar.from_raw_image(raw_image, self)
 
     def update_from_data(self, password_changed=False, **kwargs):
+        """метод для обновления существующих полей пользователя"""
         for key, value in kwargs.items():
             if key in self.__dict__ and value:
                 setattr(self, key, value)
@@ -156,6 +174,7 @@ class User(UserMixin, db.Model, BaseModel):
         super().delete()
 
     def on_delete(self):
+        """метод для обработки поведения пользователя при удалении"""
         for group in self.groups:
             group.subscribers.remove(self)
 
@@ -165,12 +184,24 @@ class User(UserMixin, db.Model, BaseModel):
     def check_password(self, password: str):
         return check_password_hash(self.password_hash, password)
 
-    def get_paginated_posts(self, page):
-        return Post.query.filter(Post.author_id == self.id).paginate(
+    def get_paginated_posts(self, page: int, request_args: dict):
+        """метод для получения записей пользователя по страницам"""
+        reverse = request_args.get("reverse") == "true"
+        if request_args.get("sort") == "popular":
+            query = Post.get_best_posts_query(
+                desc_order=reverse).filter(Post.author_id == self.id)
+        elif reverse:
+            query = Post.query.filter(Post.author_id == self.id).order_by(
+                Post.timestamp.desc())
+        else:
+            query = Post.query.filter(Post.author_id == self.id).order_by(
+                Post.timestamp.asc())
+        return query.paginate(
             page=page, per_page=Config.POSTS_PER_PAGE, error_out=False
         )
 
-    def get_paginated_subscriptions(self, page):
+    def get_paginated_subscriptions(self, page: int):
+        """метод для получения подписок пользователя по страницам"""
         groups = [group.id for group in self.groups]
         return Group.query.filter(Group.id.in_(groups)).paginate(
             page=page, per_page=Config.POSTS_PER_PAGE, error_out=False
@@ -183,6 +214,8 @@ def load_user(id):
 
 
 class UserAvatar(db.Model, BaseModel):
+    """Модель аватара пользователя"""
+
     id = db.Column(db.Integer, primary_key=True)
     b64string = db.Column(db.String)
     mimetype = db.Column(db.String(16))
@@ -191,6 +224,7 @@ class UserAvatar(db.Model, BaseModel):
 
     @staticmethod
     def from_raw_image(raw_image: RawImage, user: User):
+        """метод для создания объекта из данных файла"""
         UserAvatar.create(
             b64string=raw_image.b64string,
             mimetype=raw_image.mimetype,
@@ -206,6 +240,8 @@ posts_likes = db.Table(
 
 
 class Post(db.Model, BaseModel):
+    """Модель записи"""
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
     body = db.Column(db.Text())
@@ -224,10 +260,12 @@ class Post(db.Model, BaseModel):
 
     @property
     def elapsed(self):
+        """метод для получения даты создания записи"""
         return get_elapsed(self.timestamp)
 
     @staticmethod
     def get_best(page, days=1):
+        """метод для получения лучших записей за последние n дней"""
         query = Post.get_best_posts_query()
         current_time = get_current_time() - dt.timedelta(days=days)
         return query.filter(Post.timestamp >= current_time).paginate(
@@ -235,20 +273,23 @@ class Post(db.Model, BaseModel):
         )
 
     @staticmethod
-    def get_best_posts_query():
-        return (
-            Post.query.outerjoin(posts_likes, Post.id == posts_likes.c.post_id)
-            .group_by(Post.id)
-            .order_by(db.desc(func.count(posts_likes.c.user_id)))
-        )
+    def get_best_posts_query(desc_order=True):
+        """метод для получения базового запроса на получение лучших записей"""
+        query = Post.query.outerjoin(
+            posts_likes, Post.id == posts_likes.c.post_id).group_by(Post.id)
+        if desc_order:
+            return query.order_by(db.desc(func.count(posts_likes.c.user_id)))
+        return query.order_by(db.asc(func.count(posts_likes.c.user_id)))
 
     @staticmethod
     def get_hot(page):
+        """метод для получения лучших записей за последний час"""
         query = Post.get_hot_posts_query()
         return query.paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
     @staticmethod
     def get_hot_posts_query():
+        """метод для получения базового запроса на получение лучших записей за час"""
         current_time = get_current_time()
         time_limit = current_time - dt.timedelta(hours=1)
         return (
@@ -263,6 +304,7 @@ class Post(db.Model, BaseModel):
 
     @staticmethod
     def from_form(author, group_id, form):
+        """метод для создания записи из формы"""
         group = Group.get_by_id(group_id)
         if group is None:
             raise exceptions.GroupDoesNotExists(
@@ -281,8 +323,9 @@ class Post(db.Model, BaseModel):
             PostImage.from_raw_image(raw_image, post)
 
     def get_comments(self, query_params: dict):
+        """метод для получения отсортированных комментариев к записи"""
         sort_comments_by = query_params.get("sort", "popular")
-        reverse = bool(query_params.get("reverse", False))
+        reverse = query_params.get("reverse") == "true"
         if sort_comments_by not in ("date", "popular"):
             raise exceptions.IncorrectQueryParam(
                 "Incorrect query param: 'sort'"
@@ -298,6 +341,7 @@ class Post(db.Model, BaseModel):
 
     @staticmethod
     def get_similar(text: str, page: int):
+        """метод для поиска записей с указанным текстом"""
         query = Post.get_best_posts_query()
         authors = [author.id for author in User.get_similar(text, 1).items]
         return query.filter(
@@ -307,6 +351,7 @@ class Post(db.Model, BaseModel):
         ).paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
     def on_like_click(self, user: User):
+        """метод для обработки лайка записи"""
         if user in self.likes:
             self.likes.remove(user)
         else:
@@ -314,6 +359,7 @@ class Post(db.Model, BaseModel):
         self.update()
 
     def update_from_form(self, form):
+        """метод для обновления записи из формы"""
         self.title = form.title.data
         self.body = form.content.data
         self.uses_markdown = form.use_markdown.data
@@ -325,6 +371,8 @@ class Post(db.Model, BaseModel):
 
 
 class PostImage(db.Model, BaseModel):
+    """Модель картинки в записи"""
+
     id = db.Column(db.Integer, primary_key=True)
     b64string = db.Column(db.String)
     mimetype = db.Column(db.String(16))
@@ -333,6 +381,7 @@ class PostImage(db.Model, BaseModel):
 
     @staticmethod
     def from_raw_image(raw_image: RawImage, post: Post):
+        """метод для создания объекта из файла"""
         PostImage.create(
             b64string=raw_image.b64string,
             mimetype=raw_image.mimetype,
@@ -348,6 +397,8 @@ groups_subscribers = db.Table(
 
 
 class Group(db.Model, BaseModel):
+    """Модель группы"""
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), unique=True)
     description = db.Column(db.String(128))
@@ -382,6 +433,7 @@ class Group(db.Model, BaseModel):
         return group
 
     def on_subscribe_click(self, user: User):
+        """метод для обработки подписки/отписки"""
         if user in self.subscribers:
             self.subscribers.remove(user)
         else:
@@ -389,6 +441,7 @@ class Group(db.Model, BaseModel):
         self.update()
 
     def update_from_form(self, form):
+        """метод для обновления объекта из формы"""
         self.name = form.name.data
         self.description = form.description.data
         if form.logo.data:
@@ -397,19 +450,31 @@ class Group(db.Model, BaseModel):
             GroupLogo.from_raw_image(raw_image, self)
         self.update()
 
-    def get_paginated_posts(self, page: int):
-        return Post.query.filter(Post.group_id == self.id).paginate(
-            page=page, per_page=Config.POSTS_PER_PAGE
-        )
+    def get_paginated_posts(self, page: int, request_args: dict):
+        """метод для получения записей группы по страницам"""
+        reverse = request_args.get("reverse") == "true"
+        if request_args.get("sort") == "popular":
+            query = Post.get_best_posts_query(
+                desc_order=reverse).filter(Post.group_id == self.id)
+        elif reverse:
+            query = Post.query.filter(Post.group_id == self.id).order_by(
+                Post.timestamp.desc())
+        else:
+            query = Post.query.filter(Post.group_id == self.id).order_by(
+                Post.timestamp.asc())
+        return query.paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
     @staticmethod
     def get_similar(text: str, page: int):
+        """метод для поиска групп с похожим названием/описанием"""
         return Group.query.filter(
             Group.name.like(f"%{text}%") | Group.description.like(f"%{text}%")
         ).paginate(page=page, per_page=Config.POSTS_PER_PAGE)
 
 
 class GroupLogo(db.Model, BaseModel):
+    """Модель логотипа группы"""
+
     id = db.Column(db.Integer, primary_key=True)
     b64string = db.Column(db.String)
     mimetype = db.Column(db.String(16))
@@ -418,6 +483,7 @@ class GroupLogo(db.Model, BaseModel):
 
     @staticmethod
     def from_raw_image(raw_image: RawImage, group: Group):
+        """метод для создания объекта из файла"""
         GroupLogo.create(
             b64string=raw_image.b64string,
             mimetype=raw_image.mimetype,
@@ -433,6 +499,8 @@ comments_likes = db.Table(
 
 
 class Comment(db.Model, BaseModel):
+    """Модель комментария"""
+
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"))
     author_id = db.Column(db.Integer, db.ForeignKey("user.id"))
@@ -444,9 +512,11 @@ class Comment(db.Model, BaseModel):
 
     @property
     def elapsed(self):
+        """метод для получения даты создания комментария"""
         return get_elapsed(self.timestamp)
 
     def on_like_click(self, user: User):
+        """метод для обработки лайка комментария"""
         if user in self.likes:
             self.likes.remove(user)
         else:

@@ -24,7 +24,7 @@ def validate_token(token: str):
         return token_data
 
 
-def is_valide_token(token: str):
+def is_valid_token(token: str):
     try:
         jwt.decode(
             token, key=Config.SECRET_KEY, algorithms=Config.JWT_ALGORITHM

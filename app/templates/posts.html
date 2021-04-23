@@ -71,7 +71,7 @@
                  {{ page_index }}
             </button>
          {% elif type == "user_posts" %}
-            <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByUser('{{ username }}', event)">
+            <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByUser('{{ username }}', 'popular', true, event)">
                  {{ page_index }}
             </button>
          {% else %}

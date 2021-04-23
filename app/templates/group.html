@@ -3,6 +3,7 @@
 {% block extrahead %}
 <link href="{{ url_for('static', filename='css/group.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/post.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}{{ group.name }}{% endblock %}
@@ -26,11 +27,12 @@
                $("#subscribeButton").addClass("active");
                $("#subscribersCounter").text(count - 1)
             }
+            $("#subscribersDescription").text(response.subscribers)
          },
          error: function (request, status, error) {
-            console.log("error"); // TODO
+            console.log(error)
          },
-      });
+      })
    }
 </script>
 <script type="text/javascript" defer>
@@ -120,9 +122,39 @@
    </div>
    <div class="card group-description">
       <p class="group-text-description">{{ group.description }}</p>
-      <p class="group-subscribers-count">
-         <b id="subscribersCounter">{{ group.subscribers|length }}</b> Участников
-      </p>
+      <div class="d-flex m-0">
+         <b id="subscribersCounter" style="margin-right: 5px;">{{ group.subscribers|length }}</b>
+         <p id="subscribersDescription" class="m-0">{{ subscribers }}</p>
+      </div>
+      <div class="dropdown mt-3">
+         <button class="btn btn-light dropdown-toggle w-100" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+            Сортировка
+         </button>
+         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+            <li>
+               <div class="dropdown-item d-flex align-items-center">
+                  <p class="mb-0">По дате</p>
+                  <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByGroup('date', true, event)">
+                     <i class="bi bi-arrow-down-short" data-group-id="{{ group.id }}" data-page="1"></i>
+                  </button>
+                  <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByGroup('date', false, event)">
+                     <i class="bi bi-arrow-up-short" data-group-id="{{ group.id }}" data-page="1"></i>
+                  </button>
+               </div>
+            </li>
+           <li>
+               <div class="dropdown-item d-flex align-items-center">
+                  <p class="mb-0">По популярности</p>
+                  <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByGroup('popular', true, event)">
+                     <i class="bi bi-arrow-down-short" data-group-id="{{ group.id }}" data-page="1"></i>
+                  </button>
+                  <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByGroup('popular', false, event)">
+                     <i class="bi bi-arrow-up-short" data-group-id="{{ group.id }}" data-page="1"></i>
+                  </button>
+               </div>
+            </li>
+         </ul>
+      </div>
    </div>
 </main>
 <div class="pagination-footer" id="paginationFooter">

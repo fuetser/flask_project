@@ -1,10 +1,9 @@
-# Flask
+# Проект Социальная сеть "SYB" на Python и Flask
+Проект разрабатывался в учебно-познавательных целях.​
 
-Проект для Яндекс.Лицея на Flask
+В качестве темы проекта была выбрана разработка социальной сети.​
 
-## Делали
-
-Александр Захарчук и Максим Смирнов
+В качестве ориентира мы взяли англоязычную соц.сеть Reddit. Его отличительная черта - сабреддиты, уникальные сообщества. Именно её мы решили реализовать в нашем проекте. Помимо этого должны быть такие базовые для социальных сетей опции как: умная лента - разделение на лучшие посты, набирающие популярность ("горячее"), и посты из групп, на которые подписаны. ​
 
 ## Работа с АPI
 
@@ -13,11 +12,11 @@
 http://syb-blog.herokuapp.com/api/{api_method}?token={token}&offset={offset}&limit={limit}
 ```
 #### Получение токена
-Для получения API-токена необходимо иметь аккаунт на сайте. Если он у Вас уже есть, Вы можете получить токен либо на сайте, либо с помощью запроса к API, либо на сайте. После получения токен будет действителен 24 часа.
+Для получения API-токена необходимо иметь аккаунт на сайте. Если он у Вас уже есть, Вы можете получить токен либо на сайте, либо с помощью запроса к API. После получения токен будет действителен 24 часа.
 ###### Получение токена на сайте:
 Для получения токена на сайте перейдите в свой аккаунт, в раздел настройки,  далее - "API-токен" или по ссылке - [Получить токен](http://syb-blog.herokuapp.com/token)
 ###### Получение токена с помощью запроса к API:
-Для получения токена с помощью API необоходимо отправить POST запрос по ссылке **/api/users**.
+Для получения токена с помощью API необоходимо отправить POST запрос по ссылке **/api/tokens**.
 **Поля запроса:**
 | Название | Тип поля  | Обязательность |
 |:--------:|:---------:|:--------------:|
@@ -28,10 +27,13 @@ http://syb-blog.herokuapp.com/api/{api_method}?token={token}&offset={offset}&lim
 ```python
 import requests
 
-requests.post("http://syb-blog.herokuapp.com/api/users", json={
-    "username": "Username",
-    "password": "Password123"
-})
+requests.post(
+    "http://syb-blog.herokuapp.com/api/tokens",
+    json={
+        "username": "Username",
+        "password": "Password123"
+    }
+)
 ```
 ###### Пример ответа
 ```json
@@ -67,11 +69,14 @@ requests.post("http://syb-blog.herokuapp.com/api/users", json={
 ```python
 import requests
 
-requests.get("http://syb-blog.herokuapp.com/api/users", params={
-    "token": "your-token",
-    "offset": 1,
-    "limit": 5
-})
+requests.get(
+    "http://syb-blog.herokuapp.com/api/users",
+    params={
+        "token": "your-token",
+        "offset": 1,
+        "limit": 5
+    }
+)
 ```
 ##### Получение данных о конретном пользователе
 Для получения данных о конкретном пользователе необходимо указать его имя после метода API (**/api/users/Username**)
@@ -93,11 +98,14 @@ requests.get("http://syb-blog.herokuapp.com/api/users/Username", params={"token"
 ```python
 import requests
 
-requests.get("http://syb-blog.herokuapp.com/api/users", json={
-    "username": "Username",
-    "password": "Password123",
-    "email": "username@mail.com"
-})
+requests.get(
+    "http://syb-blog.herokuapp.com/api/users",
+    json={
+        "username": "Username",
+        "password": "Password123",
+        "email": "username@mail.com"
+        }
+)
 ```
 **Пример ответа:**
 ```json
@@ -148,11 +156,15 @@ requests.get("http://syb-blog.herokuapp.com/api/users", json={
 ```python
 import requests
 
-requests.put("http://syb-blog.herokuapp.com/api/users/Username", json={
-    "username": "New Username",
-    "password": "NewPassword123",
-    "email": "new_username@mail.com"
-}, params={"token": "your-token"})
+requests.put(
+    "http://syb-blog.herokuapp.com/api/users/Username",
+    json={
+        "username": "New Username",
+        "password": "NewPassword123",
+        "email": "new_username@mail.com"
+    },
+    params={"token": "your-token"}
+)
 ```
 ##### Удаление аккаунта
 Удаление аккаунты выполняется с помощью DELETE запроса
@@ -174,10 +186,14 @@ requests.delete("http://syb-blog.herokuapp.com/api/users/Username", params={"tok
 ```python
 import requests
 
-requests.put("http://syb-blog.herokuapp.com/api/posts/1", json={
-    "title": "New Title",
-    "body": "New post content"
-}, params={"token": "your-token"})
+requests.put(
+    "http://syb-blog.herokuapp.com/api/posts/1",
+    json={
+        "title": "New Title",
+        "body": "New post content"
+    },
+    params={"token": "your-token"}
+)
 ```
 #### Groups
 Получение всех групп, конкретной группы (по id), удаление группы (по id) происходит аналагично пользователям.
@@ -192,8 +208,12 @@ requests.put("http://syb-blog.herokuapp.com/api/posts/1", json={
 ```python
 import requests
 
-requests.put("http://syb-blog.herokuapp.com/api/posts/1", json={
-    "name": "New Group Name",
-    "description": "New description"
-}, params={"token": "your-token"})
+requests.put(
+    "http://syb-blog.herokuapp.com/api/posts/1",
+    json={
+        "name": "New Group Name",
+        "description": "New description"
+    },
+    params={"token": "your-token"}
+)
 ```

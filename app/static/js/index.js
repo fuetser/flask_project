@@ -129,7 +129,6 @@ function commentPost(postId){
             dataType: "json",
             data: {text: text},
             success: responce => {
-                console.log(responce)
                 $(".comments-list").html(responce.html_data)
                 $("#commentsTitle").text(responce.title)
             },
@@ -141,6 +140,22 @@ function commentPost(postId){
     }
 }
 
+function sortComments(sortBy, reverse){
+    addSearchParamToUrl("sort", sortBy)
+    if(reverse) addSearchParamToUrl("reverse", reverse)
+    else removeSearchParamFromUrl("reverse")
+    $.ajax({
+        url: "",
+        type: "POST",
+        success: responce => {
+            $(".comments-list").html(responce.html_data)
+            animateLikeButtons()
+        },
+        error: (request, status, error) => {
+            console.log(error)
+      }
+    })
+}
 
 function likeComment(commentId){
     $.ajax({
@@ -305,7 +320,7 @@ function showPostsByPage(postsSortType, event) {
 
 function showPostsByAge(days, pageIndex, postsSortType) {
     $.ajax({
-        url: `/posts/${days}?page=${pageIndex}`,
+        url: `/main_page_posts/${days}?page=${pageIndex}`,
         type: "POST",
         dataType: "json",
         data: {type: postsSortType},
@@ -321,7 +336,8 @@ function showPostsByAge(days, pageIndex, postsSortType) {
 }
 
 function showPostsByGroup(groupId, event) {
-    addSearchParamToUrl("page", $(event.target).data("page"))
+    const pageIndex = $(event.target).data("page")
+    addSearchParamToUrl("page", pageIndex)
     $.ajax({
         url: "",
         type: "POST",
@@ -340,14 +356,23 @@ function showPostsByGroup(groupId, event) {
     })
 }
 
-function showPostsByUser(username, event) {
+function showOrderedPostsByGroup(sortBy, reverse, event) {
+    addSearchParamToUrl("sort", sortBy)
+    if(reverse) addSearchParamToUrl("reverse", reverse)
+    else removeSearchParamFromUrl("reverse")
+    showPostsByGroup($(event.target).data("group-id"), event)
+}
+
+function showPostsByUser(username, sortBy, reverse, event) {
     const pageIndex = $(event.target).data("page")
     addSearchParamToUrl("page", pageIndex)
+    let url = `/user_posts/${username}?page=${pageIndex || 1}&sort=${sortBy}`
+    if(reverse) url += `&reverse=true`
     $.ajax({
-        url: `/user_posts/${username}?page=${pageIndex}`,
+        url: url,
         type: "POST",
         success: responce => {
-            $("#v-pills-posts").html(`<div class="content-container">${responce.html_data}</div>`)
+            $("#postsHolder").html(responce.html_data)
             animateLikeButtons()
             connectShareButtons()
             window.scrollTo(0, 0)
@@ -356,6 +381,13 @@ function showPostsByUser(username, event) {
             console.log(error)
         }
     })
+}
+
+function showOrderedPostsByUser(sortBy, reverse, event) {
+    addSearchParamToUrl("sort", sortBy)
+    if(reverse) addSearchParamToUrl("reverse", reverse)
+    else removeSearchParamFromUrl("reverse")
+    showPostsByUser($(event.target).data("username"), sortBy, reverse, event)
 }
 
 function showUserSubscriptions(username, event) {

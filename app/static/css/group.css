@@ -61,10 +61,7 @@
 
 .group-text-description {
     font-size: 1.1em;
-}
-
-.group-subscribers-count {
-    margin: 0;
+    margin-bottom: 10px;
 }
 
 .edit-button {

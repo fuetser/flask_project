@@ -29,7 +29,7 @@ def get_elapsed(timestamp):
 
 
 def _put_in_minutes_form(minutes):
-    if minutes % 10 == 1 and minutes // 10 != 1:
+    if minutes == 1:
         return "минуту назад"
     elif minutes % 10 in (2, 3, 4):
         return f"{minutes} минуты назад"
@@ -66,7 +66,7 @@ def _put_in_months_form(months):
     return f"{months} месяцев назад"
 
 
-def _put_in_years_form(year):
+def _put_in_years_form(years):
     if years == 1:
         return "год назад"
     elif years % 10 == 1 and years % 100 // 10 != 1:
@@ -82,6 +82,15 @@ def localize_comments(count):
     if count % 10 in (2, 3, 4) and count % 100 // 10 != 1:
         return f"{count} комментария"
     return f"{count} комментариев"
+
+
+def localize_subscribers(count):
+    localized_subscribers = "Участник"
+    if 4 < count < 21 or count % 10 in (5, 6, 7, 8, 9, 0):
+        localized_subscribers = "Участников"
+    elif count % 10 in (2, 3, 4):
+        localized_subscribers = "Участника"
+    return localized_subscribers
 
 
 def get_current_time():
