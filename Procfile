@@ -1,1 +1,1 @@
-web: gunicorn syb:app
+web: gunicorn -w 1 syb:app
