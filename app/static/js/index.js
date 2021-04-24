@@ -25,6 +25,17 @@ document.addEventListener("optimizedResize", (event) => {
     body.style.cssText = `padding-top: ${navbar.clientHeight}px;`
 })
 
+function copyStringToClipboard (str) {
+   var el = document.createElement('textarea');
+   el.value = str;
+   el.setAttribute('readonly', '');
+   el.style = {position: 'absolute', left: '-9999px'};
+   document.body.appendChild(el);
+   el.select();
+   document.execCommand('copy');
+   document.body.removeChild(el);
+}
+
 // like icon filling/unfilling on click
 function animateLikeButtons(){
     Array.from(likeButtons)
@@ -56,11 +67,7 @@ function connectShareButtons() {
         btn.addEventListener("click", e => {
             $("#toastMessage").addClass("show")
             timeout = setTimeout(() => $("#toastMessage").removeClass("show"), 5000)
-            navigator.permissions.query({name: "clipboard-write"}).then(result => {
-              if (result.state == "granted" || result.state == "prompt") {
-                navigator.clipboard.writeText(window.location.protocol + "//" + window.location.host + $(btn).data("link"))
-              }
-            })
+            copyStringToClipboard(window.location.protocol + "//" + window.location.host + $(btn).data("link"))
         })
     })
     $("#hideToastButton").click(e => {

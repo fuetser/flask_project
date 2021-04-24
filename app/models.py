@@ -296,9 +296,8 @@ class Post(db.Model, BaseModel):
             Post.query.outerjoin(posts_likes, Post.id == posts_likes.c.post_id)
             .group_by(Post.id)
             .filter(Post.timestamp >= time_limit)
-            .order_by(
-                func.count(posts_likes.c.user_id)
-                / (extract("epoch", current_time - Post.timestamp) / 60 + 1)
+            .order_by(db.desc(func.count(posts_likes.c.user_id) / (extract(
+                "epoch", current_time - Post.timestamp) / 60 + 1))
             )
         )
 
