@@ -2,7 +2,10 @@ from app import exceptions
 from app.models import Group, User, Post
 
 
-def search_by_query(query_args, query_values):
+def search_by_query(request):
+    query_args = request.args
+    query_values = request.values
+
     page = query_args.get("page", 1, type=int)
     request_text = query_values.get("request_text")
     search_by = query_values.get("sort")

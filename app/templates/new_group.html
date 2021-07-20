@@ -2,6 +2,7 @@
 
 {% block extrahead %}
 <link href="{{ url_for('static', filename='css/forms.css') }}" rel="stylesheet">
+<script type="text/javascript" src="{{ url_for('static', filename='js/group.js')}}"></script>
 {% endblock %}
 
 {% block title %}Новая группа{% endblock %}
@@ -48,7 +49,7 @@
       </div>
       <div class="button-wrapper">
          {% if group_id %}
-            <button type="button" href="{{ url_for('delete_group', group_id=group_id) }}" class="btn btn-danger" style="height: 100%; margin-right: 15px;" onclick="deleteGroup({{ group_id }})">
+            <button type="button" href="{{ url_for('delete_group', group_id=group_id) }}" class="btn btn-danger" style="height: 100%; margin-right: 15px;" onclick="deleteGroup({{ group_id, url_for("best_posts_page") }})">
             Удалить</button>
          {% endif %}
          {{ form.submit(class="btn btn-outline-dark submit") }}

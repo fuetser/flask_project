@@ -4,114 +4,162 @@
 <link href="{{ url_for('static', filename='css/group.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/post.css') }}" rel="stylesheet">
+<script
+   type="text/javascript"
+   src="{{ url_for('static', filename='js/group.js')}}">
+</script>
+<script
+   type="text/javascript"
+   src="{{ url_for('static', filename='js/post.js')}}">
+</script>
 {% endblock %}
 
 {% block title %}{{ group.name }}{% endblock %}
 
 {% block content %}
-<script type="text/javascript">
-   function subscribe () {
-      $.ajax({
-         url: "/subscribe/{{ group.id }}",
-         type: "POST",
-         success: function(response) {
-            let count = +$("#subscribersCounter").text()
-
-            if ($("#subscribeButton").hasClass("active")) {
-               $("#subscribeButton").text("Отписаться");
-               $("#subscribeButton").removeClass("active");
-               $("#subscribersCounter").text(count + 1)
-            }
-            else {
-               $("#subscribeButton").text("Подписаться");
-               $("#subscribeButton").addClass("active");
-               $("#subscribersCounter").text(count - 1)
-            }
-            $("#subscribersDescription").text(response.subscribers)
-         },
-         error: function (request, status, error) {
-            console.log(error)
-         },
-      })
-   }
-</script>
 <script type="text/javascript" defer>
    var link = document.createElement("a");
-   link.setAttribute("href", "{{ url_for('new_post', group_id=group.id) }}");
+   link.setAttribute("href", "{{ url_for('new_post_form_page', group_id=group.id) }}");
    link.setAttribute("class", "dropdown-item");
    const newContent = document.createTextNode("Создать пост");
    link.appendChild(newContent);
    var parent = document.getElementById("dropdownMenu");
    parent.appendChild(link);
 </script>
+
 <header class="header">
    <div class="header-wrapper">
-      <img class="header-inner group-logo" src="data:{{ group.logo.mimetype }};base64,{{ group.logo.b64string }}" alt="{{ group.name }} logo">
+      <img
+         class="header-inner group-logo"
+         src="data:{{ group.logo.mimetype }};base64,{{ group.logo.b64string }}"
+         alt="{{ group.name }} logo"
+      >
       <h4 class="header-inner group-title">{{ group.name }}</h4>
       {% if not current_user.is_authenticated %}
-         <a class="header-inner btn btn-outline-dark subscribe-button active" href="{{ url_for('login') }}">Подписаться</a>
+         <a
+            class="header-inner btn btn-outline-dark subscribe-button active"
+            href="{{ url_for('login_page') }}"
+         >
+            Подписаться
+         </a>
       {% elif current_user in group.subscribers %}
       <div class="header-inner d-flex align-items-center">
-         <button class="btn btn-outline-dark subscribe-button" id="subscribeButton" onclick="subscribe();">Отписаться</button>
+         <button
+            id="subscribeButton"
+            class="btn btn-outline-dark subscribe-button"
+            onclick="subscribeToGroup({{ group.id }});"
+         >
+            Отписаться
+         </button>
          {% if current_user.id == group.admin_id %}
-            <a href="{{ url_for('edit_group', group_id=group.id) }}" class="mt-1">
+            <a
+               class="mt-1"
+               href="{{ url_for('edit_group_form_page', group_id=group.id) }}"
+            >
                <i class="bi bi-pencil-square edit-button smooth-transition"></i>
             </a>
          {% endif %}
       </div>
       {% else %}
-         <button class="header-inner btn btn-outline-dark subscribe-button active" id="subscribeButton" onclick="subscribe();">Подписаться</button>
+         <button
+            id="subscribeButton"
+            class="header-inner btn btn-outline-dark subscribe-button active"
+            onclick="subscribeToGroup({{ group.id }});"
+         >
+            Подписаться
+         </button>
       {% endif %}
    </div>
 </header>
 <main class="main">
-   <div class="posts-wall d-flex flex-column justify-content-center bd-highlight" id="postsHolder">
+   <div
+      id="postsHolder"
+      class="posts-wall d-flex flex-column justify-content-center bd-highlight"
+   >
    {% for post in posts.items %}
       <div class="card">
          <div class="card-body">
-            <a class="post-link smooth-transition" href="{{ url_for('post', post_id=post.id) }}">
+            <a
+               class="post-link smooth-transition"
+               href="{{ url_for('post_page', post_id=post.id) }}"
+            >
                <span class="post-title">
                   <h4 class="card-title">{{ post.title }}</h4>
                </span>
             </a>
             <p class="card-text">
-               <small class="text-muted">{{ post.elapsed }} от <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link">{{ post.author.username }}</a></small>
+               <small class="text-muted">
+                  {{ post.elapsed }} от
+                  <a
+                     href="{{ url_for('user_page', username_or_id=post.author.username) }}" 
+                     class="user-link"
+                  >
+                     {{ post.author.username }}
+                  </a>
+               </small>
 
             </p>
             {% if post.image %}
-               <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
-                  <img class="card-img-top rounded post-image" src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}">
+               <a class="post-link" href="{{ url_for('post_page', post_id=post.id) }}">
+                  <img
+                     class="card-img-top rounded post-image"
+                     src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}"
+                  >
                </a>
             {% endif %}
             <div class="post-info d-flex flex-row align-items-center">
                <div class="post-info-category d-flex flex-row align-items-center">
                   {% if not current_user.is_authenticated %}
-                     <a class="btn btn-default post-info-button smooth-transition" href="{{ url_for('login') }}">
+                     <a
+                        class="btn btn-default post-info-button smooth-transition"
+                        href="{{ url_for('login_page') }}"
+                     >
                         <i class="bi bi-heart"></i>
                      </a>
                      <h5 id="likesCounter">{{ post.likes|length }}</h5>
                   {% elif current_user in post.likes %}
-                     <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="like" onclick="likePost({{ post.id }})">
+                     <button
+                        type="button"
+                        class="btn btn-default post-info-button smooth-transition" 
+                        aria-label="like"
+                        onclick="likePost({{ post.id }})"
+                     >
                         <i class="bi bi-heart-fill like"></i>
                      </button>
                      <h5 id="likesCounter" class="active">{{ post.likes|length }}</h5>
                   {% else %}
-                     <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="like" onclick="likePost({{ post.id }})">
+                     <button
+                        type="button"
+                        class="btn btn-default post-info-button smooth-transition" 
+                        aria-label="like"
+                        onclick="likePost({{ post.id }})"
+                     >
                         <i class="bi bi-heart like"></i>
                      </button>
                      <h5 id="likesCounter">{{ post.likes|length }}</h5>
                   {% endif %}
                </div>
                <div class="post-info-category d-flex flex-row align-items-center">
-                  <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="like">
-                     <a href="{{ url_for('post', post_id=post.id, _anchor='comments') }}" class="post-link-icon">
+                  <button
+                     type="button"
+                     class="btn btn-default post-info-button smooth-transition"
+                     aria-label="like"
+                  >
+                     <a
+                        class="post-link-icon"
+                        href="{{ url_for('post_page', post_id=post.id, _anchor='comments') }}"
+                     >
                         <i class="bi bi-chat-right"></i>
                      </a>
                   </button>
                <h5>{{ post.comments|length }}</h5>
                </div>
                <div>
-                  <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="share">
+                  <button
+                     type="button"
+                     class="btn btn-default post-info-button smooth-transition"
+                     aria-label="share"
+                  >
                      <i class="bi bi-share"></i>
                   </button>
                </div>
@@ -123,33 +171,79 @@
    <div class="card group-description">
       <p class="group-text-description">{{ group.description }}</p>
       <div class="d-flex m-0">
-         <b id="subscribersCounter" style="margin-right: 5px;">{{ group.subscribers|length }}</b>
-         <p id="subscribersDescription" class="m-0">{{ subscribers }}</p>
+         <b id="subscribersCounter" style="margin-right: 5px;">
+            {{ group.subscribers|length }}
+         </b>
+         <p id="subscribersDescription" class="m-0">
+            {{ subscribers }}
+         </p>
       </div>
       <div class="dropdown mt-3">
-         <button class="btn btn-light dropdown-toggle w-100" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+         <button
+            id="dropdownMenuButton2"
+            type="button"
+            class="btn btn-light dropdown-toggle w-100"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+         >
             Сортировка
          </button>
          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
             <li>
                <div class="dropdown-item d-flex align-items-center">
                   <p class="mb-0">По дате</p>
-                  <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByGroup('date', true, event)">
-                     <i class="bi bi-arrow-down-short" data-group-id="{{ group.id }}" data-page="1"></i>
+                  <button
+                     type="button"
+                     class="btn btn-light arrow-wrapper p-1"
+                     onclick="showOrderedPostsByGroup('date', true, event)"
+                  >
+                     <i
+                        class="bi bi-arrow-down-short"
+                        data-group-id="{{ group.id }}"
+                        data-page="1"
+                     >
+                     </i>
                   </button>
-                  <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByGroup('date', false, event)">
-                     <i class="bi bi-arrow-up-short" data-group-id="{{ group.id }}" data-page="1"></i>
+                  <button
+                     type="button"
+                     class="btn btn-light arrow-wrapper p-1"
+                     onclick="showOrderedPostsByGroup('date', false, event)"
+                  >
+                     <i
+                        class="bi bi-arrow-up-short"
+                        data-group-id="{{ group.id }}"
+                        data-page="1"
+                     >
+                     </i>
                   </button>
                </div>
             </li>
-           <li>
+            <li>
                <div class="dropdown-item d-flex align-items-center">
                   <p class="mb-0">По популярности</p>
-                  <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByGroup('popular', true, event)">
-                     <i class="bi bi-arrow-down-short" data-group-id="{{ group.id }}" data-page="1"></i>
+                  <button
+                     type="button"
+                     class="btn btn-light arrow-wrapper p-1"
+                     onclick="showOrderedPostsByGroup('popular', true, event)"
+                  >
+                     <i
+                        class="bi bi-arrow-down-short"
+                        data-group-id="{{ group.id }}"
+                        data-page="1"
+                     >
+                     </i>
                   </button>
-                  <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByGroup('popular', false, event)">
-                     <i class="bi bi-arrow-up-short" data-group-id="{{ group.id }}" data-page="1"></i>
+                  <button
+                     type="button"
+                     class="btn btn-light arrow-wrapper p-1"
+                     onclick="showOrderedPostsByGroup('popular', false, event)"
+                  >
+                     <i
+                        class="bi bi-arrow-up-short"
+                        data-group-id="{{ group.id }}"
+                        data-page="1"
+                     >
+                     </i>
                   </button>
                </div>
             </li>
@@ -159,21 +253,26 @@
 </main>
 <div class="pagination-footer" id="paginationFooter">
    <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
-     {% for page_index in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% for page_index in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
          {% if page_index %}
-           {% if page_index == current_page %}
-             <li class="page-item active">
-           {% else %}
-             <li class="page-item">
-           {% endif %}
-            <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByGroup({{ group.id }}, event)">
-                 {{ page_index }}
-            </button>
-           </li>
+            {% if page_index == current_page %}
+               <li class="page-item active">
+            {% else %}
+               <li class="page-item">
+            {% endif %}
+               <button
+                  type="button"
+                  class="page-link"
+                  data-page="{{ page_index }}"
+                  onclick="showPostsByGroup({{ group.id }}, event)"
+               >
+                  {{ page_index }}
+               </button>
+            </li>
          {% else %}
-           <li class="page-item">
-             <span class="p-2 fs-4">...</span>
-           </li>
+            <li class="page-item">
+               <span class="p-2 fs-4">...</span>
+            </li>
          {% endif %}
      {% endfor %}
    </ul>

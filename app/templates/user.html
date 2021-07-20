@@ -5,6 +5,10 @@
 <link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/user.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/post.css') }}" rel="stylesheet">
+<script
+   type="text/javascript"
+   src="{{ url_for('static', filename='js/post.js')}}">
+</script>
 {% endblock %}
 
 {% block title %}{{ user.username }}{% endblock %}
@@ -12,21 +16,82 @@
 {% block content %}
 <main class="main card">
   <div class="d-flex align-items-start">
-    <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-      <button class="nav-link tab-button active" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false" style="background-color: #fff;">Профиль</button>
-      <button class="nav-link tab-button" id="v-pills-posts-tab" data-bs-toggle="pill" data-bs-target="#v-pills-posts" type="button" role="tab" aria-controls="v-pills-posts" aria-selected="true">Записи</button>
-      {% if current_user == user %}
-        <button class="nav-link tab-button" id="v-pills-subscriptions-tab" data-bs-toggle="pill" data-bs-target="#v-pills-subscriptions" type="button" role="tab" aria-controls="v-pills-subscriptions" aria-selected="false">Подписки</button>
-        <button class="nav-link tab-button" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">Настройки</button>
+    <div
+      id="v-pills-tab"
+      class="nav flex-column nav-pills me-3"
+      role="tablist"
+      aria-orientation="vertical"
+    >
+      <button
+        id="v-pills-profile-tab"
+        type="button"
+        role="tab"
+        class="nav-link tab-button active"
+        data-bs-toggle="pill"
+        data-bs-target="#v-pills-profile"
+        aria-controls="v-pills-profile"
+        aria-selected="false"
+        style="background-color: #fff;"
+      >
+        Профиль
+      </button>
+      <button
+        id="v-pills-posts-tab"
+        type="button"
+        role="tab"
+        class="nav-link tab-button"
+        data-bs-toggle="pill"
+        data-bs-target="#v-pills-posts" 
+        aria-controls="v-pills-posts"
+        aria-selected="true"
+      >
+        Записи
+      </button>
+      {% if user == current_user %}
+        <button
+          id="v-pills-subscriptions-tab"
+          type="button"
+          role="tab"
+          class="nav-link tab-button"
+          data-bs-toggle="pill"
+          data-bs-target="#v-pills-subscriptions"
+          aria-controls="v-pills-subscriptions"
+          aria-selected="false"
+        >
+          Подписки
+        </button>
+        <button
+          id="v-pills-settings-tab"
+          type="button"
+          role="tab"
+          class="nav-link tab-button"
+          data-bs-toggle="pill"
+          data-bs-target="#v-pills-settings"
+          aria-controls="v-pills-settings"
+          aria-selected="false"
+        >
+          Настройки
+        </button>
       {% endif %}
     </div>
     <div class="tab-content" id="v-pills-tabContent">
-      <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+      <div
+        id="v-pills-profile"
+        class="tab-pane fade show active"
+        role="tabpanel"
+        aria-labelledby="v-pills-profile-tab"
+      >
         <div class="profile-wrapper">
           {% if user.avatar %}
-            <img class="rounded-circle user-avatar" src="data:{{ user.avatar.mimetype }};base64,{{ user.avatar.b64string }}">
+            <img
+              class="rounded-circle user-avatar"
+              src="data:{{ user.avatar.mimetype }};base64,{{ user.avatar.b64string }}"
+            >
           {% else %}
-            <img class="rounded-circle user-avatar" src="{{ url_for('static', filename='img/default-pfp.png') }}">
+            <img
+              class="rounded-circle user-avatar"
+              src="{{ url_for('static', filename='img/default-pfp.png') }}"
+            >
           {% endif %}
           <div class="content-container">
             <div class="d-flex">
@@ -46,278 +111,429 @@
           </div>
         </div>
       </div>
-      <div class="tab-pane fade" id="v-pills-posts" role="tabpanel" aria-labelledby="v-pills-posts-tab">
-          {% set posts = user.get_paginated_posts(current_page, args) %}
-          {% if not posts.items %}
-            <div class="content-container" style="margin-top: 15px;">
-              <h3>Пока нет записей</h3>
-              {% if user == current_user %}
-                <p class="text-muted">
-                  Вы можете создать запись, перейдя в выбранную группу
-                </p>
-              {% else %}
-                <p class="text-muted">
-                  Пользователь {{ user.username }} пока не проявил никакой активности
-                </p>
-              {% endif %}
-            </div>
+      <div
+        class="tab-pane fade"
+        id="v-pills-posts"
+        role="tabpanel"
+        aria-labelledby="v-pills-posts-tab"
+      >
+        {% if not posts.items %}
+        <div class="content-container" style="margin-top: 15px;">
+          <h3>Пока нет записей</h3>
+          {% if user == current_user %}
+            <p class="text-muted">
+              Вы можете создать запись, перейдя в выбранную группу
+            </p>
           {% else %}
-            <div class="dropdown content-container">
-               <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-                  Сортировка
-               </button>
-               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                  <li>
-                     <div class="dropdown-item d-flex align-items-center">
-                        <p class="mb-0">По дате</p>
-                        <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByUser('date', true, event)">
-                           <i class="bi bi-arrow-down-short" data-page="1" data-username="{{ user.username }}"></i>
-                        </button>
-                        <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByUser('date', false, event)">
-                           <i class="bi bi-arrow-up-short" data-page="1" data-username="{{ user.username }}"></i>
-                        </button>
-                     </div>
-                  </li>
-                 <li>
-                     <div class="dropdown-item d-flex align-items-center">
-                        <p class="mb-0">По популярности</p>
-                        <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByUser('popular', true, event)">
-                           <i class="bi bi-arrow-down-short" data-page="1" data-username="{{ user.username }}"></i>
-                        </button>
-                        <button type="button" class="btn btn-light arrow-wrapper p-1" onclick="showOrderedPostsByUser('popular', false, event)">
-                           <i class="bi bi-arrow-up-short" data-page="1" data-username="{{ user.username }}"></i>
-                        </button>
-                     </div>
-                  </li>
-               </ul>
-            </div>
+            <p class="text-muted">
+              Пользователь {{ user.username }} пока не проявил никакой активности
+            </p>
           {% endif %}
-          <div id="postsHolder" class="content-container">
-            {% for post in posts.items %}
-              <div class="card" id="post{{ post.id }}">
-                <div class="card-body">
-                  <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
-                    <span class="post-title">
-                      <h4 class="card-title">{{ post.title }}</h4>
-                    </span>
+        </div>
+        {% else %}
+        <div class="dropdown content-container">
+          <button
+            id="dropdownMenuButton2"
+            type="button"
+            class="btn btn-light dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Сортировать по
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+            <li>
+              <div class="dropdown-item d-flex align-items-center">
+                <p class="mb-0">дате</p>
+                <button
+                  type="button"
+                  class="btn btn-light arrow-wrapper p-1"
+                  onclick="showOrderedPostsByUser('date', true, event)"
+                >
+                  <i
+                    class="bi bi-arrow-down-short"
+                    data-page="1"
+                    data-username="{{ user.username }}"
+                  >
+                  </i>
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-light arrow-wrapper p-1" 
+                  onclick="showOrderedPostsByUser('date', false, event)"
+                >
+                  <i
+                    class="bi bi-arrow-up-short"
+                    data-page="1"
+                    data-username="{{ user.username }}"
+                  >
+                  </i>
+                </button>
+              </div>
+            </li>
+            <li>
+              <div class="dropdown-item d-flex align-items-center">
+                <p class="mb-0">популярности</p>
+                <button
+                  type="button"
+                  class="btn btn-light arrow-wrapper p-1"
+                  onclick="showOrderedPostsByUser('popular', true, event)"
+                >
+                  <i
+                    class="bi bi-arrow-down-short"
+                    data-page="1"
+                    data-username="{{ user.username }}">  
+                  </i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-light arrow-wrapper p-1"
+                  onclick="showOrderedPostsByUser('popular', false, event)"
+                >
+                  <i
+                    class="bi bi-arrow-up-short"
+                    data-page="1"
+                    data-username="{{ user.username }}">
+                  </i>
+                </button>
+              </div>
+            </li>
+          </ul>
+        </div>
+        {% endif %}
+
+        <div id="postsHolder" class="content-container">
+          {% for post in posts.items %}
+          <div class="card" id="post{{ post.id }}">
+            <div class="card-body">
+              <a
+                class="post-link"
+                href="{{ url_for('post_page', post_id=post.id) }}"
+              >
+                <span class="post-title">
+                  <h4 class="card-title">{{ post.title }}</h4>
+                </span>
+              </a>
+              <p class="card-text">
+                <small class="text-muted">
+                  {{ post.elapsed }} от 
+                  <a
+                    href="{{ url_for('user_page', username_or_id=post.author.username) }}" 
+                    class="user-link smooth-transition">{{ post.author.username }}
+                  </a> 
+                  в 
+                  <a
+                    href="{{ url_for('group_page', group_id=post.group.id) }}"
+                    class="group-link smooth-transition"
+                  >
+                    {{ post.group.name }}
                   </a>
-                    <p class="card-text">
-                      <small class="text-muted">{{ post.elapsed }} от <a href="{{ url_for('user', username_or_id=post.author.username) }}" class="user-link smooth-transition">{{ post.author.username }}</a> в <a href="{{ url_for('group', group_id=post.group.id) }}" class="group-link smooth-transition">{{ post.group.name }}</a></small>
-                    </p>
-                    {% if post.image %}
-                      <a class="post-link" href="{{ url_for('post', post_id=post.id) }}">
-                         <img class="card-img-top rounded post-image" src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}">
-                      </a>
-                   {% endif %}
-                    <div class="post-info d-flex flex-row align-items-center">
-                      <div class="post-info-category d-flex flex-row align-items-center likes-wrapper">
-                        {% if not current_user.is_authenticated %}
-                          <a class="btn btn-default post-info-button smooth-transition" href="{{ url_for('login') }}">
-                                  <i class="bi bi-heart"></i>
-                          </a>
-                          <h5 id="likesCounter">{{ post.likes|length }}</h5>
-                          {% elif current_user in post.likes %}
-                            <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="like" onclick="likePost({{ post.id }})">
-                              <i class="bi bi-heart-fill like"></i>
-                            </button>
-                            <h5 id="likesCounter" class="active">{{ post.likes|length }}</h5>
-                          {% else %}
-                            <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="like" onclick="likePost({{ post.id }})">
-                              <i class="bi bi-heart like"></i>
-                            </button>
-                            <h5 id="likesCounter">{{ post.likes|length }}</h5>
-                          {% endif %}
-                      </div>
-                      <div class="post-info-category d-flex flex-row align-items-center">
-                        <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="like">
-                          <a href="{{ url_for('post', post_id=post.id) }}#comments" class="post-link-icon">
-                            <i class="bi bi-chat-right"></i>
-                          </a>
-                        </button>
-                        <h5>{{ post.comments|length }}</h5>
-                      </div>
-                      <div>
-                        <button type="button" class="btn btn-default post-info-button smooth-transition" aria-label="share">
-                          <i class="bi bi-share" data-link="{{ url_for('post', post_id=post.id) }}"></i>
-                        </button>
-                      </div>
-                      {% if current_user == post.author %}
-                        <div>
-                          <button type="button" class="btn btn-default post-info-button smooth-transition" onclick="deletePost({{ post.id }})">
-                            <i class="bi bi-trash"></i>
-                          </button>
-                        </div>
-                      {% endif %}
-                    </div>
+                </small>
+              </p>
+              {% if post.image %}
+              <a
+                class="post-link"
+                href="{{ url_for('post_page', post_id=post.id) }}"
+              >
+                <img
+                  class="card-img-top rounded post-image"
+                  src="data:{{ post.image.mimetype }};base64,{{ post.image.b64string }}"
+                >
+              </a>
+              {% endif %}
+              <div class="post-info d-flex flex-row align-items-center">
+                <div class="post-info-category d-flex flex-row align-items-center likes-wrapper">
+                {% if not current_user.is_authenticated %}
+                  <a
+                    class="btn btn-default post-info-button smooth-transition"
+                    href="{{ url_for('login_page') }}"
+                  >
+                    <i class="bi bi-heart"></i>
+                  </a>
+                  <h5 id="likesCounter">{{ post.likes|length }}</h5>
+                {% elif current_user in post.likes %}
+                  <button
+                    type="button"
+                    class="btn btn-default post-info-button smooth-transition"
+                    aria-label="like"
+                    onclick="likePost({{ post.id }})"
+                  >
+                    <i class="bi bi-heart-fill like"></i>
+                  </button>
+                  <h5 id="likesCounter" class="active">{{ post.likes|length }}</h5>
+                {% else %}
+                  <button
+                    type="button"
+                    class="btn btn-default post-info-button smooth-transition"
+                    aria-label="like"
+                    onclick="likePost({{ post.id }})"
+                  >
+                    <i class="bi bi-heart like"></i>
+                  </button>
+                  <h5 id="likesCounter">{{ post.likes|length }}</h5>
+                {% endif %}
                 </div>
-              </div>
-             {% endfor %}
-             <div>
-               <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
-                 {% for page_index in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                   {% if page_index %}
-                     {% if page_index == current_page %}
-                       <li class="page-item active">
-                     {% else %}
-                       <li class="page-item">
-                     {% endif %}
-                       <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showPostsByUser('{{ user.username }}', 'popular', true, event)">
-                            {{ page_index }}
-                       </button>
-                       </li>
-                     {% else %}
-                       <li class="page-item">
-                         <span class="p-2 fs-4">...</span>
-                       </li>
-                     {% endif %}
-                 {% endfor %}
-               </ul>
-             </div>
-          </div>
-      </div>
-      {% if current_user == user %}
-        {% set groups = user.get_paginated_subscriptions(current_page) %}
-        <div class="tab-pane fade" id="v-pills-subscriptions" role="tabpanel" aria-labelledby="v-pills-subscriptions-tab">
-          <div>
-            {% if not user.groups %}
-              <div class="content-container" style="margin-top: 15px;">
-                <h3>Пока нет подписок</h3>
-                  <p class="text-muted">
-                    Для поиска подходящих сообществ Вы можете воспользоваться
-                    <b><a href="{{ url_for('sort') }}" class="user-link smooth-transition">поиском</a></b> 
-                  </p>
-              </div>
-            {% endif %}
-            {% for group in groups.items %}
-              <div class="card content-container">
-                <div class="card-body" id="group{{ group.id }}">
-                  <div class="d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                      <img class="group-logo rounded-circle" src="data:{{ group.logo.mimetype }};base64,{{ group.logo.b64string }}" alt="{{ group.name }} logo">
-                      <a class="post-link" href="{{ url_for('group', group_id=group.id) }}">
-                        <span class="post-title">
-                          <h3 class="card-title">{{ group.name }}</h3>
-                        </span>
-                      </a>
-                    </div>
-                    <h5 class="text-muted mt-1" style="margin-left: 15px;"><b>{{ group.subscribers|length }}</b> Участников</h5>
-                  </div>
+                <div class="post-info-category d-flex flex-row align-items-center">
+                  <button
+                    type="button"
+                    class="btn btn-default post-info-button smooth-transition"
+                    aria-label="like"
+                  >
+                    <a
+                      href="{{ url_for('post_page', post_id=post.id) }}#comments"
+                      class="post-link-icon"
+                    >
+                      <i class="bi bi-chat-right"></i>
+                    </a>
+                  </button>
+                  <h5>{{ post.comments|length }}</h5>
                 </div>
+                <div>
+                  <button
+                    type="button"
+                    class="btn btn-default post-info-button smooth-transition"
+                    aria-label="share"
+                  >
+                    <i
+                      class="bi bi-share"
+                      data-link="{{ url_for('post_page', post_id=post.id) }}"
+                    >
+                    </i>
+                  </button>
+                </div>
+                {% if post.author == current_user %}
+                <div>
+                  <button
+                    type="button"
+                    class="btn btn-default post-info-button smooth-transition"
+                    onclick="deletePost({{ post.id }})"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                {% endif %}
               </div>
-            {% endfor %}
-            <div class="content-container">
-              <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
-                 {% for page_index in groups.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                     {% if page_index %}
-                       {% if page_index == current_page %}
-                         <li class="page-item active">
-                       {% else %}
-                         <li class="page-item">
-                       {% endif %}
-                         <button type="button" class="page-link" data-page="{{ page_index }}" onclick="showUserSubscriptions('{{ user.username }}', event)">
-                              {{ page_index }}
-                         </button>
-                       </li>
-                     {% else %}
-                       <li class="page-item">
-                         <span class="p-2 fs-4">...</span>
-                       </li>
-                     {% endif %}
-                 {% endfor %}
-               </ul>
             </div>
+          </div>
+          {% endfor %}
+          <div>
+            <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
+              {% for page_index in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_index %}
+                <li class={{ "page-item active" if page_index == current_page else "page-item" }}>
+                  <button
+                    type="button"
+                    class="page-link"
+                    data-page="{{ page_index }}"
+                    onclick="showPostsByUser('{{ user.username }}', 'popular', true, event)"
+                  >
+                    {{ page_index }}
+                  </button>
+                </li>
+                {% else %}
+                <li class="page-item">
+                  <span class="p-2 fs-4">...</span>
+                </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
           </div>
         </div>
-        <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
-          <a href="{{ url_for('view_tokens') }}" class="user-link h5 smooth-transition">
-            <div class="content-container card">
-              <div class="card-body">
-                <h5>API токен</h5>
+      </div>
+
+      {% if current_user == user %}
+        {% set groups = user.get_paginated_subscriptions(current_page) %}
+        <div
+          id="v-pills-subscriptions"
+          class="tab-pane fade"
+          role="tabpanel"
+          aria-labelledby="v-pills-subscriptions-tab"
+        >
+          <div>
+          {% if not user.groups %}
+            <div class="content-container" style="margin-top: 15px;">
+              <h3>Пока нет подписок</h3>
+              <p class="text-muted">
+                Для поиска подходящих сообществ Вы можете воспользоваться
+                <b>
+                  <a
+                    class="user-link smooth-transition"
+                    href="{{ url_for('search_page') }}"
+                  >
+                      поиском
+                  </a>
+                </b> 
+              </p>
+            </div>
+          {% endif %}
+
+          {% for group in groups.items %}
+          <div class="card content-container">
+            <div class="card-body" id="group{{ group.id }}">
+              <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center">
+                  <img
+                    class="group-logo rounded-circle"
+                    src="data:{{ group.logo.mimetype }};base64,{{ group.logo.b64string }}" 
+                    alt="{{ group.name }} logo"
+                  >
+                  <a 
+                    class="post-link"
+                    href="{{ url_for('group_page', group_id=group.id) }}"
+                  >
+                    <span class="post-title">
+                      <h3 class="card-title">{{ group.name }}</h3>
+                    </span>
+                  </a>
+                </div>
+                <h5 class="text-muted mt-1" style="margin-left: 15px;"><b>{{ group.subscribers|length }}</b> Участников</h5>
               </div>
             </div>
-          </a>
+          </div>
+          {% endfor %}
+
           <div class="content-container">
-            <div class="container-fluid card form" style="width: 100%;">
-              <form method="POST" action="" enctype="multipart/form-data">
-                  {{ form.hidden_tag() }}
-                <div class="form-group form-field">
-                  {{ form.email.label(class="form-label label") }}
-                  {% if form.email.errors %}
-                      {{ form.email(class="form-control form-control-md form-input is-invalid") }}
-                      <div class="invalid-feedback">
-                          {% for error in form.email.errors %}
-                              <span>{{ error }}</span>
-                          {% endfor %}
-                      </div>
+            <ul class="pagination" style="margin-top: 15px; margin-bottom: 0;">
+              {% for page_index in groups.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_index %}
+                  {% if page_index == current_page %}
+                  <li class="page-item active">
                   {% else %}
-                      {{ form.email(class="form-control form-control-md form-input") }}
+                  <li class="page-item">
                   {% endif %}
+                    <button
+                      class="page-link"
+                      type="button"
+                      data-page="{{ page_index }}"
+                      onclick="showUserSubscriptions('{{ user.username }}', event)"
+                    >
+                      {{ page_index }}
+                    </button>
+                  </li>
+                {% else %}
+                  <li class="page-item">
+                    <span class="p-2 fs-4">...</span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div
+        id="v-pills-settings"
+        class="tab-pane fade"
+        role="tabpanel"
+        aria-labelledby="v-pills-settings-tab"
+      >
+        <a
+          class="user-link h5 smooth-transition"
+          href="{{ url_for('view_tokens') }}"
+        >
+          <div class="content-container card">
+            <div class="card-body">
+              <h5>API токен</h5>
+            </div>
+          </div>
+        </a>
+
+        <div class="content-container">
+          <div class="container-fluid card form" style="width: 100%;">
+            <form method="POST" action="" enctype="multipart/form-data">
+              {{ form.hidden_tag() }}
+              <div class="form-group form-field">
+                {{ form.email.label(class="form-label label") }}
+                {% if form.email.errors %}
+                  {{ form.email(class="form-control form-control-md form-input is-invalid") }}
+
+                <div class="invalid-feedback">
+                {% for error in form.email.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
                 </div>
-                <div class="form-group form-field">
-                  {{ form.username.label(class="form-label label") }}
-                  {% if form.username.errors %}
-                      {{ form.username(class="form-control form-control-md form-input is-invalid") }}
-                      <div class="invalid-feedback">
-                          {% for error in form.username.errors %}
-                              <span>{{ error }}</span>
-                          {% endfor %}
-                      </div>
-                  {% else %}
-                      {{ form.username(class="form-control form-control-md form-input") }}
-                  {% endif %}
+
+                {% else %}
+                  {{ form.email(class="form-control form-control-md form-input") }}
+                {% endif %}
+              </div>
+
+              <div class="form-group form-field">
+                {{ form.username.label(class="form-label label") }}
+                {% if form.username.errors %}
+                  {{ form.username(class="form-control form-control-md form-input is-invalid") }}
+                  <div class="invalid-feedback">
+                    {% for error in form.username.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  {{ form.username(class="form-control form-control-md form-input") }}
+                {% endif %}
+              </div>
+
+              <div class="form-group form-field">
+                {{ form.image.label(class="form-label label") }}
+                {% if form.image.errors %}
+                  {{ form.image(class="form-control form-control-md form-input is-invalid") }}
+
+                <div class="invalid-feedback">
+                  {% for error in form.image.errors %}
+                  <span>{{ error }}</span>
+                  {% endfor %}
                 </div>
-                <div class="form-group form-field">
-                  {{ form.image.label(class="form-label label") }}
-                  {% if form.image.errors %}
-                      {{ form.image(class="form-control form-control-md form-input is-invalid") }}
-                      <div class="invalid-feedback">
-                          {% for error in form.image.errors %}
-                              <span>{{ error }}</span>
-                          {% endfor %}
-                      </div>
-                  {% else %}
-                      {{ form.image(class="form-control form-control-md form-input") }}
-                  {% endif %}
+
+                {% else %}
+                  {{ form.image(class="form-control form-control-md form-input") }}
+                {% endif %}
                 </div>
-                <div class="form-group form-field">
-                  {{ form.old_password.label(class="form-label label") }}
-                  {% if form.old_password.errors %}
-                      {{ form.old_password(class="form-control form-control-md form-input is-invalid") }}
-                      <div class="invalid-feedback">
-                          {% for error in form.old_password.errors %}
-                              <span>{{ error }}</span>
-                          {% endfor %}
-                      </div>
-                  {% else %}
-                      {{ form.old_password(class="form-control form-control-md form-input") }}
-                  {% endif %}
+
+              <div class="form-group form-field">
+                {{ form.old_password.label(class="form-label label") }}
+                {% if form.old_password.errors %}
+                  {{ form.old_password(class="form-control form-control-md form-input is-invalid") }}
+                <div class="invalid-feedback">
+                  {% for error in form.old_password.errors %}
+                  <span>{{ error }}</span>
+                  {% endfor %}
                 </div>
-                <div class="form-group form-field">
-                  {{ form.password.label(class="form-label label") }}
-                  {% if form.password.errors %}
-                      {{ form.password(class="form-control form-control-md form-input is-invalid") }}
-                      <div class="invalid-feedback">
-                          {% for error in form.password.errors %}
-                              <span>{{ error }}</span>
-                          {% endfor %}
-                      </div>
-                  {% else %}
-                      {{ form.password(class="form-control form-control-md form-input") }}
-                  {% endif %}
+
+                {% else %}
+                  {{ form.old_password(class="form-control form-control-md form-input") }}
+                {% endif %}
+              </div>
+
+              <div class="form-group form-field">
+                {{ form.password.label(class="form-label label") }}
+
+                {% if form.password.errors %}
+                  {{ form.password(class="form-control form-control-md form-input is-invalid") }}
+                <div class="invalid-feedback">
+                  {% for error in form.password.errors %}
+                  <span>{{ error }}</span>
+                  {% endfor %}
                 </div>
+
+                {% else %}
+                  {{ form.password(class="form-control form-control-md form-input") }}
+                {% endif %}
+                </div>
+
                 <div class="form-group form-field">
                   {{ form.confirm_password.label(class="form-label label") }}
                   {% if form.confirm_password.errors %}
-                      {{ form.confirm_password(class="form-control form-control-md form-input is-invalid") }}
-                      <div class="invalid-feedback">
-                          {% for error in form.confirm_password.errors %}
-                              <span>{{ error }}</span>
-                          {% endfor %}
-                      </div>
+                    {{ form.confirm_password(class="form-control form-control-md form-input is-invalid") }}
+
+                  <div class="invalid-feedback">
+                    {% for error in form.confirm_password.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                  </div>
+
                   {% else %}
-                      {{ form.confirm_password(class="form-control form-control-md form-input") }}
+                    {{ form.confirm_password(class="form-control form-control-md form-input") }}
                   {% endif %}
                 </div>
+
                 {{ form.submit(class="btn btn-outline-dark submit") }}
               </form>
             </div>
@@ -327,11 +543,13 @@
     </div>
   </div>
 </main>
+
 {% if user == current_user %}
 <script>
   $("#user").addClass("active")
 </script>
 {% endif %}
+
 <script type="text/javascript" defer>
   // добавление query параметра с активной вкладкой
   function insertUrlParam(buttonId) {

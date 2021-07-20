@@ -12,10 +12,10 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager(app)
-login.login_view = "login"
+login.login_view = "login_page"
 api = Api(app, prefix="/api")
 
 app.jinja_env.globals["localize_comments"] = localize_comments
 
-from app import routes, models, errors
-from .api import api as api_serivce
+from app import routes, models, errors  # noqa: F401, E402
+from .api import api as api_serivce  # noqa: F401, E402

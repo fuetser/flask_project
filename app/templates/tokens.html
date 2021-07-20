@@ -1,20 +1,29 @@
 {% extends "base.html" %}
 
+{% block title %}Api Токены{% endblock %}
+
 {% block extrahead %}
 <link href="{{ url_for('static', filename='css/feed.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/tokens.css') }}" rel="stylesheet">
 {% endblock %}
-{% block title %}Api Токены{% endblock %}
 
 {% block content %}
 <main class="main card">
     <h3>Ваш API токен</h3>
     <div class="token-wrapper"> 
-        <input type="text" id="token" class="form-control token text-muted">
+        <input
+            id="token"
+            type="text"
+            value="{{ token }}"
+            class="form-control token text-muted"
+        >
         <button class="btn btn-light" id="copyButton">Копировать</button>
     </div>
     <h5 class="mt-3">
-        <a href="https://github.com/fuetser/flask_project#readme" class="post-link smooth-transition">
+        <a
+            class="post-link smooth-transition"
+            href="https://github.com/fuetser/flask_project/APIDOCS.md"
+        >
             Документация API на GitHub
         </a>
     </h5>
@@ -22,7 +31,6 @@
 <script defer>
     const token = document.querySelector("#token")
     const copyButton = document.querySelector("#copyButton")
-    token.value = "{{ current_user.token }}"
     copyButton.addEventListener("click", e => {
         token.focus()
         token.select()
