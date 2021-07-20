@@ -7,10 +7,10 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<main class="main card">
-    <h1 class="error__title">{{ title }} ({{ error_code }})</h1>
+<main class="card">
+    <h1 class="error-title">{{ title }} ({{ error_code }})</h1>
     {% for line in description %}
-        <p class="error__description">{{ line }}</p>
+        <p class="error-description">{{ line }}</p>
     {% endfor %}
 </main>
 {% endblock %}

@@ -31,7 +31,7 @@ class RawImage:
         try:
             with BytesIO() as buffer:
                 buffer.write(self.image_bytes)
-                image = Image.open(buffer)
+                Image.open(buffer)
         except Exception as e:
             raise exceptions.ImageError(str(e)) from e
 

@@ -25,32 +25,23 @@ document.addEventListener("optimizedResize", (event) => {
     body.style.cssText = `padding-top: ${navbar.clientHeight}px;`
 })
 
-function copyStringToClipboard (str) {
-   var el = document.createElement('textarea');
-   el.value = str;
-   el.setAttribute('readonly', '');
-   el.style = {position: 'absolute', left: '-9999px'};
-   document.body.appendChild(el);
-   el.select();
-   document.execCommand('copy');
-   document.body.removeChild(el);
+function copyStringToClipboard(str) {
+    var el = document.createElement('textarea');
+    el.value = str;
+    el.setAttribute('readonly', '');
+    el.style = {position: 'absolute', left: '-9999px'};
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
 }
 
 // like icon filling/unfilling on click
-function animateLikeButtons(){
+function animateLikeButtons() {
     Array.from(likeButtons)
     .filter(btn => btn !== null)
     .forEach((btn) =>
         btn.addEventListener("click", event => {
-            const counter = $(btn).parent().parent().children("#likesCounter")
-            const likesCount = parseInt((counter.text()))
-            if(counter.hasClass("active")){
-                counter.text(likesCount - 1)
-                counter.removeClass("active")
-            } else {
-                counter.text(likesCount + 1)
-                counter.addClass("active")
-            }
             if (btn.classList.contains("bi-heart")){
                 btn.classList.remove("bi-heart")
                 btn.classList.add("bi-heart-fill")
@@ -58,12 +49,23 @@ function animateLikeButtons(){
                 btn.classList.remove("bi-heart-fill")
                 btn.classList.add("bi-heart")
             }
+            const counter = $(btn).parent().parent().children("#likesCounter")
+            const likesCount = parseInt(counter.text())
+            if(counter.hasClass("active")){
+                counter.text(likesCount - 1)
+                counter.removeClass("active")
+            } else {
+                counter.text(likesCount + 1)
+                counter.addClass("active")
+            }
         })
     )
 }
 
 function connectShareButtons() {
-    Array.from(shareButtons).filter(btn => btn !== null).forEach(btn => {
+    Array.from(shareButtons)
+    .filter(btn => btn !== null)
+    .forEach(btn => {
         btn.addEventListener("click", e => {
             $("#toastMessage").addClass("show")
             timeout = setTimeout(() => $("#toastMessage").removeClass("show"), 5000)
@@ -72,12 +74,14 @@ function connectShareButtons() {
     })
     $("#hideToastButton").click(e => {
         $("#toastMessage").removeClass("show")
-         window.clearTimeout(timeout)
+        window.clearTimeout(timeout)
     })
 }
 
 function connectDaysButtons() {
-    Array.from(daysButtons).filter(btn => btn !== null).forEach(btn => {
+    Array.from(daysButtons)
+    .filter(btn => btn !== null)
+    .forEach(btn => {
         btn.addEventListener("click", e => {
             for(const button of daysButtons) {
                 $(button).parent().removeClass("active")
@@ -114,43 +118,13 @@ function prepareMainPage() {
     }
 }
 
-function likePost(postId){
-   $.ajax({
-      url: `/like/${postId}`,
-      type: "POST",
-      success: responce => {
-        console.log(`Successfully liked post with id ${postId}`)
-      },
-      error: (request, status, error) => {
-        console.log(error)
-      }
-   })
-}
-
-function commentPost(postId){
-    const text = $("#commentInput").val()
-    if(text.length > 0){
-        $.ajax({
-            url: `/comment/${postId}`,
-            type: "POST",
-            dataType: "json",
-            data: {text: text},
-            success: responce => {
-                $(".comments-list").html(responce.html_data)
-                $("#commentsTitle").text(responce.title)
-            },
-            error: (request, status, error) => {
-                console.log(error)
-          }
-        })
-        $("#commentInput").val("")
-    }
-}
-
-function sortComments(sortBy, reverse){
+function sortComments(sortBy, reverse) {
     addSearchParamToUrl("sort", sortBy)
-    if(reverse) addSearchParamToUrl("reverse", reverse)
-    else removeSearchParamFromUrl("reverse")
+    if (reverse) {
+        addSearchParamToUrl("reverse", reverse)
+    } else {
+        removeSearchParamFromUrl("reverse")
+    }
     $.ajax({
         url: "",
         type: "POST",
@@ -164,64 +138,6 @@ function sortComments(sortBy, reverse){
     })
 }
 
-function likeComment(commentId){
-    $.ajax({
-        url: `/like_comment/${commentId}`,
-        type: "POST",
-        success: responce => {
-            console.log("success")
-        },
-        error: (request, status, error) => {
-            console.log(error)
-        }
-    })
-}
-
-
-function deleteComment(commentId) {
-    $(`#comment${commentId}`).remove()
-    $.ajax({
-        url: `/comment/${commentId}`,
-        type: "DELETE",
-        success: responce => {
-            console.log("success")
-            $("#commentsTitle").text(responce.title)
-        },
-        error: (request, status, error) => {
-            console.log(error)
-        }
-    })
-}
-
-function deletePost(postId, redirectToBest) {
-    $.ajax({
-        url: `/post/${postId}`,
-        type: "DELETE",
-        success: responce => {
-            console.log("success")
-        },
-        error: (request, status, error) => {
-            console.log(error)
-        }
-    })
-    if(redirectToBest) document.location.href = "/best"
-    $(`#post${postId}`).remove()
-}
-
-function deleteGroup(groupId) {
-    $.ajax({
-        url: `/group/${groupId}`,
-        type: "DELETE",
-        success: responce => {
-            console.log("success")
-            document.location.href = "/best"
-        },
-        error: (request, status, error) => {
-            console.log(error)
-        }
-    })
-}
-
 function performSearch() {
     let searchBy = $("#searchGroupsCheckbox").prop("checked") ? "groups" :
         $("#searchUsersCheckbox").prop("checked") ? "users" :
@@ -231,7 +147,7 @@ function performSearch() {
     const searchResults = $("#searchResults")
     if(requestText) {
         addSearchParamToUrl("q", requestText)
-        addSearchTargetToUrl(searchBy)
+        addSearchParamToUrl("sort", searchBy)
         $.ajax({
             url: "",
             type: "POST",
@@ -259,10 +175,6 @@ function addSearchParamToUrl(key, value) {
         let newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + searchParams.toString()
         window.history.pushState({path: newurl}, '', newurl)
     }
-}
-
-function addSearchTargetToUrl(searchBy) {
-    addSearchParamToUrl("sort", searchBy)
 }
 
 function removeSearchParamFromUrl(key) {
@@ -327,7 +239,7 @@ function showPostsByPage(postsSortType, event) {
 
 function showPostsByAge(days, pageIndex, postsSortType) {
     $.ajax({
-        url: `/main_page_posts/${days}?page=${pageIndex}`,
+        url: `/get_posts/${days}?page=${pageIndex}`,
         type: "POST",
         dataType: "json",
         data: {type: postsSortType},
@@ -373,7 +285,7 @@ function showOrderedPostsByGroup(sortBy, reverse, event) {
 function showPostsByUser(username, sortBy, reverse, event) {
     const pageIndex = $(event.target).data("page")
     addSearchParamToUrl("page", pageIndex)
-    let url = `/user_posts/${username}?page=${pageIndex || 1}&sort=${sortBy}`
+    let url = `/user/${username}/posts?page=${pageIndex || 1}&sort=${sortBy}`
     if(reverse) url += `&reverse=true`
     $.ajax({
         url: url,
@@ -401,7 +313,7 @@ function showUserSubscriptions(username, event) {
     const pageIndex = $(event.target).data("page")
     addSearchParamToUrl("page", pageIndex)
     $.ajax({
-        url: `/user_subscriptions/${username}?page=${pageIndex}`,
+        url: `/user/${username}/subscriptions?page=${pageIndex}`,
         type: "POST",
         success: responce => {
             $("#v-pills-subscriptions").html(`<div class="content-container">${responce.html_data}</div>`)

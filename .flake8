@@ -1,0 +1,7 @@
+[flake8]
+max_complexity = 8
+exclude =
+    env
+    migrations
+    __init__.py
+classmethod_decorators = classmethod, root_validator, validator

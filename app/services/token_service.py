@@ -29,7 +29,7 @@ def is_valid_token(token: str):
         jwt.decode(
             token, key=Config.SECRET_KEY, algorithms=Config.JWT_ALGORITHM
         )
-    except:
+    except Exception:
         return False
     else:
         return True

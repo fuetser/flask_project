@@ -112,6 +112,6 @@ class GroupsListResource(Resource):
             Group.create(**group_model.dict())
             return jsonify({"ok": True, "status": 201})
 
-    def validate_token(admin_id, payload):
+    def validate_token(self, admin_id, payload):
         if admin_id != payload.get("admin_id", -1):
             abort(401, status=401, ok=False, detail="You are not the admin")
