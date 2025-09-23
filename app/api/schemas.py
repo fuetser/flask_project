@@ -1,63 +1,57 @@
-from datetime import datetime
+import datetime
 from typing import Optional, List
-from pydantic import BaseModel, constr, Field, root_validator, validator
+
+from pydantic import BaseModel, constr, ConfigDict, Field, field_validator, model_validator
 
 from ..models import User, Group
 
 
 class UserLikeModel(BaseModel):
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
+
     id: int
     username: constr(max_length=25)
     email: constr(max_length=64)
-    registered: datetime = datetime.utcnow()
-
-    class Config:
-        orm_mode = True
+    registered: datetime.datetime = datetime.datetime.now(datetime.UTC)
 
 
 class CommentModel(BaseModel):
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
+
     id: int
     post_id: int
     author_id: int
-    timestamp: datetime = datetime.utcnow()
+    timestamp: datetime.datetime = datetime.datetime.now(datetime.UTC)
     body: str
     likes: Optional[List[UserLikeModel]] = []
 
-    class Config:
-        orm_mode = True
-
 
 class PostModelBase(BaseModel):
+    model_config: ConfigDict = ConfigDict(extra="forbid", from_attributes=True)
+
     title: constr(max_length=64)
     body: str
-    timestamp: datetime = datetime.utcnow()
+    timestamp: datetime.datetime = datetime.datetime.now(datetime.UTC)
     author_id: int
     group_id: int
     likes: Optional[List[UserLikeModel]] = []
     comments: Optional[List[CommentModel]] = []
 
-    class Config:
-        extra = "forbid"
-
 
 class PostModel(PostModelBase):
     id: int
 
-    class Config:
-        orm_mode = True
-
 
 class PostModelUpdate(BaseModel):
+    model_config: ConfigDict = ConfigDict(extra="forbid")
+
     title: Optional[constr(max_length=64)]
     body: Optional[str]
-    timestamp: Optional[datetime]
+    timestamp: Optional[datetime.datetime]
     author_id: Optional[int]
     group_id: Optional[int]
     likes: Optional[List[UserLikeModel]]
     comments: Optional[List[CommentModel]]
-
-    class Config:
-        extra = "forbid"
 
 
 class PostModelCreate(PostModelBase):
@@ -65,26 +59,23 @@ class PostModelCreate(PostModelBase):
 
 
 class UserModelBase(BaseModel):
+    model_config: ConfigDict = ConfigDict(extra="forbid", from_attributes=True)
+
     username: constr(max_length=25)
     email: constr(max_length=64)
     password_hash: constr(max_length=255) = Field(None, alias="password")
-    registered: datetime = datetime.utcnow()
+    registered: datetime.datetime = datetime.datetime.now(datetime.UTC)
     posts: List[PostModel] = []
     comments: List[CommentModel] = []
-
-    class Config:
-        extra = "forbid"
 
 
 class UserModel(UserModelBase):
     id: int
 
-    class Config:
-        orm_mode = True
-
 
 class UserModelCreate(UserModelBase):
-    @root_validator
+    @model_validator(mode="after")
+    @classmethod
     def validate_unique_fields(cls, values):
         username = values.get("username")
         email = values.get("email")
@@ -96,19 +87,19 @@ class UserModelCreate(UserModelBase):
 
 
 class UserModelUpdate(BaseModel):
+    model_config: ConfigDict = ConfigDict(extra="forbid")
+
     username: Optional[constr(max_length=25)]
     email: Optional[constr(max_length=64)]
     password_hash: Optional[constr(max_length=255)] = Field(
         None, alias="password"
     )
-    registered: Optional[datetime]
+    registered: Optional[datetime.datetime]
     posts: Optional[List[PostModel]]
     comments: Optional[List[CommentModel]]
 
-    class Config:
-        extra = "forbid"
-
-    @root_validator
+    @model_validator(mode="after")
+    @classmethod
     def validate_unique_fields(cls, values):
         username = values.get("username")
         email = values.get("email")
@@ -120,25 +111,22 @@ class UserModelUpdate(BaseModel):
 
 
 class GroupModelBase(BaseModel):
+    model_config: ConfigDict = ConfigDict(extra="forbid", from_attributes=True)
+
     name: constr(max_length=32)
     description: constr(max_length=128)
     admin_id: int
     posts: Optional[List[PostModel]] = []
     subscribers: Optional[List[UserModel]] = []
 
-    class Config:
-        extra = "forbid"
-
 
 class GroupModel(GroupModelBase):
     id: int
 
-    class Config:
-        orm_mode = True
-
 
 class GroupModelCreate(GroupModelBase):
-    @validator("name")
+    @field_validator("name")
+    @classmethod
     def check_unique_name(cls, value):
         if not Group.is_unique_name(value):
             raise ValueError(f'Group name "{value}" is already taken')
@@ -150,13 +138,8 @@ class GroupModelUpdate(GroupModelBase):
     description: Optional[constr(max_length=128)]
     admin_id: Optional[int]
 
-    class Config:
-        extra = "forbid"
-
 
 class TokenCreateModel(BaseModel):
+    model_config: ConfigDict = ConfigDict(extra="forbid")
     username: constr(max_length=25)
     password: constr(max_length=128)
-
-    class Config:
-        extra = "forbid"

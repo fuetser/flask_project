@@ -3,6 +3,7 @@ from math import floor
 
 
 def get_elapsed(timestamp):
+    """Склонение времени в русском языке"""
     now = get_current_time()
     delta = now - timestamp
     seconds = delta.total_seconds()
@@ -36,14 +37,18 @@ def get_elapsed(timestamp):
 
 
 def _put_in_minutes_form(minutes):
+    """Постановка количества минут в русскую форму"""
     if minutes == 1:
         return "минуту назад"
-    elif minutes % 10 in (2, 3, 4):
+    elif minutes % 10 == 1 and minutes // 10 != 1:
+        return f"{minutes} минуту назад"
+    elif minutes % 10 in (2, 3, 4) and minutes // 10 != 1:
         return f"{minutes} минуты назад"
     return f"{minutes} минут назад"
 
 
 def _put_in_hours_form(hours):
+    """Постановка количества часов в русскую форму"""
     if hours == 1:
         return "час назад"
     elif hours in (2, 3, 4):
@@ -52,20 +57,25 @@ def _put_in_hours_form(hours):
 
 
 def _put_in_days_form(days):
+    """Постановка количества дней в русскую форму"""
     if days == 1:
         return "вчера"
-    elif days in (2, 3, 4):
+    elif days % 10 == 1 and days // 10 != 1:
+        return f"{days} день назад"
+    elif days in (2, 3, 4) and days // 10 != 1:
         return f"{days} дня назад"
     return f"{days} дней назад"
 
 
 def _put_in_weeks_form(weeks):
+    """Постановка количества недель в русскую форму"""
     if weeks == 1:
         return "неделю назад"
     return f"{weeks} недели назад"
 
 
 def _put_in_months_form(months):
+    """Постановка количества месяцев в русскую форму"""
     if months == 1:
         return "месяц назад"
     elif months in (2, 3, 4):
@@ -74,6 +84,7 @@ def _put_in_months_form(months):
 
 
 def _put_in_years_form(years):
+    """Постановка количества лет в русскую форму"""
     if years == 1:
         return "год назад"
     elif years % 10 == 1 and years % 100 // 10 != 1:
@@ -84,6 +95,7 @@ def _put_in_years_form(years):
 
 
 def localize_comments(count):
+    """Постановка количества комментариев в русскую форму"""
     if count % 10 == 1 and count % 100 != 11:
         return f"{count} комментарий"
     if count % 10 in (2, 3, 4) and count % 100 // 10 != 1:
@@ -107,4 +119,5 @@ def localize_subscribers(count):
 
 
 def get_current_time():
+    """Получение текущего UTC времени"""
     return dt.datetime.utcnow()

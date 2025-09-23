@@ -46,7 +46,7 @@ def token_required(func):
 
 
 def create_token(payload) -> str:
-    now = dt.datetime.utcnow()
+    now = dt.datetime.now(dt.UTC)
     payload["iat"] = now
     payload["exp"] = now + dt.timedelta(seconds=Config.TOKEN_EXPIRATION)
     return jwt.encode(payload, Config.SECRET_KEY, Config.JWT_ALGORITHM)

@@ -15,7 +15,7 @@ def search_by_query(request):
             "Request text is empty or invalid search_by value"
         )
 
-    request_text = request_text.strip().lower()
+    request_text = request_text.strip()
     if search_by == "groups":
         results = Group.get_similar(request_text, page=page)
     elif search_by == "users":
